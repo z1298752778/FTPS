@@ -31,6 +31,7 @@ public class ExpressionEvalEx extends ExpressionEval {
         "\tLEFT JOIN OBJECT_STATE os ON os.object_key = poi.order_item_key\n" +
         "\tLEFT JOIN STATE st ON st.state_key = os.state_key\n" +
         "\tLEFT JOIN CONTROL_RECIPE cr ON cr.order_item_key = poi.order_item_key\n" +
+        "\tleft join MASTER_RECIPE mr on mr.master_recipe_key = cr.master_recipe_key \n" +
         "\tLEFT JOIN AT_X_RtProcedure rtpro ON rtpro.X_controlRecipe_113 = cr.control_recipe_key\n" +
         "\tLEFT JOIN AT_X_Procedure pro ON  pro.atr_key =rtpro.X_procedure_64 \n" +
         "\tLEFT JOIN ORDER_STEP orderstep ON orderstep.control_recipe_key = cr.control_recipe_key\n" +
@@ -40,14 +41,14 @@ public class ExpressionEvalEx extends ExpressionEval {
         "\tLEFT JOIN AT_X_Operation op1 on op1.atr_key = op.X_operation_64\n" +
         "\tLEFT JOIN AT_X_RtPhase rtphase ON rtphase.X_parent_64 = op.atr_key \n" +
         "\tLEFT JOIN AT_X_Phase phase ON phase.atr_key = rtphase.X_phase_64\n" +
-        "\twhere cr.control_recipe_name = N'" +recipeNo+"'"+
+        "\twhere mr.master_recipe_name = N'" +recipeNo+"'"+
         "\tand pro.X_procedureName_S = N'" +unitName+"'"+
         "and xup.X_unitProcedureName_S = N'" +unitStepName+"'"+
         "\tand op1.X_operationName_S = N'" +operationName+"'"+
         "and phase.X_phaseName_S = N'" +stepName+"'";
-        List<String[]> list = PCContext.getFunctions().getArrayDataFromActive(sql);
+        List<String[]> list = null;
         //SQL获取ATR——key
-        if(list.size()>0){
+
             //将数据保存至数据表
              ProcessOrder currentProcessOrder = PCContext.getFunctions().getCurrentProcessOrder();
             String orderNumber = currentProcessOrder.getOrderNumber();
@@ -56,56 +57,47 @@ public class ExpressionEvalEx extends ExpressionEval {
             meslcOrderMappingFilter.forOrdernameEqualTo(orderNumber);
              List<IMESLCOrderMapping> filteredObjects = meslcOrderMappingFilter.getFilteredObjects();
             for (IMESLCOrderMapping filteredObject : filteredObjects) {
+                //一个工单只能关联不同处方的工单
                  String mappingordername = filteredObject.getMappingordername();
+
                  //根据关联工单号获取处方
                  ProcessOrder processOrderByName = PCContext.getFunctions().getProcessOrderByName(mappingordername);
                  ProcessOrderItem processOrderItem = processOrderByName.getProcessOrderItem(mappingordername);
                  String name = processOrderItem.getControlRecipe().getMasterRecipe().getName();
                  if(name != null && name.equals(recipeNo)){
-                     String insertSql = "INSERT INTO PharmaSuite1002.dbo.LC_GetOrderPhase\n" +
-                             "(order_name, phase_name, create_time)\n" +
-                             "VALUES('"+mappingordername+"', '"+stepName+"', getdate())";
-                     //保存数据
-                      int[] ints = PCContext.getFunctions().executeStatements(new String[]{insertSql});
+                     sql += " and poi.order_item_name = N'"+mappingordername+"'";
+                     System.out.println("tets:"+sql);
+                     list = PCContext.getFunctions().getArrayDataFromActive(sql);
+                     if(list != null && list.size()>0) {
+                         String insertSql = "INSERT INTO PharmaSuite1002.dbo.LC_GetOrderPhase\n" +
+                                 "(order_name, phase_name, create_time)\n" +
+                                 "VALUES('" + mappingordername + "', '" + stepName + "', getdate())";
+                         //保存数据
+                         int[] ints = PCContext.getFunctions().executeStatements(new String[]{insertSql});
+                     }
                  }
             }
-            //获取通用的标准的四个参数的输出
-//            MESRtOperationFilter Q = new MESRtOperationFilter();
-//            Q.forATRowKeyEqualTo(Integer.valueOf(list.get(0)[0]));
-//            List<IMESRtOperation> filteredObjects1 = Q.getFilteredObjects();
-//            MESRtUnitProcedureFilter a = new MESRtUnitProcedureFilter();
-//            //filteredObjects1.get(0).getAllRtPhases().get(0).getRtPhaseOutput().getOutputValue("");
-//            if("Completion time".equals(outputName)){
-//               return filteredObjects1.get(0).getAllRtPhases().get(0).getCompleted();
-//            }else if("Identifier".equals(outputName)){
-//                return filteredObjects1.get(0).getAllRtPhases().get(0).getDeviceIdentifier();
-//
-//            }else if("Instance count".equals(outputName)){
-//                return filteredObjects1.get(0).getAllRtPhases().get(0).getInstanceCount();
-//            }else if("Start time".equals(outputName)){
-//                return filteredObjects1.get(0).getAllRtPhases().get(0).getStarted();
-//            }
-
-            //获取phase输出
-            MESRtPhaseFilter t =new MESRtPhaseFilter();
-            //SQL获取ATR——key
-            t.forATRowKeyEqualTo(Integer.valueOf(list.get(0)[0]));
-            final List<IMESRtPhase> filteredObjects2 = t.getFilteredObjects();
-            //获取通用的标准的四个参数的输出
-            if("Completion time".equals(outputName)){
-                return filteredObjects2.get(filteredObjects2.size()-1).getCompleted();
-            }else if("Identifier".equals(outputName)){
-                return filteredObjects2.get(filteredObjects2.size()-1).getDeviceIdentifier();
-
-            }else if("Instance count".equals(outputName)){
-                return filteredObjects2.get(filteredObjects2.size()-1).getInstanceCount();
-            }else if("Start time".equals(outputName)){
-                return filteredObjects2.get(filteredObjects2.size()-1).getStarted();
+            if(list != null && list.size()>0) {
+                //获取通用的标准的四个参数的输出
+                //获取phase输出
+                MESRtPhaseFilter t = new MESRtPhaseFilter();
+                //SQL获取ATR——key
+                t.forATRowKeyEqualTo(Integer.valueOf(list.get(0)[0]));
+                final List<IMESRtPhase> filteredObjects2 = t.getFilteredObjects();
+                //获取通用的标准的四个参数的输出
+                if ("Completion time".equals(outputName)) {
+                    return filteredObjects2.get(filteredObjects2.size() - 1).getCompleted();
+                } else if ("Identifier".equals(outputName)) {
+                    return filteredObjects2.get(filteredObjects2.size() - 1).getDeviceIdentifier();
+                } else if ("Instance count".equals(outputName)) {
+                    return filteredObjects2.get(filteredObjects2.size() - 1).getInstanceCount();
+                } else if ("Start time".equals(outputName)) {
+                    return filteredObjects2.get(filteredObjects2.size() - 1).getStarted();
+                }
+                //获取phase输出
+                return filteredObjects2.get(filteredObjects2.size() - 1).getRtPhaseOutput().getOutputValue(outputName);
             }
-            //获取phase输出
-           return filteredObjects2.get(filteredObjects2.size()-1).getRtPhaseOutput().getOutputValue(outputName);
 
-        }
         return null;
     }
 
