@@ -1,5 +1,4 @@
 package com.leateck.phase.materialalternativeidentification0010;
-
 import com.datasweep.compatibility.client.*;
 import com.datasweep.plantops.common.measuredvalue.IMeasuredValue;
 import com.datasweep.plantops.common.measuredvalue.IUnitOfMeasure;
@@ -597,12 +596,12 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
         final Map<Sublot, OrderStepInput> sublotOSIMap = identificationData.getSecond();
         Collection<OrderStepInput> oSIsTOLock = new HashSet<>(sublotOSIMap.values());
 
-//        /**
-//         * Yonghao Xu
-//         *
-//         * SCL
-//         */
-//        DefaultExecuteCheckParameter executeCheckParameter = new SCLDefaultExecuteCheckParameter();
+        /**
+         * Yonghao Xu
+         *
+         * SCL
+         */
+//        SCLDefaultExecuteCheckParameter executeCheckParameter = new SCLDefaultExecuteCheckParameter();
 //        executeCheckParameter.setWorkCenter(PCContext.getFunctions().getStation().getWorkCenter());
 //        List<Sublot> sublotList = sublotsToIdentify.stream().map(IdentificationSublot::getSublot).collect(Collectors.toList());
 //        executeCheckParameter.setSublotList(sublotList);
