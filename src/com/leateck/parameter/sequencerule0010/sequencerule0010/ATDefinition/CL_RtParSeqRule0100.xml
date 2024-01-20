@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DATDefinition at-version="1" auto-name-creation="false" data-management-type="1" details-page-size="0" growth-type="0" lazy-fetch-details="true" logging-level="0" object-source="1" static-data="true" support-state-proxy="false" type="3">
+  <access-control-info />
+  <at-column-definitions data-type="4" nullable="true" referenced-key="0" referenced-type="0" text-length="4000">
+    <description>Comments</description>
+    <name>CL_comment1</name>
+  </at-column-definitions>
+  <at-column-definitions data-type="4" nullable="true" referenced-key="0" referenced-type="0" text-length="4000">
+    <description>Comments</description>
+    <name>CL_comment2</name>
+  </at-column-definitions>
+  <at-column-definitions data-type="4" nullable="true" referenced-key="0" referenced-type="0" text-length="100">
+    <description>Sequence Rule</description>
+    <name>CL_rule</name>
+  </at-column-definitions>
+  <description>Runtime Parameter instance data for 'Sequence Rule (CL) [1.0]' (class name com.leateck.parameter.sequencerule0010.MESRtParSeqRule0100 )</description>
+  <name>CL_RtParSeqRule0100</name>
+</DATDefinition>
+
