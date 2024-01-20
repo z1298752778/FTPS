@@ -1,0 +1,5 @@
+<configuration>
+    <ExpressionEval>
+        <implementationClass>com.leateck.expression.ExpressionEvalEx</implementationClass>
+    </ExpressionEval>
+</configuration>
