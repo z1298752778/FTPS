@@ -1,0 +1,134 @@
+<PhaseLibDescription>
+    <OutputDir>C:\output\phase\materialalternativeidentification0010</OutputDir>
+    <Name>Identify Alternative Material (LC) [1.0]</Name>
+    <Description>Allows for identification alternative of sublots,with rule,status check</Description>
+    <PackageName>com.leateck.phase.materialalternativeidentification0010</PackageName>
+    <PhaseLibBaseName>MatAlterIdent0010</PhaseLibBaseName>
+    <VisibleInNavigator value="true" />
+    <InternalBuildingBlock value="false" />
+    <ReportDesignName>PS-BatchReport-PhaseMatIdentRS_0710</ReportDesignName>
+    <SupportExceptions value="true"/>
+    <MaterialInputMin>0</MaterialInputMin>
+    <MaterialInputMax>10</MaterialInputMax>
+    <MaterialOutputMin>0</MaterialOutputMin>
+    <MaterialOutputMax>0</MaterialOutputMax>
+    <ATDefinitionPrefix>LC_</ATDefinitionPrefix>
+    <UsageContext>Recipe</UsageContext>
+    <ParameterClasses>
+        <ParameterClass>
+            <Name>Instruction (RS) [2.0]</Name>
+            <UsageIdentifier>Instruction</UsageIdentifier>
+            <SortIndex>1</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Loop Configuration (RS) [1.0]</Name>
+            <UsageIdentifier>Loop configuration</UsageIdentifier>
+            <SortIndex>2</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Boolean Flag (RS) [1.0]</Name>
+            <UsageIdentifier>Allow loop exit with Stop</UsageIdentifier>
+            <SortIndex>3</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Consumption Type (RS) [2.0]</Name>
+            <UsageIdentifier>Consumption configuration</UsageIdentifier>
+            <SortIndex>4</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Enable Definition (RS) [2.0]</Name>
+            <UsageIdentifier>Batch status check configuration</UsageIdentifier>
+            <SortIndex>5</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Enable Definition (RS) [2.0]</Name>
+            <UsageIdentifier>Expiry date check configuration</UsageIdentifier>
+            <SortIndex>6</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Batch Check Definition (RS) [5.0]</Name>
+            <UsageIdentifier>Batch check definition</UsageIdentifier>
+            <SortIndex>7</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Enable Definition (RS) [2.0]</Name>
+            <UsageIdentifier>Allocation check configuration</UsageIdentifier>
+            <SortIndex>8</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Enable Definition (RS) [2.0]</Name>
+            <UsageIdentifier>Sublot status check configuration</UsageIdentifier>
+            <SortIndex>9</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Sublot Check Definition (RS) [1.0]</Name>
+            <UsageIdentifier>Sublot check definition</UsageIdentifier>
+            <SortIndex>10</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Quantity out of tolerance</UsageIdentifier>
+            <SortIndex>11</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Identify manually</UsageIdentifier>
+            <SortIndex>12</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Undo identification</UsageIdentifier>
+            <SortIndex>13</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Force completion</UsageIdentifier>
+            <SortIndex>14</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Post - Identify additionally</UsageIdentifier>
+            <SortIndex>15</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Post - Undo identification</UsageIdentifier>
+            <SortIndex>16</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Warehouse error</UsageIdentifier>
+            <SortIndex>17</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Enable Definition (RS) [2.0]</Name>
+            <UsageIdentifier>Location Violation Exception</UsageIdentifier>
+            <SortIndex>18</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Enable Definition (RS) [2.0]</Name>
+            <UsageIdentifier>Open Expiration Violation Exception</UsageIdentifier>
+            <SortIndex>19</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Sequence Rule (CL) [1.0]</Name>
+            <UsageIdentifier>Sequence Rule</UsageIdentifier>
+            <SortIndex>20</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Enable Definition (RS) [2.0]</Name>
+            <UsageIdentifier>Sequence Violation Exception</UsageIdentifier>
+            <SortIndex>21</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Boolean Flag (RS) [1.0]</Name>
+            <UsageIdentifier>Additional Barcode Support</UsageIdentifier>
+            <SortIndex>22</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Boolean Flag (RS) [1.0]</Name>
+            <UsageIdentifier>Batch Exclusive Use</UsageIdentifier>
+            <SortIndex>23</SortIndex>
+        </ParameterClass>
+    </ParameterClasses>
+</PhaseLibDescription>

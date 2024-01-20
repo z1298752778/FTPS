@@ -1,0 +1,130 @@
+<RtPhaseDataAttributes>    
+    <RtPhaseDataAttribute>
+        <Name>materialID</Name>
+        <Description>Material input ID</Description>
+        <DataType>
+            <String length="64"/>
+        </DataType>
+    </RtPhaseDataAttribute>   
+    <RtPhaseDataAttribute>
+        <Name>mfcPos</Name>
+        <Description>Material MFC position</Description>
+        <DataType>
+            <String length="64"/>
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>isHeader</Name>
+        <Description>Is this a header line containing summarized data about a material</Description>
+        <DataType>
+            <Bool/>
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>materialDescription</Name>
+        <Description>Material input Description</Description>
+        <DataType>
+            <String length="50"/>
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>commentToExecution</Name>
+        <Description>Comment to execution, e.g. in case of rework.</Description>
+        <DataType>
+            <Binary/>
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>batchID</Name>
+        <Description>Batch ID of the identified sublot or list of IDs of the allocated batches in header rows</Description>
+        <DataType>
+            <Binary/>
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>sublotID</Name>
+        <Description>ID of the identified sublot or list of IDs of the allocated sublots in header rows</Description>
+        <DataType>
+            <Binary/>
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>logisticUnitID</Name>
+        <Description>ID of the identified logistic unit</Description>
+        <DataType>
+            <String length="64"/>
+        </DataType>
+    </RtPhaseDataAttribute>	
+    <RtPhaseDataAttribute>
+        <Name>batchSublotDisplStr</Name>
+        <Description>display string of identified or allocated sublots and batches</Description>
+        <DataType>
+            <Binary/>
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>plannedQty</Name>
+        <Description>Planned quantity for this material</Description>
+        <DataType>
+            <MeasuredValue/>
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>identifiedQty</Name>
+        <Description>Identified quantity for this material (sublot)</Description>
+        <DataType>
+            <MeasuredValue/>
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>isUnidentified</Name>
+        <Description>Is the sublot unidentified?</Description>
+        <DataType>
+            <Bool/>
+        </DataType>
+    </RtPhaseDataAttribute>
+        <RtPhaseDataAttribute>
+        <Name>accountedQty</Name>
+        <Description>The accounted quantity for this material</Description>
+        <DataType>
+            <MeasuredValue/>
+        </DataType>
+     </RtPhaseDataAttribute>
+     <RtPhaseDataAttribute>
+        <Name>plannedQtyWithLimits</Name>
+        <Description>Planned quantity with limits for this material</Description>
+        <DataType>
+            <String length="64"/>
+        </DataType>
+      </RtPhaseDataAttribute>
+      <RtPhaseDataAttribute>
+        <Name>plannedQtyDisplString</Name>
+        <Description>Planned quantity display string without limits for this material</Description>
+        <DataType>
+            <String length="64"/>
+        </DataType>
+      </RtPhaseDataAttribute>
+      <RtPhaseDataAttribute>
+        <Name>accountingStatus</Name>
+        <Description>Accounting status (out of range and accounting complete) for this material</Description>
+        <DataType>
+            <String length="64"/>
+        </DataType>
+     </RtPhaseDataAttribute>
+     <RtPhaseDataAttribute>
+        <Name>localIdentified</Name>
+        <Description>true if this phase instance has identified the sublot </Description>
+        <DataType>
+            <Bool/>
+        </DataType>
+    </RtPhaseDataAttribute> 
+      <RtPhaseDataAttribute>
+        <Name>Result</Name>
+        <Description>CONTINUE: The value is CONTINUE if phase was completed with the Continue option button.
+            DONE: The value is DONE if phase was completed with the Done option button.
+        </Description>
+        <DataType>
+            <String length="20" />
+        </DataType>
+    </RtPhaseDataAttribute>
+</RtPhaseDataAttributes>
