@@ -1,4 +1,5 @@
 package com.leateck.phase.materialalternativeidentification0010;
+
 import com.datasweep.compatibility.client.*;
 import com.datasweep.plantops.common.measuredvalue.IMeasuredValue;
 import com.datasweep.plantops.common.measuredvalue.IUnitOfMeasure;
@@ -596,11 +597,11 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
         final Map<Sublot, OrderStepInput> sublotOSIMap = identificationData.getSecond();
         Collection<OrderStepInput> oSIsTOLock = new HashSet<>(sublotOSIMap.values());
 
-        /**
-         * Yonghao Xu
-         *
-         * SCL
-         */
+//        /**
+//         * Yonghao Xu
+//         *
+//         * SCL
+//         */
 //        SCLDefaultExecuteCheckParameter executeCheckParameter = new SCLDefaultExecuteCheckParameter();
 //        executeCheckParameter.setWorkCenter(PCContext.getFunctions().getStation().getWorkCenter());
 //        List<Sublot> sublotList = sublotsToIdentify.stream().map(IdentificationSublot::getSublot).collect(Collectors.toList());
@@ -672,12 +673,12 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
 //
 //
 //        }
-
-        if (model.getBatchExclusiveUse()) {
-            // 此处只校验
+//
+//        if (model.getBatchExclusiveUse()) {
+//            // 此处只校验
 //            BatchExclusiveUseChecker checker = new BatchExclusiveUseChecker();
 //            Boolean checkResult = checker.executeCheck(executeCheckParameter);
-        }
+//        }
         /**
          * Yonghao Xu
          *
