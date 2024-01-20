@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PhaseLibDescription>
+	<OutputDir>C:/output/phase/accountalternativematerial0010</OutputDir>
+	<Name>Account Alternative Material (LC) [1.0]</Name>
+	<Description>Allows for accounting alternative of identified sublots</Description>
+	<PackageName>com.leateck.phase.accountalternativematerial0010</PackageName>
+	<PhaseLibBaseName>MatAlterAcct0010</PhaseLibBaseName>
+	<VisibleInNavigator value="true"/>
+	<InternalBuildingBlock value="false"/>
+	<ReportDesignName>PS-BatchReport-PhaseMatAccountRS_0710</ReportDesignName>
+	<SupportExceptions value="true"/>
+	<MaterialInputMin>0</MaterialInputMin>
+	<MaterialInputMax>10</MaterialInputMax>
+	<MaterialOutputMin>0</MaterialOutputMin>
+	<MaterialOutputMax>0</MaterialOutputMax>
+	<ATDefinitionPrefix>LC_</ATDefinitionPrefix>
+	<UsageContext>Recipe</UsageContext>
+	<ParameterClasses>
+		<ParameterClass>
+			<Name>Instruction (RS) [2.0]</Name>
+			<UsageIdentifier>Instruction</UsageIdentifier>
+			<SortIndex>1</SortIndex>
+		</ParameterClass>
+        <ParameterClass>
+            <Name>Boolean Flag (RS) [1.0]</Name>
+            <UsageIdentifier>Enable loop</UsageIdentifier>
+            <SortIndex>2</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Boolean Flag (RS) [1.0]</Name>
+            <UsageIdentifier>Allow loop exit with Stop</UsageIdentifier>
+            <SortIndex>3</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Boolean Flag (RS) [1.0]</Name>
+            <UsageIdentifier>Include sample and waste quantities</UsageIdentifier>
+            <SortIndex>4</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Account Calculation (RS) [2.0]</Name>
+            <UsageIdentifier>Calculation configuration</UsageIdentifier>
+            <SortIndex>5</SortIndex>
+        </ParameterClass>
+		<ParameterClass>
+			<Name>Exception Enable Definition (RS) [2.0]</Name>
+			<UsageIdentifier>Accounting check configuration</UsageIdentifier>
+			<SortIndex>6</SortIndex>
+		</ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Quantity out of tolerance</UsageIdentifier>
+            <SortIndex>7</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Warehouse error</UsageIdentifier>
+            <SortIndex>8</SortIndex>
+        </ParameterClass>		
+	</ParameterClasses>
+</PhaseLibDescription>

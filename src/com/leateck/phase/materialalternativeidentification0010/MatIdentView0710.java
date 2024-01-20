@@ -450,7 +450,7 @@ public class MatIdentView0710 extends AbstractPhaseMainView0200<MatIdentModel071
         final ColumnInfo colBatchesSublots = new ColumnInfo("RelatedBatchesSublotsDisplayString", BATCH_COLUMN_WIDTH, true);
         // special message in warehouse context
         if (getModel().isWarehauseApplicationAvailable()) {
-            colBatchesSublots.setHeaderMsg("relatedBatchesLUSublotsDisplayString");
+            colBatchesSublots.setHeaderMsg("relatedBatchesLUSublotSDisplayString");
         }
         columns.add(colBatchesSublots);
 

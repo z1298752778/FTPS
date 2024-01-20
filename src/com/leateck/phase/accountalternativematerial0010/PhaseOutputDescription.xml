@@ -1,0 +1,14 @@
+<PhaseOutputDescription>
+    <PhaseOutput>
+        <Name>Result</Name>
+        <DisplayName>Result</DisplayName>
+        <Description>The result depends on the option button selected when completing the phase. The values are: 
+    Continue option button: CONTINUE;
+    Stop option button: STOP;
+    Done option button or no loop: DONE
+        </Description>
+        <DataType>
+            <String length="20" />
+        </DataType>
+    </PhaseOutput>
+</PhaseOutputDescription>
