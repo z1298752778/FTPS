@@ -278,6 +278,7 @@ public class FunctionSpecificIntelliHintsForTestFunctions extends AbstractFuncti
 					"\tLEFT JOIN OBJECT_STATE os ON os.object_key = poi.order_item_key\n" +
 					"\tLEFT JOIN STATE st ON st.state_key = os.state_key\n" +
 					"\tLEFT JOIN CONTROL_RECIPE cr ON cr.order_item_key = poi.order_item_key\n" +
+					"\tleft join MASTER_RECIPE mr on mr.master_recipe_key = cr.master_recipe_key \n" +
 					"\tLEFT JOIN AT_X_RtProcedure rtpro ON rtpro.X_controlRecipe_113 = cr.control_recipe_key\n" +
 					"\tLEFT JOIN AT_X_Procedure pro ON  pro.atr_key =rtpro.X_procedure_64 \n" +
 					"\tLEFT JOIN ORDER_STEP orderstep ON orderstep.control_recipe_key = cr.control_recipe_key\n" +
@@ -287,22 +288,20 @@ public class FunctionSpecificIntelliHintsForTestFunctions extends AbstractFuncti
 					"\tLEFT JOIN AT_X_Operation op1 on op1.atr_key = op.X_operation_64\n" +
 					"\tLEFT JOIN AT_X_RtPhase rtphase ON rtphase.X_parent_64 = op.atr_key \n" +
 					"\tLEFT JOIN AT_X_Phase phase ON phase.atr_key = rtphase.X_phase_64\n" +
-					"\twhere cr.control_recipe_name = N'"+recipeName+"'\n" +
+					"\twhere mr.master_recipe_name = N'"+recipeName+"'\n" +
 					"\tand pro.X_procedureName_S = N'"+processName+"' and xup.X_unitProcedureName_S = N'"+operationName+"'\n" +
 					"\tand op1.X_operationName_S = N'"+stepName+"' and phase.X_phaseName_S = N'"+phaseName+"'";
 			System.out.println(sql);
 			Vector<String[]> list1 = PCContext.getFunctions().getArrayDataFromActive(sql);
-
-			list.add(new StringConstantIntelliHintDescriptor("Identifier", "Identifier : String", section));
-			list.add(new StringConstantIntelliHintDescriptor("Completion time", "Completion time : Timestamp", section));
-			list.add(new StringConstantIntelliHintDescriptor("Start time", "Start time : Timestamp", section));
-			list.add(new StringConstantIntelliHintDescriptor("Instance count", "Instance count : Long", section));
-
-			for (String[] strs : list1) {
+			if (list1.size()>0) {
+				list.add(new StringConstantIntelliHintDescriptor("Identifier", "Identifier : String", section));
+				list.add(new StringConstantIntelliHintDescriptor("Completion time", "Completion time : Timestamp", section));
+				list.add(new StringConstantIntelliHintDescriptor("Start time", "Start time : Timestamp", section));
+				list.add(new StringConstantIntelliHintDescriptor("Instance count", "Instance count : Long", section));
 				//获取phase输出
 				MESRtPhaseFilter t =new MESRtPhaseFilter();
 				//SQL获取ATR——key
-				t.forATRowKeyEqualTo(Integer.valueOf(strs[0]));
+				t.forATRowKeyEqualTo(Integer.valueOf(list1.get(0)[0]));
 				final List<IMESRtPhase> filteredObjects2 = t.getFilteredObjects();
 				List<IBuildingBlockOutputDescriptor> listDesc = filteredObjects2.get(0).getRtPhaseOutput().getOutputDescriptors();
 				//filteredObjects2.get(0).get
@@ -312,7 +311,6 @@ public class FunctionSpecificIntelliHintsForTestFunctions extends AbstractFuncti
 					String setValue = descriptor.getDisplayName();
 					StringConstantIntelliHintDescriptor stringConstantIntelliHintDescriptor2 = new StringConstantIntelliHintDescriptor(setValue, showValue, section);
 					list.add(stringConstantIntelliHintDescriptor2);
-
 				}
 			}
 			return list;
