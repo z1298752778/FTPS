@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PhaseLibDescription>
+    <OutputDir>E:\Temp\</OutputDir>
+    <Name>Identify Equipment (LC) [1.0]</Name>
+    <Description>Allows to identify an equipment entity.</Description>
+    <PackageName>com.leateck.phase.identifyequipment0100</PackageName>
+    <PhaseLibBaseName>IdentEq0100</PhaseLibBaseName>
+    <VisibleInNavigator value="true" />
+    <InternalBuildingBlock value="false" />
+    <ReportDesignName>PS-BatchReport-PhaseIdentificationEq_0100</ReportDesignName>
+    <SupportExceptions value="true" />
+    <MaterialInputMin>0</MaterialInputMin>
+    <MaterialInputMax>0</MaterialInputMax>
+    <MaterialOutputMin>0</MaterialOutputMin>
+    <MaterialOutputMax>0</MaterialOutputMax>
+    <EquipmentRequirementMin>0</EquipmentRequirementMin>
+    <EquipmentRequirementMax>1</EquipmentRequirementMax>
+    <ATDefinitionPrefix>RS_</ATDefinitionPrefix>
+    <UsageContext>All</UsageContext>
+    <ParameterClasses>
+        <ParameterClass>
+            <Name>Plain Instruction (RS) [1.0]</Name>
+            <UsageIdentifier>Instruction</UsageIdentifier>
+            <SortIndex>1</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Phase Completion Mode (RS) [2.0]</Name>
+            <UsageIdentifier>Mode</UsageIdentifier>
+            <SortIndex>2</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>EQ Object (RS) [2.0]</Name>
+            <UsageIdentifier>Parent entity of group</UsageIdentifier>
+            <SortIndex>3</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Boolean Flag (RS) [1.0]</Name>
+            <UsageIdentifier>Identify in current binding context</UsageIdentifier>
+            <SortIndex>4</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Phase Identification Mode (RS) [1.0]</Name>
+            <UsageIdentifier>Identification mode</UsageIdentifier>
+            <SortIndex>5</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Boolean Flag Default True (RS) [1.0]</Name>
+            <UsageIdentifier>Show children</UsageIdentifier>
+            <SortIndex>6</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Property value check</UsageIdentifier>
+            <SortIndex>7</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>EQ Status Check Definition (RS) [1.0]</Name>
+            <UsageIdentifier>Equipment status check</UsageIdentifier>
+            <SortIndex>8</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Enter identifier manually</UsageIdentifier>
+            <SortIndex>9</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Undo identification</UsageIdentifier>
+            <SortIndex>10</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Skip identification</UsageIdentifier>
+            <SortIndex>11</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Boolean Flag (RS) [1.0]</Name>
+            <UsageIdentifier>Clean check configuration</UsageIdentifier>
+            <SortIndex>12</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Boolean Flag (RS) [1.0]</Name>
+            <UsageIdentifier>BatchNumber check configuration</UsageIdentifier>
+            <SortIndex>13</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Boolean Flag (RS) [1.0]</Name>
+            <UsageIdentifier>Sterilization check configuration</UsageIdentifier>
+            <SortIndex>14</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Boolean Flag (RS) [1.0]</Name>
+            <UsageIdentifier>Add Number configuration</UsageIdentifier>
+            <SortIndex>15</SortIndex>
+        </ParameterClass>
+    </ParameterClasses>
+    <DynamicParameterClasses>
+        <MaximumNumber>10</MaximumNumber>
+        <DynamicParameterClass>
+            <Name>EQ Property List (RS) [1.0]</Name>
+            <UsageIdentifier>Equipment property list</UsageIdentifier>
+			<MaximumNumber>10</MaximumNumber>
+        </DynamicParameterClass>
+    </DynamicParameterClasses>
+</PhaseLibDescription>
