@@ -1,0 +1,115 @@
+<RtPhaseDataAttributes>
+    <RtPhaseDataAttribute>
+        <Name>eqReqClassId</Name>
+        <Description>The required equipment class identifier</Description>
+        <DataType>
+            <String length="80" />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>eqReqClassShortDesc</Name>
+        <Description>The required equipment class short description</Description>
+        <DataType>
+            <String length="2000" />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>eqReqType</Name>
+        <Description>The type of the equipment requirement (Class, Item or empty).</Description>
+        <DataType>
+            <String />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>eqId</Name>
+        <Description>The identified equipment identifier</Description>
+        <DataType>
+            <String length="80" />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>eqShortDesc</Name>
+        <Description>The identified equipment short description</Description>
+        <DataType>
+            <String length="2000" />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>scannedEqId</Name>
+        <Description>The scanned equipment identifier</Description>
+        <DataType>
+            <String length="80" />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>scannedEqShortDesc</Name>
+        <Description>The scanned equipment short description</Description>
+        <DataType>
+            <String length="2000" />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>groupParentId</Name>
+        <Description>The group parent equipment identifier</Description>
+        <DataType>
+            <String length="80" />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>groupParentShortDesc</Name>
+        <Description>The group parent equipment short description</Description>
+        <DataType>
+            <String length="2000" />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>eqReqPropVals</Name>
+        <Description>Non-status values for the specific property type-based requirements of the identified equipment</Description>
+        <DataType>
+            <Binary />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>eqReqPropValsStates</Name>
+        <Description>All status values of the identified equipment entity</Description>
+        <DataType>
+            <Binary />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>eqIdentPropVals</Name>
+        <Description>Non-status values for the specific property type-based requirements of the identified equipment</Description>
+        <DataType>
+            <Binary />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>eqIdentPropValsStates</Name>
+        <Description>All status values of the identified equipment entity</Description>
+        <DataType>
+            <Binary />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>childGridData</Name>
+        <Description>The list of descendant related data of the identified equipment entity</Description>
+        <DataType>
+            <Binary />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>eqPropertyList</Name>
+        <Description>The list of properties of identified equipment entity and its group</Description>
+        <DataType>
+            <Binary />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>eqObject</Name>
+        <Description>The identified equipment</Description>
+        <DataType>
+            <ApplicationTable name="X_S88Equipment" interfaceClassName="com.rockwell.mes.services.s88equipment.ifc.IMESS88Equipment"
+                implClassName="com.rockwell.mes.services.s88equipment.impl.MESS88Equipment" />
+        </DataType>
+    </RtPhaseDataAttribute>
+</RtPhaseDataAttributes>

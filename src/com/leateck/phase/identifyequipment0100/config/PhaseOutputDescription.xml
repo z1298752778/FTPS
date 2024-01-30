@@ -1,0 +1,43 @@
+<PhaseOutputDescription>
+    <PhaseOutput>
+        <Name>eqId</Name>
+        <DisplayName>Equipment ID</DisplayName>
+        <Description>The equipment identifier</Description>
+        <DataType>
+            <String length="80" />
+        </DataType>
+    </PhaseOutput>
+    <PhaseOutput>
+        <Name>eqObject</Name>
+        <DisplayName>Equipment object</DisplayName>
+        <Description>The identified equipment</Description>
+        <DataType>
+            <ApplicationTable name="X_S88Equipment" interfaceClassName="com.rockwell.mes.services.s88equipment.ifc.IMESS88Equipment"
+                implClassName="com.rockwell.mes.services.s88equipment.impl.MESS88Equipment" />
+        </DataType>
+    </PhaseOutput>
+    <PhaseOutput>
+        <Name>eqShortDescription</Name>
+        <DisplayName>Equipment short description</DisplayName>
+        <Description>The equipment short description</Description>
+        <DataType>
+            <String length="2000" />
+        </DataType>
+    </PhaseOutput>
+    <PhaseOutput>
+        <Name>Result</Name>
+        <DisplayName>Result</DisplayName>
+        <Description>IDENTIFIED if an equipment is bound, SKIPPED if identification was not performed</Description>
+        <DataType>
+            <String />
+        </DataType>
+    </PhaseOutput>
+    <PhaseOutput>
+        <Name>IsClean</Name>
+        <DisplayName>IsClean</DisplayName>
+        <Description>Whether it is to be cleaned or to be cleared</Description>
+        <DataType>
+            <Bool />
+        </DataType>
+    </PhaseOutput>
+</PhaseOutputDescription>
