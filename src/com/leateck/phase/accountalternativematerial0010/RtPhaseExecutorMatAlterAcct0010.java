@@ -19,12 +19,15 @@ import com.rockwell.mes.commons.base.ifc.exceptions.MESIncompatibleUoMException;
 import com.rockwell.mes.commons.base.ifc.exceptions.MESRuntimeException;
 import com.rockwell.mes.commons.base.ifc.functional.MeasuredValueUtilities;
 import com.rockwell.mes.commons.base.ifc.i18n.I18nMessageUtility;
+import com.rockwell.mes.commons.base.ifc.services.PCContext;
 import com.rockwell.mes.commons.base.ifc.services.ServiceFactory;
+import com.rockwell.mes.commons.base.ifc.ui.DialogHelper;
 import com.rockwell.mes.commons.base.ifc.utility.AutoWaitCursor;
 import com.rockwell.mes.commons.base.ifc.utility.StringConstants;
 import com.rockwell.mes.commons.base.ifc.utility.StringUtilsEx;
 import com.rockwell.mes.commons.deviation.ifc.IESignatureExecutor;
 import com.rockwell.mes.commons.deviation.ifc.exceptionrecording.IMESExceptionRecord;
+import com.rockwell.mes.commons.parameter.exceptiondef.MESParamExceptionDef0300;
 import com.rockwell.mes.commons.shared.phase.mvc.AbstractPhaseExceptionView0200;
 import com.rockwell.mes.services.inventory.ifc.TransactionSubtype;
 import com.rockwell.mes.services.inventory.ifc.exceptions.MESQuantityMustNotBeNegativeException;
@@ -69,6 +72,7 @@ public class RtPhaseExecutorMatAlterAcct0010 extends
     public static final String KEY_ACCOUNT_CONGIG_EXC = "AccountConfigException";
 
     private MatIdentMessage0710Controller messageController;
+
 
     /**
      * ctor for an ACTIVE phase or a COMPLETED phase in case of resume.
@@ -235,9 +239,10 @@ public class RtPhaseExecutorMatAlterAcct0010 extends
      */
     private void accountSublots(final List<AccountMaterialDAO0710> sublotsToAccount, final IMeasuredValue identifiedQty,
                                 final boolean totalConsumption) {
-        final Map<AccountType, IMeasuredValue> currentQuantities = generateCurrentQtysMap(sublotsToAccount, totalConsumption);
+        final Map<AccountMaterialDAO0710.AccountType, IMeasuredValue> currentQuantities = generateCurrentQtysMap(sublotsToAccount, totalConsumption);
         final AccountQuantitiesDialog0710 dialog =
                 new AccountQuantitiesDialog0710(getAccessPrivilegePhaseAction(), PhaseExecutorHelper.getPrivilegeParameterPhaseAction(getPhase()));
+
         if (dialog.showDialog(identifiedQty, !totalConsumption, model.getCalcConfig(), currentQuantities) == DialogEvent.CANCEL_OPTION.getValue()) {
             return;
         }
@@ -385,12 +390,13 @@ public class RtPhaseExecutorMatAlterAcct0010 extends
      * @return map containting the currently accounted quantities, null if total consumption or if the sublot was not
      * accounted
      */
-    private Map<AccountType, IMeasuredValue> generateCurrentQtysMap(List<AccountMaterialDAO0710> sublotsToAccount, boolean totalConsumption) {
-        Map<AccountType, IMeasuredValue> currentQuantities = null;
+    private Map<AccountMaterialDAO0710.AccountType, IMeasuredValue> generateCurrentQtysMap(List<AccountMaterialDAO0710> sublotsToAccount, boolean totalConsumption) {
+        Map<AccountMaterialDAO0710.AccountType, IMeasuredValue> currentQuantities = null;
         if (!totalConsumption && sublotsToAccount.get(0).isAccounted()) {
             // fill the map with all current quantities for the sublot to be accounted
-            currentQuantities = new EnumMap<>(AccountType.class);
-            for (AccountType type : AccountType.values()) {
+            currentQuantities = new EnumMap<>(AccountMaterialDAO0710.AccountType.class);
+            for (AccountMaterialDAO0710.AccountType type : AccountMaterialDAO0710.AccountType.values()) {
+
                 currentQuantities.put(type, sublotsToAccount.get(0).getQtyMV(type));
             }
         }
@@ -587,21 +593,11 @@ public class RtPhaseExecutorMatAlterAcct0010 extends
             return false;
         }
 
-        if (model.checkCombineGroupIsEqualWithRate() == false) {
-            final String isContinueMsg =
-                    I18nMessageUtility.getLocalizedMessage(MaterialModel0710.PHASE_PRODUCT_MATERIAL_MSGPACK,
-                            "CombineGroupIsEqualWithRate_Error");
-            PhaseQuestionDialog questionDialog = new PhaseQuestionDialog();
-            int userChoice = questionDialog.showDialog(isContinueMsg);
-            if (userChoice != 0) {
-                return false;
-            }
-        }
-
         if (model.isPhaseResultDone()) {
             // perform the checks only when on loop exit
             MatAccountCompletionExceptions0710 exceptionsChecker = new MatAccountCompletionExceptions0710(this);
             return exceptionsChecker.checkAndHandleExceptions();
+
         }
         return true;
     }

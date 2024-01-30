@@ -26,7 +26,7 @@ public abstract class MESGeneratedRtPhaseDataMatAlterAcct0010Filter extends MESA
     private static final long serialVersionUID = 1L;
 
     /** Generated attribute definition */
-    private static final String ATDEFINITION_NAME = "SC_PhDatMatAlterAcct0010";
+    private static final String ATDEFINITION_NAME = "LC_PhDatMatAlterAcct0010";
 
     /**
      * Generated method definition

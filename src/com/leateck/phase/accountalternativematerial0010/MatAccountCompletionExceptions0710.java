@@ -3,9 +3,11 @@ package com.leateck.phase.accountalternativematerial0010;
 import com.datasweep.compatibility.client.MeasuredValue;
 import com.datasweep.compatibility.client.OrderStepInput;
 import com.datasweep.compatibility.client.Part;
+import com.datasweep.compatibility.client.Sublot;
 import com.datasweep.plantops.common.measuredvalue.IMeasuredValue;
 import com.datasweep.plantops.common.measuredvalue.IUnitOfMeasure;
 import com.jgoodies.common.base.Strings;
+import com.rockwell.mes.apps.ebr.ifc.phase.ui.PhaseQuestionDialog;
 import com.rockwell.mes.apps.ebr.ifc.swing.PhaseSystemTriggeredExceptionsCollector;
 import com.rockwell.mes.commons.base.ifc.exceptions.MESException;
 import com.rockwell.mes.commons.base.ifc.exceptions.MESIncompatibleUoMException;
@@ -16,7 +18,9 @@ import com.rockwell.mes.commons.base.ifc.i18n.I18nMessageUtility;
 import com.rockwell.mes.commons.base.ifc.nameduda.MESNamedUDAOrderStepInput;
 import com.rockwell.mes.commons.base.ifc.services.ServiceFactory;
 import com.rockwell.mes.commons.base.ifc.utility.StringConstants;
+import com.rockwell.mes.commons.deviation.ifc.exceptionrecording.IMESExceptionRecord;
 import com.rockwell.mes.commons.deviation.ifc.exceptionrecording.IMESExceptionRecord.RiskClass;
+import com.rockwell.mes.commons.parameter.exceptiondef.MESParamExceptionDef0300;
 import com.rockwell.mes.parameter.product.excptenabledef.MESParamExcptEnableDef0200;
 import com.rockwell.mes.services.order.ifc.EnumOrderStepInputStatus;
 import com.rockwell.mes.services.s88.ifc.recipe.IMESMaterialParameter;
@@ -25,8 +29,10 @@ import com.rockwell.mes.services.wip.ifc.IOrderStepExecutionService;
 import com.rockwell.mes.services.wip.ifc.IOrderStepExecutionService.QuantityRangeCondition;
 import com.rockwell.mes.services.wip.ifc.LimitsAndPlannedQuantity;
 import com.rockwell.mes.shared.product.material.AccountMaterialDAO0710;
+import com.rockwell.mes.shared.product.material.MaterialModel0710;
 import com.rockwell.mes.shared0400.product.util.ParamClassConstants0400;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ecs.html.S;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -43,6 +49,7 @@ import java.util.stream.Collectors;
  * @author ikoleva, (c) Copyright 2020 Rockwell Automation Technologies, Inc. All Rights Reserved.
  */
 public class MatAccountCompletionExceptions0710 extends PhaseSystemTriggeredExceptionsCollector<RtPhaseExecutorMatAlterAcct0010> {
+
     /**
      * Enumeration containing all system triggered exceptions for this phase.
      */
@@ -72,6 +79,89 @@ public class MatAccountCompletionExceptions0710 extends PhaseSystemTriggeredExce
                 String exceptionText = exceptions.executor.getModel().getExceptionTextFromParameter(getParameterName());
                 RiskClass riskClass = exceptions.executor.getModel().getExceptionRiskFromParameter(getParameterName());
                 exceptions.addSystemtriggeredException(exceptionText, riskClass, getCheckKey(), additionalInfoText);
+            }
+        },
+        /**
+         * 子批次没有消耗异常
+         */
+        UnconsumedSublot(LcAccountMaterialDAO0710.UNCONSUMED_SUBLOT) {
+            @Override
+            boolean conditionForSystemtriggeredException(RtPhaseExecutorMatAlterAcct0010 executor) {
+                //有子批次未消耗
+                List<String> allSublotConsume = new ArrayList<>();
+                allSublotConsume= executor.getModel().isAllSublotConsume(executor.getModel().getMaterialList());
+                if (allSublotConsume.size() > 0) {
+                    final String isContinueMsg =
+                            I18nMessageUtility.getLocalizedMessage(LcAccountMaterialDAO0710.MSG_PACK,
+                                    "SubBatchNotConsumed_Error");
+                    PhaseQuestionDialog questionDialog = new PhaseQuestionDialog();
+                    int userChoice = questionDialog.showDialog(isContinueMsg);
+                    isOK = userChoice;
+                    if (userChoice != 0) {
+                        return false;
+                    }else {return true;}
+                }
+                return false;
+            }
+
+            @Override
+            void createException(final MatAccountCompletionExceptions0710 exceptions) {
+                StringBuffer msg = new StringBuffer("以下子批次：\n");
+
+                for(String sub: exceptions.executor.getModel().isAllSublotConsume(
+                        exceptions.executor.getModel().getMaterialList())){
+                    msg.append(sub);
+                    msg.append(" \n");
+                }
+
+                msg.append("未消耗");
+                MESParamExceptionDef0300 paramExceptionDef0300 = null;
+                paramExceptionDef0300 = exceptions.executor.getProcessParameterData(MESParamExceptionDef0300.class, LcAccountMaterialDAO0710.UNCONSUMED_SUBLOT);
+                String exceptionStr = paramExceptionDef0300.getExceptionDescr() + "\r\n" + msg;
+                long risk = paramExceptionDef0300.getRiskAssessment();
+                IMESExceptionRecord.RiskClass riskclass = IMESExceptionRecord.RiskClass.valueOf(risk);
+                //exceptions.showExceptionDialog()
+                exceptions.executor.displayException(getCheckKey(),riskclass,exceptionStr);
+                //exceptions.addSystemtriggeredException(exceptionStr, riskclass, getCheckKey(), exceptionStr);
+            }
+        },
+        /**
+         * 组合比例不一致异常
+         */
+        AbnormalMaterialCombinationRatio(LcAccountMaterialDAO0710.ABNORMAL_MATERIAL_COMBINATIONRATIO) {
+            @Override
+            boolean conditionForSystemtriggeredException(RtPhaseExecutorMatAlterAcct0010 executor) {
+                //判断组合比例是否一致
+                if (executor.getModel().checkCombineGroupIsEqualWithRate() == false) {
+                    final String isContinueMsg =
+                            I18nMessageUtility.getLocalizedMessage(LcAccountMaterialDAO0710.MSG_PACK, "CombineGroupIsEqualWithRate_Error",
+                            executor.getModel().getNotEqualRatePart());
+
+
+                    PhaseQuestionDialog questionDialog = new PhaseQuestionDialog();
+                    int userChoice = questionDialog.showDialog(isContinueMsg);
+                    isOK = userChoice;
+                    if (userChoice != 0) {
+                        return false;
+                    }else {
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            @Override
+            void createException(final MatAccountCompletionExceptions0710 exceptions) {
+                 String isContinueMsg = I18nMessageUtility.getLocalizedMessage(LcAccountMaterialDAO0710.MSG_PACK, "CombineGroupIsEqualWithRate_Exception",
+                         exceptions.executor.getModel().getNotEqualRatePart());
+
+
+                MESParamExceptionDef0300 paramExceptionDef0300 = null;
+                paramExceptionDef0300 = exceptions.executor.getProcessParameterData(MESParamExceptionDef0300.class, LcAccountMaterialDAO0710.ABNORMAL_MATERIAL_COMBINATIONRATIO);
+                String exceptionStr = paramExceptionDef0300.getExceptionDescr() + "\r\n" + isContinueMsg;
+                long risk = paramExceptionDef0300.getRiskAssessment();
+                IMESExceptionRecord.RiskClass riskclass = IMESExceptionRecord.RiskClass.valueOf(risk);
+                exceptions.executor.displayException(getCheckKey(),riskclass,exceptionStr);
             }
         },
         /**
@@ -193,7 +283,7 @@ public class MatAccountCompletionExceptions0710 extends PhaseSystemTriggeredExce
         };
 
         private final String parameterName;
-
+        private static Integer isOK = -1;
         private SystemtriggeredExceptionEnum(final String name) {
             parameterName = name;
         }
@@ -249,13 +339,26 @@ public class MatAccountCompletionExceptions0710 extends PhaseSystemTriggeredExce
      */
     public boolean checkAndHandleExceptions() {
         for (final SystemtriggeredExceptionEnum e : SystemtriggeredExceptionEnum.values()) {
-            if (e.conditionForSystemtriggeredException(executor) && isNotSigned(e.getCheckKey())) {
-                e.createException(this);
+            if (isNotSigned(e.getCheckKey()) && e.conditionForSystemtriggeredException(executor)){
+                    e.createException(this);
+                    if(SystemtriggeredExceptionEnum.UnconsumedSublot.equals(e) ||
+                            SystemtriggeredExceptionEnum.AbnormalMaterialCombinationRatio.equals(e)){
+                        return false;
+                    }
+                    return !showExceptionDialog();
+            }
+            else if(SystemtriggeredExceptionEnum.UnconsumedSublot.equals(e) && SystemtriggeredExceptionEnum.UnconsumedSublot.isOK == 2){ ;
+                SystemtriggeredExceptionEnum.UnconsumedSublot.isOK = -1;
+                return false;
+            }
+            else if(SystemtriggeredExceptionEnum.AbnormalMaterialCombinationRatio.equals(e) && SystemtriggeredExceptionEnum.AbnormalMaterialCombinationRatio.isOK == 2){ ;
+                SystemtriggeredExceptionEnum.AbnormalMaterialCombinationRatio.isOK = -1;
+                return false;
             }
         }
         // If we don't show an exception dialog, then all checks have passed successfully.
         // We could remove pending checkkeys.
-        return !showExceptionDialog();
+        return true;
     }
 
     /**
@@ -295,8 +398,8 @@ public class MatAccountCompletionExceptions0710 extends PhaseSystemTriggeredExce
         //获取该物料是否设置为主料
         List<IMESMaterialParameter> matParamList = materialParameters.stream()
                 .filter(p -> p.getMaterial() == osi.getPart()
-                        && p.getATRow().getValue("SCL_isMainPart") != null
-                        && (Boolean) p.getATRow().getValue("SCL_isMainPart")).collect(Collectors.toList());
+                        && p.getATRow().getValue("LC_isMainPart") != null
+                        && (Boolean) p.getATRow().getValue("LC_isMainPart")).collect(Collectors.toList());
         if (matParamList == null || matParamList.size() == 0) {
             return totalConsumedQtyMV;
         }

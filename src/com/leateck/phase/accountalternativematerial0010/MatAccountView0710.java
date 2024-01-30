@@ -95,7 +95,7 @@ public class MatAccountView0710 extends AbstractPhaseMainView0200<MatAccountMode
      * @return caption of Refresh button
      */
     private static String getBtnTextRefresh() {
-        return I18nMessageUtility.getLocalizedMessage(AccountMaterialDAO0710.MSG_PACK, "BtnTextRefresh");
+        return I18nMessageUtility.getLocalizedMessage(LcAccountMaterialDAO0710.MSG_PACK, "Lc_BtnTextRefresh");
     }
     
     @Override
@@ -236,9 +236,8 @@ public class MatAccountView0710 extends AbstractPhaseMainView0200<MatAccountMode
     private void createGridPanel(boolean isActive) {
         List<ColumnInfo> columns = generateColumnsInfo();
         
-        grid = new PhaseStandardGrid(getModel().getStatus(), AccountMaterialDAO0710.class, columns,
+        grid = new PhaseStandardGrid(getModel().getStatus(), LcAccountMaterialDAO0710.class, columns,
                 new AbstractMaterialDAO0710.MaterialPhaseStandardGridConfigurator());
-        
         JPanel gridPanel = new JPanel();
         gridPanel.setEnabled(isActive);
         gridPanel.setOpaque(false);
@@ -330,8 +329,8 @@ public class MatAccountView0710 extends AbstractPhaseMainView0200<MatAccountMode
         constraints.weighty = 1; // needed to use the anchor to bottom
         constraints.weightx = 1; // needed to use the anchor to the right
         constraints.anchor = GridBagConstraints.LAST_LINE_END;
+
         refreshPanel.add(refreshBtn, constraints);
-        
         return refreshPanel;
     }
     

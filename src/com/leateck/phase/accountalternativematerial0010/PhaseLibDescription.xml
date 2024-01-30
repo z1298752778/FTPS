@@ -7,7 +7,7 @@
 	<PhaseLibBaseName>MatAlterAcct0010</PhaseLibBaseName>
 	<VisibleInNavigator value="true"/>
 	<InternalBuildingBlock value="false"/>
-	<ReportDesignName>PS-BatchReport-PhaseMatAccountRS_0710</ReportDesignName>
+	<ReportDesignName>PS-BatchReport-PhaseMatAccountLC_0710</ReportDesignName>
 	<SupportExceptions value="true"/>
 	<MaterialInputMin>0</MaterialInputMin>
 	<MaterialInputMax>10</MaterialInputMax>
@@ -55,6 +55,16 @@
             <Name>Exception Definition (RS) [3.0]</Name>
             <UsageIdentifier>Warehouse error</UsageIdentifier>
             <SortIndex>8</SortIndex>
-        </ParameterClass>		
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Abnormal material combination ratio</UsageIdentifier>
+            <SortIndex>9</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Unconsumed sublot</UsageIdentifier>
+            <SortIndex>10</SortIndex>
+        </ParameterClass>
 	</ParameterClasses>
 </PhaseLibDescription>

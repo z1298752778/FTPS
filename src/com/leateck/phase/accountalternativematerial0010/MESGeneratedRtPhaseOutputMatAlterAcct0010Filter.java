@@ -25,7 +25,7 @@ public abstract class MESGeneratedRtPhaseOutputMatAlterAcct0010Filter extends ME
     private static final long serialVersionUID = 1L;
 
     /** Generated attribute definition */
-    private static final String ATDEFINITION_NAME = "SC_PhOutMatAlterAcct0010";
+    private static final String ATDEFINITION_NAME = "LC_PhOutMatAlterAcct0010";
 
     /**
      * Generated method definition

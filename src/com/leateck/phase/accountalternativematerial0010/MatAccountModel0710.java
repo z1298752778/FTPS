@@ -56,7 +56,7 @@ import java.util.stream.Collectors;
 public class MatAccountModel0710 extends MaterialModel0710<AccountMaterialDAO0710, MESRtPhaseDataMatAlterAcct0010, MESRtPhaseOutputMatAlterAcct0010> {
 
     private static final Log LOGGER = LogFactory.getLog(MatAccountModel0710.class);
-
+    private String[]  NotEqualRatePart= new String[2];
     /**
      * list of the input materials + identified sublots
      */
@@ -709,7 +709,7 @@ public class MatAccountModel0710 extends MaterialModel0710<AccountMaterialDAO071
             // already initialized
             return;
         }
-
+        //System.out.println(MESRtPhaseDataMatAlterAcct0010::getIsHeader);
         List<MESRtPhaseDataMatAlterAcct0010> headerData =
                 getAllRtPhaseData().stream().filter(MESRtPhaseDataMatAlterAcct0010::getIsHeader).collect(Collectors.toList());
         for (MESRtPhaseDataMatAlterAcct0010 data : headerData) {
@@ -744,6 +744,22 @@ public class MatAccountModel0710 extends MaterialModel0710<AccountMaterialDAO071
         qtysAccountedInPhaseInstance.clear();
     }
 
+    /**
+     * 是否所有的子批次都已经消耗
+     * @return
+     */
+    public List<String> isAllSublotConsume(List<AccountMaterialDAO0710> listAccountMaterial) {
+        List<String> notConsumeSub = new ArrayList<>();
+        for (AccountMaterialDAO0710 accountMaterialDao : listAccountMaterial) {
+            if (accountMaterialDao.isHeader() || accountMaterialDao.getSublot() == null){
+                continue;
+            }
+            if (accountMaterialDao.getConsumedQty() == null || "".equals(accountMaterialDao.getConsumedQty())) {
+                notConsumeSub.add(accountMaterialDao.getSublot());
+            }
+        }
+        return notConsumeSub;
+    }
     /**
      * 检查组合组号比例是否一致
      * @return
@@ -787,12 +803,15 @@ public class MatAccountModel0710 extends MaterialModel0710<AccountMaterialDAO071
         //获取该物料是否设置为主料
         List<IMESMaterialParameter> matParamList = materialParameters.stream()
                 .filter(p -> p.getMaterial() == osi.getPart()
-                        && p.getATRow().getValue("SCL_isMainPart") != null
-                        && (Boolean) p.getATRow().getValue("SCL_isMainPart")).collect(Collectors.toList());
+                        && p.getATRow().getValue("LC_isMainPart") != null
+                        && (Boolean) p.getATRow().getValue("LC_isMainPart")).collect(Collectors.toList());
         if (matParamList == null || matParamList.size() == 0) {
             return true;
         }
         MESNamedUDAMaterialParameter matParam = new MESNamedUDAMaterialParameter(matParamList.get(0));
+        //保存主料物料号
+        NotEqualRatePart[0] = matParamList.get(0).getMaterial().getPartNumber();
+
         //获取替代组号
         String masterReplaceGroupName = matParam.getReplaceGroupName();
         //判断是否存在替代组号
@@ -817,8 +836,8 @@ public class MatAccountModel0710 extends MaterialModel0710<AccountMaterialDAO071
             IUnitOfMeasure unitOfMeasure = osi.getPlannedQuantity().getUnitOfMeasure();
             //遍历组合替代集合
             MeasuredValue firstConsumedMV = null;
-            BigDecimal firstRatio = BigDecimal.ZERO;
-            String firstGroup = null;
+            BigDecimal firstRatio = BigDecimal.ZERO;//组合比例
+            String firstGroup = null;//组合组号
             for (IMESMaterialParameter item : combinationGroupList) {
                 MESNamedUDAMaterialParameter itemMatParam = new MESNamedUDAMaterialParameter(item);
                 BigDecimal replaceRatio = itemMatParam.getReplaceRatio();
@@ -844,7 +863,7 @@ public class MatAccountModel0710 extends MaterialModel0710<AccountMaterialDAO071
                     }
                 }
                 if (firstConsumedMV == null) {
-                    firstConsumedMV = consumedQtyMV;
+                    firstConsumedMV = consumedQtyMV;//消耗总量
                 }
                 //1的消耗*2的比例
                 BigDecimal firstConsumedQty = firstConsumedMV.getValue();
@@ -855,6 +874,7 @@ public class MatAccountModel0710 extends MaterialModel0710<AccountMaterialDAO071
                 MeasuredValue calcConsumedQtyMV = MeasuredValueUtilities.createMV(consumedQty.multiply(firstRatio),
                         consumedQtyMV.getUnitOfMeasure());
                 if (MeasuredValueUtilities.compare(firstCalcQtyMV, calcConsumedQtyMV) != 0) {
+                    NotEqualRatePart[1] =  firstGroup;
                     return false;
                 }
             }
@@ -862,4 +882,7 @@ public class MatAccountModel0710 extends MaterialModel0710<AccountMaterialDAO071
         return true;
     }
 
+    public String[] getNotEqualRatePart() {
+        return NotEqualRatePart;
+    }
 }

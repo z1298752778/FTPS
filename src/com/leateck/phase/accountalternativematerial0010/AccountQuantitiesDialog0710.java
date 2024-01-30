@@ -664,8 +664,9 @@ public class AccountQuantitiesDialog0710 extends PhaseDialog {
         ParallelGroup rowGroup = qtyPanelLayout.createParallelGroup(Alignment.BASELINE, true);
         String controlName = typeConsumption.getControlName();
 
+        String quantitiesLabelText = LcAccountMaterialDAO0710.getQuantitiesLabelText(typeConsumption);
         // label
-        String labelText = typeConsumption.getValue();
+        String labelText = quantitiesLabelText;
         addLabel(labelText, controlName, labelsGroup, rowGroup);
 
         // get the current value, if any

@@ -42,7 +42,7 @@ public class MatAccountPhaseScriptlet0710 extends MaterialPhasesScriptlet0710 {
      * @return localized message
      */
     public String getAccountLocalizedGridHeaderMessage(String msgID) {
-        return I18nMessageUtility.getLocalizedMessage("DataDictionary_Default_AccountMaterialDAO0710", msgID);
+        return I18nMessageUtility.getLocalizedMessage("DataDictionary_Default_LcAccountMaterialDAO0710", msgID);
     }
 
     /**
