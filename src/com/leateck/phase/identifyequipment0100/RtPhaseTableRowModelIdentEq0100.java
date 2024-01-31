@@ -14,7 +14,7 @@ public class RtPhaseTableRowModelIdentEq0100 implements IMESBasePropertyChangeSu
     private List<String[]> eqReqProps;
     private IMESS88Equipment eq;
     private List<String[]> eqProps;
-    public static final String MSGPACK = "DataDictionary_Default_RtPhaseTableRowModelEqIdent0210";
+    public static final String MSGPACK = "DataDictionary_Default_RtPhaseTableRowModelIdentEq0100";
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
     public RtPhaseTableRowModelIdentEq0100(IMESS88EquipmentClass equipmentRequirementClass, List<String[]> requiredProps) {
@@ -33,7 +33,7 @@ public class RtPhaseTableRowModelIdentEq0100 implements IMESBasePropertyChangeSu
         //RtPhaseViewEqIdent0210
         String var1 = "";
         if (this.eqReqClass != null) {
-            var1 = PhaseViewHelper0200.formatIdentifierAndShortDescription("DataDictionary_Default_RtPhaseTableRowModelEqIdent0210", "equipmentClassNoShortDescription_Content", "equipmentClassWithShortDescription_Content", this.eqReqClass.getIdentifier(), this.eqReqClass.getShortDescription());
+            var1 = PhaseViewHelper0200.formatIdentifierAndShortDescription("DataDictionary_Default_RtPhaseTableRowModelIdentEq0100", "equipmentClassNoShortDescription_Content", "equipmentClassWithShortDescription_Content", this.eqReqClass.getIdentifier(), this.eqReqClass.getShortDescription());
         }
 
         return var1;
@@ -42,7 +42,7 @@ public class RtPhaseTableRowModelIdentEq0100 implements IMESBasePropertyChangeSu
     public String getEquipmentIdentifier() {
         String var1 = "";
         if (this.eq != null) {
-            var1 = PhaseViewHelper0200.formatIdentifierAndShortDescription("DataDictionary_Default_RtPhaseTableRowModelEqIdent0210", "equipmentIdentifierNoShortDescription_Content", "equipmentIdentifierWithShortDescription_Content", this.eq.getIdentifier(), this.eq.getShortDescription());
+            var1 = PhaseViewHelper0200.formatIdentifierAndShortDescription("DataDictionary_Default_RtPhaseTableRowModelIdentEq0100", "equipmentIdentifierNoShortDescription_Content", "equipmentIdentifierWithShortDescription_Content", this.eq.getIdentifier(), this.eq.getShortDescription());
         }
 
         return var1;

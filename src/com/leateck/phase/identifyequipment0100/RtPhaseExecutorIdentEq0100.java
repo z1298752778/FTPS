@@ -266,7 +266,7 @@ public class RtPhaseExecutorIdentEq0100 extends AbstractPhaseExecutor0200<RtPhas
     }
 
     public void addNumber(IMESS88Equipment equipment) {
-        if (equipment != null && batchNumberCheck()) {
+        if (equipment != null && numberConfiguration()) {
             EquipmentEntityDataHandler dataHandler = (EquipmentEntityDataHandler) EquipmentObjectType.EQM_ENTITY.getDataHandler();
             try {
                 EquipmentEntityDataHolder dataHolder = dataHandler.createProxy(equipment).getDataHolder();
@@ -306,6 +306,15 @@ public class RtPhaseExecutorIdentEq0100 extends AbstractPhaseExecutor0200<RtPhas
         //设置outPut
          MESRtPhaseOutputIdentEq0100 rtPhaseOutput = (MESRtPhaseOutputIdentEq0100)getRtPhase().getRtPhaseOutput();
         rtPhaseOutput.setIsClean(setIsClean(equipmentIdentified));
+        final IMESS88Equipment eqObject = rtPhaseOutput.getEqObject();
+        final String result = rtPhaseOutput.getResult();
+        rtPhaseOutput.setEqId(rtPhaseOutput.getEqId());
+        rtPhaseOutput.setEqObject(eqObject);
+        rtPhaseOutput.setResult(result);
+        rtPhaseOutput.setEqShortDescription(rtPhaseOutput.getEqShortDescription());
+        rtPhaseOutput.setParent(rtPhaseOutput.getParent());
+        final Response response = rtPhaseOutput.save(PCContext.getCurrentClientTime(), "", null);
+
         this.equipmentIdentified = null;
     }
 
@@ -498,14 +507,14 @@ public class RtPhaseExecutorIdentEq0100 extends AbstractPhaseExecutor0200<RtPhas
                   MESDuration durationValue = cleanExpirationProperty.getDurationValue();
                  if(durationValue != null){
                      //判断是否达到清洁效期临近期内
-                     currentClientTime.addDays(durationValue.getDaysSection());
-                     currentClientTime.addHours(durationValue.getHoursSection());
-                     currentClientTime.addMinutes(durationValue.getMinutesSection());
-                     currentClientTime.addSeconds(durationValue.getSecondsSection());
-                     currentClientTime.addMillis(durationValue.getMillisecondsSection());
-                      Calendar calendar = currentClientTime.getCalendar();
+                      Time time = currentClientTime.addDays(durationValue.getDaysSection()).addHours(durationValue.getHoursSection()).addMinutes(durationValue.getMinutesSection()).addSeconds(durationValue.getSecondsSection()).addMillis(durationValue.getMillisecondsSection());
+//                     currentClientTime.addHours(durationValue.getHoursSection());
+//                     currentClientTime.addMinutes(durationValue.getMinutesSection());
+//                     currentClientTime.addSeconds(durationValue.getSecondsSection());
+//                     currentClientTime.addMillis(durationValue.getMillisecondsSection());
+                      Calendar calendar = time.getCalendar();
                      if(expiryDate != null){
-                         //如果 当前日期+临近提醒期间>过期日 则提醒
+                         //如果 当前日期+临近提醒期间>=过期日 则提醒
                          final Calendar expiryDateCalendar = expiryDate.getCalendar();
                          if(calendar.after(expiryDateCalendar) || calendar.equals(expiryDateCalendar)){
                              PhaseViewHelper0200.showErrorDialog(this.rtPhase, "识别的设备临近清洁有效期，请及时清理设备！");
@@ -538,16 +547,19 @@ public class RtPhaseExecutorIdentEq0100 extends AbstractPhaseExecutor0200<RtPhas
                 Time expiryDate = sterilizationLC1.getExpiryDate();
                 //获取当前日期
                 Time currentClientTime = PCContext.getCurrentClientTime();
+                 Date date = new Date();
+
                 //获取临近灭菌日期
                 MESDuration durationValue = sterilizationExpirationProperty.getDurationValue();
                 if(durationValue != null){
                     //判断是否达到清洁效期临近期内
-                    currentClientTime.addDays(durationValue.getDaysSection());
-                    currentClientTime.addHours(durationValue.getHoursSection());
-                    currentClientTime.addMinutes(durationValue.getMinutesSection());
-                    currentClientTime.addSeconds(durationValue.getSecondsSection());
-                    currentClientTime.addMillis(durationValue.getMillisecondsSection());
-                    Calendar calendar = currentClientTime.getCalendar();
+                     Time time1 = currentClientTime.addDays(durationValue.getDaysSection()).addHours(durationValue.getHoursSection()).addMinutes(durationValue.getMinutesSection()).addSeconds(durationValue.getSecondsSection()).addMillis(durationValue.getMillisecondsSection());
+//                    time1.addHours(durationValue.getHoursSection());
+//                    currentClientTime.addMinutes(durationValue.getMinutesSection());
+//                    currentClientTime.addSeconds(durationValue.getSecondsSection());
+//                    currentClientTime.addMillis(durationValue.getMillisecondsSection());
+                    Calendar calendar = time1.getCalendar();
+                     Date time = calendar.getTime();
                     if(expiryDate != null){
                         //如果 当前日期+临近提醒期间>=过期日 则提醒
                         final Calendar expiryDateCalendar = expiryDate.getCalendar();
@@ -561,7 +573,7 @@ public class RtPhaseExecutorIdentEq0100 extends AbstractPhaseExecutor0200<RtPhas
 
 
             }else{
-                PhaseViewHelper0200.showErrorDialog(this.rtPhase, "配置“灭菌效期临近提醒”属性、灭菌转换模型");
+                PhaseViewHelper0200.showErrorDialog(this.rtPhase, "识别的设备未配置“灭菌效期临近提醒”属性、灭菌转换模型");
             }
 
         }

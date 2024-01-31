@@ -1,19 +1,491 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version 6.1.0.final using JasperReports Library version 6.1.0  -->
-<!-- 2016-06-22T15:45:34 -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="PS-BatchReport-PhaseIdentificationEq_0100.1" pageWidth="475" pageHeight="842" columnWidth="475" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="16a5d82f-57ab-4a74-b4f5-ec3227cc7480">
-	<property name="ireport.scriptlethandling" value="0"/>
-	<property name="ireport.encoding" value="UTF-8"/>
-	<import value="net.sf.jasperreports.engine.*"/>
-	<import value="java.util.*"/>
-	<import value="net.sf.jasperreports.engine.data.*"/>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="PS-BatchReport-PhaseIdentificationEq_0100.1" language="groovy" pageWidth="475" pageHeight="842" columnWidth="475" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" scriptletClass="com.leateck.phase.identifyequipment0100.ReportScriptletIdentEq0100" uuid="34de5abf-50f8-47a3-8786-55f6ccd4d769">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<import value="com.rockwell.mes.services.batchreport.ifc.IBatchProductionRecordDocumentWrapper"/>
 	<template><![CDATA[PS-BatchReport-JasperStylesTemplate.jrtx]]></template>
-	<parameter name="CURRENT_PHASE" class="java.lang.Object"/>
+	<subDataset name="datasetPropVals" uuid="eaa8ddd9-e602-4b4d-87d1-741f50b7edba">
+		<field name="propertyName" class="java.lang.String"/>
+		<field name="propertyValue" class="java.lang.String"/>
+		<field name="isUsageTypeAutomation" class="java.lang.Boolean"/>
+	</subDataset>
+	<subDataset name="dataSetChildEntities" uuid="344687c1-92a3-4ad6-9096-35d31b815ef6">
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+		<queryString>
+			<![CDATA[]]>
+		</queryString>
+		<field name="identifier" class="java.lang.String"/>
+		<field name="shortDescription" class="java.lang.String"/>
+		<field name="statusData" class="java.lang.String"/>
+	</subDataset>
+	<subDataset name="datasetEqPropertyList" uuid="29cf48d3-4c94-4641-92e7-afcbfebf92f9">
+		<queryString>
+			<![CDATA[]]>
+		</queryString>
+		<field name="equipmentIdentifier" class="java.lang.String"/>
+		<field name="equipmentShortDescription" class="java.lang.String"/>
+		<field name="equipmentProperty" class="java.lang.String"/>
+		<field name="equipmentPropertyShortDescription" class="java.lang.String"/>
+		<field name="equipmentPropertyValue" class="java.lang.String"/>
+	</subDataset>
+	<parameter name="CURRENT_RUNTIME_PHASE" class="java.lang.Object"/>
 	<parameter name="BATCH_RECORD_WRAPPER" class="com.rockwell.mes.services.batchreport.ifc.IBatchProductionRecordDocumentWrapper"/>
 	<queryString language="xPath">
 		<![CDATA[]]>
 	</queryString>
+	<variable name="eqIdentifier" class="java.lang.String">
+		<variableExpression><![CDATA[$P{BATCH_RECORD_WRAPPER}.getValueOfRuntimePhase($P{CURRENT_RUNTIME_PHASE}, "eqId")]]></variableExpression>
+	</variable>
+	<variable name="eqDescription" class="java.lang.String">
+		<variableExpression><![CDATA[$P{BATCH_RECORD_WRAPPER}.getValueOfRuntimePhase($P{CURRENT_RUNTIME_PHASE}, "eqShortDesc")]]></variableExpression>
+	</variable>
+	<variable name="reqIdentifier" class="java.lang.String">
+		<variableExpression><![CDATA[$P{BATCH_RECORD_WRAPPER}.getValueOfRuntimePhase($P{CURRENT_RUNTIME_PHASE}, "eqReqClassId")]]></variableExpression>
+	</variable>
+	<variable name="reqDescription" class="java.lang.String">
+		<variableExpression><![CDATA[$P{BATCH_RECORD_WRAPPER}.getValueOfRuntimePhase($P{CURRENT_RUNTIME_PHASE}, "eqReqClassShortDesc")]]></variableExpression>
+	</variable>
+	<variable name="propertyIdValStatesList" class="java.util.List">
+		<variableExpression><![CDATA[$P{REPORT_SCRIPTLET}.propertyItemsEncoded2Collection($P{BATCH_RECORD_WRAPPER}.getValueOfRuntimePhase($P{CURRENT_RUNTIME_PHASE}, "eqIdentPropValsStatesBase64"))]]></variableExpression>
+	</variable>
+	<variable name="propertyIdValList" class="java.util.List">
+		<variableExpression><![CDATA[$P{REPORT_SCRIPTLET}.propertyItemsEncoded2Collection($P{BATCH_RECORD_WRAPPER}.getValueOfRuntimePhase($P{CURRENT_RUNTIME_PHASE}, "eqIdentPropValsBase64"))]]></variableExpression>
+	</variable>
+	<variable name="propertyReqValList" class="java.util.List">
+		<variableExpression><![CDATA[$P{REPORT_SCRIPTLET}.propertyItemsEncoded2Collection($P{BATCH_RECORD_WRAPPER}.getValueOfRuntimePhase($P{CURRENT_RUNTIME_PHASE}, "eqReqPropValsBase64"))]]></variableExpression>
+	</variable>
+	<variable name="propertyReqValStatesList" class="java.util.List">
+		<variableExpression><![CDATA[$P{REPORT_SCRIPTLET}.propertyItemsEncoded2Collection($P{BATCH_RECORD_WRAPPER}.getValueOfRuntimePhase($P{CURRENT_RUNTIME_PHASE}, "eqReqPropValsStatesBase64"))]]></variableExpression>
+	</variable>
+	<variable name="eqPropertyList" class="java.util.List">
+		<variableExpression><![CDATA[$P{REPORT_SCRIPTLET}.propertyListItemsEncoded2Collection($P{BATCH_RECORD_WRAPPER}.getValueOfRuntimePhase($P{CURRENT_RUNTIME_PHASE}, "eqPropertyListBase64"))]]></variableExpression>
+	</variable>
+	<variable name="firstInstruction" class="java.lang.String">
+		<variableExpression><![CDATA[$P{BATCH_RECORD_WRAPPER}.getParameterAttributeOfRuntimePhase($P{CURRENT_RUNTIME_PHASE}, "Instruction", "text")]]></variableExpression>
+	</variable>
+	<variable name="groupParentIdentifier" class="java.lang.String">
+		<variableExpression><![CDATA[$P{BATCH_RECORD_WRAPPER}.getValueOfRuntimePhase($P{CURRENT_RUNTIME_PHASE}, "groupParentId")]]></variableExpression>
+	</variable>
+	<variable name="groupParentDescription" class="java.lang.String">
+		<variableExpression><![CDATA[$P{BATCH_RECORD_WRAPPER}.getValueOfRuntimePhase($P{CURRENT_RUNTIME_PHASE}, "groupParentShortDesc")]]></variableExpression>
+	</variable>
+	<variable name="scannedEqIdentifier" class="java.lang.String">
+		<variableExpression><![CDATA[$P{BATCH_RECORD_WRAPPER}.getValueOfRuntimePhase($P{CURRENT_RUNTIME_PHASE}, "scannedEqId")]]></variableExpression>
+	</variable>
+	<variable name="scannedEqDescription" class="java.lang.String">
+		<variableExpression><![CDATA[$P{BATCH_RECORD_WRAPPER}.getValueOfRuntimePhase($P{CURRENT_RUNTIME_PHASE}, "scannedEqShortDesc")]]></variableExpression>
+	</variable>
+	<variable name="childGridData" class="java.util.List">
+		<variableExpression><![CDATA[$P{REPORT_SCRIPTLET}.getChildEntitiesFromSerializedRepresentation($P{BATCH_RECORD_WRAPPER}.getValueOfRuntimePhase($P{CURRENT_RUNTIME_PHASE}, "childGridDataBase64"))]]></variableExpression>
+	</variable>
 	<detail>
-		<band height="46"/>
+		<band height="20" splitType="Stretch">
+			<textField isStretchWithOverflow="true" pattern="">
+				<reportElement style="TextHtml" stretchType="RelativeToBandHeight" isPrintRepeatedValues="false" x="4" y="0" width="470" height="15" isPrintWhenDetailOverflows="true" uuid="2666ab6e-e661-43c1-a3f1-f67cfe0090f0"/>
+				<textElement verticalAlignment="Top"/>
+				<textFieldExpression><![CDATA[$P{REPORT_SCRIPTLET}.getDisplayText($V{firstInstruction}, "")]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="30" splitType="Stretch">
+			<printWhenExpression><![CDATA[$V{groupParentIdentifier} != null && !$V{groupParentIdentifier}.isEmpty()]]></printWhenExpression>
+			<frame>
+				<reportElement key="" stretchType="RelativeToTallestObject" x="0" y="0" width="475" height="30" isRemoveLineWhenBlank="true" uuid="cd40911c-43dd-4c43-999e-8ae1b41f9588"/>
+				<textField isStretchWithOverflow="true">
+					<reportElement key="" stretchType="RelativeToTallestObject" isPrintRepeatedValues="false" mode="Opaque" x="4" y="0" width="91" height="30" uuid="10c5374b-222d-409b-b052-d3ef7e345bf7"/>
+					<textFieldExpression><![CDATA[($V{groupParentIdentifier} != null  && !$V{groupParentIdentifier}.isEmpty()) ?  $R{PhaseEqmEqIdentification0210.ReportLabel_GroupingParent} : ""]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement key="" style="TextHtml" stretchType="RelativeToTallestObject" mode="Opaque" x="91" y="0" width="383" height="30" uuid="8adc31de-f25b-4bf8-a922-fb3beb4bf2b4"/>
+					<textElement markup="html">
+						<font isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[($V{groupParentIdentifier} != null && !$V{groupParentIdentifier}.isEmpty()) ?  $P{REPORT_SCRIPTLET}.getDisplayTextCombined($V{groupParentIdentifier}, $V{groupParentDescription}, " / ", "") : ""]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+		<band height="80" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<textField>
+				<reportElement style="TextHtml" x="4" y="60" width="470" height="20" backcolor="#DBE5F1" uuid="0dda52f0-a996-4ec3-b85b-c73082949fa7">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+				</reportElement>
+				<textElement verticalAlignment="Top">
+					<font isBold="false" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{PhaseEqmEqIdentification0210.ReportLabel_RequiredProperties}]]></textFieldExpression>
+			</textField>
+			<frame>
+				<reportElement mode="Transparent" x="0" y="0" width="475" height="41" uuid="176af7c8-73f9-4adf-a4bd-cfe082c1b0bc"/>
+				<textField>
+					<reportElement mode="Opaque" x="4" y="0" width="91" height="20" uuid="2dee3e1c-b992-403f-aa27-a9d1087cc6ed"/>
+					<textFieldExpression><![CDATA[$R{PhaseEqmEqIdentification0210.ReportLabel_Class}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement mode="Opaque" x="91" y="0" width="384" height="20" uuid="f30feb60-2665-4028-b8a7-ca8a5dd4b264"/>
+					<textElement markup="html">
+						<font isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[($V{reqIdentifier} != null) ? $P{REPORT_SCRIPTLET}.getDisplayTextCombined($V{reqIdentifier}, $V{reqDescription}, " / ", "") : ""]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement mode="Transparent" x="0" y="21" width="475" height="20" uuid="58e277f1-d1ac-430c-a7a4-c6c07d07875f"/>
+				<textField>
+					<reportElement x="4" y="0" width="91" height="20" uuid="8177bbbe-622d-426a-a9b2-85e697b42936"/>
+					<textFieldExpression><![CDATA[$R{PhaseEqmEqIdentification0210.ReportLabel_Identified}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="91" y="0" width="384" height="20" uuid="d624d85e-dc30-47c2-af5f-d7c38090f446"/>
+					<textElement markup="html">
+						<font isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[($V{eqIdentifier} != null) ? $P{REPORT_SCRIPTLET}.getDisplayTextCombined($V{eqIdentifier}, $V{eqDescription}, " / ", "") : ""]]></textFieldExpression>
+				</textField>
+			</frame>
+			<frame>
+				<reportElement mode="Transparent" x="0" y="40" width="475" height="20" isRemoveLineWhenBlank="true" uuid="53bb1c46-c8fd-45b6-8950-7d7eb0f854c3">
+					<property name="com.jaspersoft.studio.unit.y" value="pixel"/>
+					<printWhenExpression><![CDATA[!$V{childGridData}.isEmpty()]]></printWhenExpression>
+				</reportElement>
+				<textField>
+					<reportElement x="4" y="0" width="91" height="20" isRemoveLineWhenBlank="true" uuid="a7bc3a5e-05b8-4633-8e9b-255ff9aa4bb6"/>
+					<textFieldExpression><![CDATA[$R{PhaseEqmEqIdentification0210.ReportLabel_Scanned}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="91" y="0" width="384" height="20" isRemoveLineWhenBlank="true" uuid="fae81595-6261-4171-beb2-9eec9d1630dc"/>
+					<textElement markup="html">
+						<font isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[($V{scannedEqIdentifier} != null) ? $P{REPORT_SCRIPTLET}.getDisplayTextCombined($V{scannedEqIdentifier}, $V{scannedEqDescription}, " / ", "") :  ""]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+		<band height="20" splitType="Stretch">
+			<printWhenExpression><![CDATA[!$V{propertyReqValList}.isEmpty() || !$V{propertyReqValStatesList}.isEmpty()]]></printWhenExpression>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="GridTextHtml" positionType="Float" x="4" y="0" width="162" height="20" uuid="d1694ba2-0c53-4004-ae27-81300f818a74"/>
+				<textElement verticalAlignment="Top" markup="html">
+					<font isBold="false" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{PhaseEqmEqIdentification0210.ReportLabel_PropertyName}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="GridTextHtml" positionType="Float" x="162" y="0" width="312" height="20" uuid="5917f759-15e6-4865-aaeb-b549f3b360d5"/>
+				<textElement verticalAlignment="Top" markup="html">
+					<font isBold="false" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{PhaseEqmEqIdentification0210.ReportLabel_DescriptionOrRule}]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="21" splitType="Stretch">
+			<printWhenExpression><![CDATA[$V{propertyReqValList}.isEmpty() && $V{propertyReqValStatesList}.isEmpty()]]></printWhenExpression>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="GridTextHtml" positionType="Float" x="4" y="0" width="470" height="20" uuid="b9dec1f6-81f0-48f6-8e0d-3cdd56cbaae8"/>
+				<textElement verticalAlignment="Top" markup="html">
+					<font isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{NotApplicable_Text}]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="20" splitType="Stretch">
+			<printWhenExpression><![CDATA[!$V{propertyReqValList}.isEmpty()]]></printWhenExpression>
+			<componentElement>
+				<reportElement style="TextHtml" positionType="Float" x="4" y="0" width="464" height="20" isRemoveLineWhenBlank="true" uuid="de104fb2-8aa3-4676-9902-a51c1eb5e204">
+					<property name="net.sf.jasperreports.export.headertoolbar.table.name" value=""/>
+				</reportElement>
+				<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
+					<datasetRun subDataset="datasetPropVals" uuid="34623ace-beb4-4187-b103-36eb0cca8270">
+						<datasetParameter name="REPORT_RESOURCE_BUNDLE">
+							<datasetParameterExpression><![CDATA[$P{REPORT_RESOURCE_BUNDLE}]]></datasetParameterExpression>
+						</datasetParameter>
+						<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($V{propertyReqValList})]]></dataSourceExpression>
+					</datasetRun>
+					<jr:listContents height="20">
+						<textField isStretchWithOverflow="true">
+							<reportElement style="GridTextHtml" positionType="Float" mode="Transparent" x="0" y="0" width="150" height="20" uuid="b90015b4-c8b1-4045-baa5-9c41d7fd65b8"/>
+							<textElement verticalAlignment="Top"/>
+							<textFieldExpression><![CDATA[$F{propertyName}]]></textFieldExpression>
+						</textField>
+						<textField isStretchWithOverflow="true">
+							<reportElement style="GridTextHtml" positionType="Float" mode="Transparent" x="162" y="0" width="302" height="20" uuid="5c8d7368-0fd8-40db-9218-6e125beacc35"/>
+							<textElement verticalAlignment="Top"/>
+							<textFieldExpression><![CDATA[($F{isUsageTypeAutomation}.booleanValue() == false)? $F{propertyValue} : $R{NotApplicable_Text}]]></textFieldExpression>
+						</textField>
+					</jr:listContents>
+				</jr:list>
+			</componentElement>
+		</band>
+		<band height="20" splitType="Stretch">
+			<printWhenExpression><![CDATA[!$V{propertyReqValStatesList}.isEmpty()]]></printWhenExpression>
+			<componentElement>
+				<reportElement style="TextHtml" positionType="Float" x="4" y="0" width="464" height="20" isRemoveLineWhenBlank="true" uuid="4deb4527-25d6-49ce-a868-4a1fa2ed12a2"/>
+				<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
+					<datasetRun subDataset="datasetPropVals" uuid="cd9084d9-43fa-48e6-82d9-fc95a36e4bd4">
+						<datasetParameter name="REPORT_RESOURCE_BUNDLE">
+							<datasetParameterExpression><![CDATA[$P{REPORT_RESOURCE_BUNDLE}]]></datasetParameterExpression>
+						</datasetParameter>
+						<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($V{propertyReqValStatesList})]]></dataSourceExpression>
+					</datasetRun>
+					<jr:listContents height="20">
+						<textField isStretchWithOverflow="true">
+							<reportElement style="GridTextHtml" positionType="Float" mode="Transparent" x="0" y="0" width="150" height="20" uuid="a697cffa-1c97-45a8-8362-362e8b760819"/>
+							<textElement verticalAlignment="Top"/>
+							<textFieldExpression><![CDATA[$F{propertyName}]]></textFieldExpression>
+						</textField>
+						<textField isStretchWithOverflow="true">
+							<reportElement style="GridTextHtml" positionType="Float" mode="Transparent" x="162" y="0" width="302" height="20" uuid="8a5765b3-14ba-4d95-b4f6-a1d201c08d74"/>
+							<textElement verticalAlignment="Top"/>
+							<textFieldExpression><![CDATA[($F{isUsageTypeAutomation}.booleanValue() == false)? $F{propertyValue} : $R{NotApplicable_Text}]]></textFieldExpression>
+						</textField>
+					</jr:listContents>
+				</jr:list>
+			</componentElement>
+		</band>
+		<band height="21" splitType="Stretch">
+			<textField>
+				<reportElement style="TextHtml" x="4" y="0" width="470" height="20" backcolor="#DBE5F1" uuid="8c966f2e-97f2-4af0-90ca-31c0ad239ec8"/>
+				<textElement verticalAlignment="Top">
+					<font isBold="false" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{PhaseEqmEqIdentification0210.ReportLabel_IdentifiedProperties}]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="21" splitType="Stretch">
+			<printWhenExpression><![CDATA[!$V{propertyIdValList}.isEmpty() || !$V{propertyIdValStatesList}.isEmpty()]]></printWhenExpression>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="GridTextHtml" positionType="Float" x="4" y="0" width="162" height="20" uuid="f293d390-c90b-49a7-ad5c-5fd5d7eb3fa3"/>
+				<textElement verticalAlignment="Top" markup="html">
+					<font isBold="false" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{PhaseEqmEqIdentification0210.ReportLabel_PropertyName}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="GridTextHtml" positionType="Float" x="162" y="0" width="312" height="20" uuid="9b5711c6-50bb-4462-84a0-4df08416fd84"/>
+				<textElement verticalAlignment="Top" markup="html">
+					<font isBold="false" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{PhaseEqmEqIdentification0210.ReportLabel_PropertyValue}]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="20" splitType="Stretch">
+			<printWhenExpression><![CDATA[$V{propertyIdValList}.isEmpty() && $V{propertyIdValStatesList}.isEmpty()]]></printWhenExpression>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="GridTextHtml" positionType="Float" x="4" y="0" width="470" height="20" uuid="1ac336e0-eefd-4409-8ab1-7812bf81fb6c"/>
+				<textElement verticalAlignment="Top" markup="html">
+					<font isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{NotApplicable_Text}]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="20" splitType="Stretch">
+			<printWhenExpression><![CDATA[!$V{propertyIdValList}.isEmpty()]]></printWhenExpression>
+			<componentElement>
+				<reportElement style="TextHtml" positionType="Float" stretchType="RelativeToTallestObject" x="4" y="0" width="464" height="20" isRemoveLineWhenBlank="true" uuid="3dd43d46-44a3-4ba6-a8fe-97fb4a38570d"/>
+				<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
+					<datasetRun subDataset="datasetPropVals" uuid="d828bd63-24a0-48d5-b675-fc2514b75a74">
+						<datasetParameter name="REPORT_RESOURCE_BUNDLE">
+							<datasetParameterExpression><![CDATA[$P{REPORT_RESOURCE_BUNDLE}]]></datasetParameterExpression>
+						</datasetParameter>
+						<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($V{propertyIdValList})]]></dataSourceExpression>
+					</datasetRun>
+					<jr:listContents height="20">
+						<textField isStretchWithOverflow="true">
+							<reportElement style="GridTextHtml" x="0" y="0" width="150" height="20" uuid="4bbc3e52-e2e1-4292-9e96-3a449dd2e79a"/>
+							<textElement verticalAlignment="Top"/>
+							<textFieldExpression><![CDATA[$F{propertyName}]]></textFieldExpression>
+						</textField>
+						<textField isStretchWithOverflow="true">
+							<reportElement style="GridTextHtml" x="162" y="0" width="302" height="20" uuid="b90d3597-17e1-46e4-9d0e-95fd39a20889"/>
+							<textElement verticalAlignment="Top"/>
+							<textFieldExpression><![CDATA[($F{isUsageTypeAutomation}.booleanValue() == false)? $F{propertyValue} : $R{NotApplicable_Text}]]></textFieldExpression>
+						</textField>
+					</jr:listContents>
+				</jr:list>
+			</componentElement>
+		</band>
+		<band height="20" splitType="Stretch">
+			<printWhenExpression><![CDATA[!$V{propertyIdValStatesList}.isEmpty()]]></printWhenExpression>
+			<componentElement>
+				<reportElement style="TextHtml" positionType="Float" x="4" y="0" width="464" height="20" isRemoveLineWhenBlank="true" uuid="ffd228a3-055a-42e4-b1a1-6374ad220df5"/>
+				<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
+					<datasetRun subDataset="datasetPropVals" uuid="7623db07-9942-45be-988e-b76e04b288da">
+						<datasetParameter name="REPORT_RESOURCE_BUNDLE">
+							<datasetParameterExpression><![CDATA[$P{REPORT_RESOURCE_BUNDLE}]]></datasetParameterExpression>
+						</datasetParameter>
+						<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($V{propertyIdValStatesList})]]></dataSourceExpression>
+					</datasetRun>
+					<jr:listContents height="20">
+						<textField isStretchWithOverflow="true">
+							<reportElement style="GridTextHtml" x="0" y="0" width="150" height="20" uuid="88694e65-a58c-44ec-87da-7f34ea826189"/>
+							<textElement verticalAlignment="Top"/>
+							<textFieldExpression><![CDATA[$F{propertyName}]]></textFieldExpression>
+						</textField>
+						<textField isStretchWithOverflow="true">
+							<reportElement style="GridTextHtml" x="162" y="0" width="302" height="20" uuid="677e9bac-0eaa-4dac-a173-504d6f669feb"/>
+							<textElement verticalAlignment="Top"/>
+							<textFieldExpression><![CDATA[($F{isUsageTypeAutomation}.booleanValue() == false)? $F{propertyValue} : $R{NotApplicable_Text}]]></textFieldExpression>
+						</textField>
+					</jr:listContents>
+				</jr:list>
+			</componentElement>
+		</band>
+		<band height="20">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<textField isStretchWithOverflow="true">
+				<reportElement key="" style="GridTextHtml" positionType="Float" x="4" y="0" width="470" height="20" backcolor="#DBE5F1" uuid="aa6ce869-2c25-4096-be22-32252c21fec2"/>
+				<textElement verticalAlignment="Top">
+					<font isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{PhaseEqmEqIdentification0210.ReportLabel_ListOfEntityProperties}]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="42">
+			<printWhenExpression><![CDATA[!$V{eqPropertyList}.isEmpty()]]></printWhenExpression>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="GridTextHtml" positionType="Float" x="4" y="0" width="140" height="20" uuid="b425aaa6-f410-4970-a6ac-3874fd498926"/>
+				<textElement verticalAlignment="Top">
+					<font isBold="false" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{PhaseEqmEqIdentification0210.ReportLabel_eqEntityIdentifier}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="GridTextHtml" positionType="Float" x="144" y="0" width="140" height="20" uuid="cd817f09-ec27-41bc-8200-e5c8ed51e8cb"/>
+				<textElement verticalAlignment="Top">
+					<font isBold="false" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{PhaseEqmEqIdentification0210.ReportLabel_eqPropertyIdentifier}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="GridTextHtml" positionType="Float" x="284" y="0" width="190" height="20" uuid="60da69be-ccec-4037-a04d-e5511fe1bb5c"/>
+				<textElement verticalAlignment="Top">
+					<font isBold="false" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{PhaseEqmEqIdentification0210.ReportLabel_eqPropertyValue}]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement style="TextHtml" positionType="Float" stretchType="RelativeToTallestObject" x="4" y="20" width="464" height="22" isRemoveLineWhenBlank="true" uuid="b52bca2f-6d90-48bc-a58d-865f961ac2e5">
+					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+				</reportElement>
+				<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
+					<datasetRun subDataset="datasetEqPropertyList" uuid="27dabaa9-4b0f-4b77-b0da-0fdfc686606f">
+						<datasetParameter name="REPORT_RESOURCE_BUNDLE">
+							<datasetParameterExpression><![CDATA[$P{REPORT_RESOURCE_BUNDLE}]]></datasetParameterExpression>
+						</datasetParameter>
+						<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($V{eqPropertyList})]]></dataSourceExpression>
+					</datasetRun>
+					<jr:listContents height="22" width="464">
+						<textField isStretchWithOverflow="true">
+							<reportElement style="GridText" stretchType="RelativeToTallestObject" x="0" y="0" width="140" height="20" uuid="09eeb65d-11e1-4cf1-bdd3-024599906507"/>
+							<box>
+								<bottomPen lineWidth="1.0"/>
+							</box>
+							<textFieldExpression><![CDATA[$F{equipmentIdentifier}.isEmpty() ? $R{NotApplicable_Text} : $F{equipmentIdentifier}]]></textFieldExpression>
+						</textField>
+						<textField isStretchWithOverflow="true">
+							<reportElement style="GridText" stretchType="RelativeToTallestObject" x="140" y="0" width="140" height="20" uuid="a5bbe950-4685-4457-853e-75b3cb40e510"/>
+							<box>
+								<bottomPen lineWidth="1.0"/>
+							</box>
+							<textFieldExpression><![CDATA[$F{equipmentProperty}.isEmpty() ? $R{NotApplicable_Text} : $F{equipmentProperty}]]></textFieldExpression>
+						</textField>
+						<textField isStretchWithOverflow="true">
+							<reportElement style="GridText" stretchType="RelativeToTallestObject" x="280" y="0" width="184" height="20" uuid="7c043c2f-09de-4a1d-80b0-d32b68042e3d"/>
+							<box>
+								<bottomPen lineWidth="1.0"/>
+							</box>
+							<textFieldExpression><![CDATA[$F{equipmentPropertyValue}.isEmpty() ? $R{NotApplicable_Text} : $F{equipmentPropertyValue}]]></textFieldExpression>
+						</textField>
+					</jr:listContents>
+				</jr:list>
+			</componentElement>
+		</band>
+		<band height="20">
+			<printWhenExpression><![CDATA[$V{eqPropertyList}.isEmpty()]]></printWhenExpression>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="GridTextHtml" positionType="Float" x="4" y="0" width="470" height="20" uuid="a6fa9f8e-e2b9-4bdc-ba66-111deb555df6"/>
+				<textElement verticalAlignment="Top" markup="html">
+					<font isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{NotApplicable_Text}]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="20">
+			<textField isStretchWithOverflow="true">
+				<reportElement key="" style="GridTextHtml" positionType="Float" x="4" y="0" width="470" height="20" backcolor="#DBE5F1" uuid="4fab7c76-b934-4dce-aac2-7fc054aa15ab"/>
+				<textElement verticalAlignment="Top">
+					<font isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{PhaseEqmEqIdentification0210.ReportLabel_ListOfChildEntities}]]></textFieldExpression>
+			</textField>
+		</band>
+		<band height="42">
+			<printWhenExpression><![CDATA[!$V{childGridData}.isEmpty()]]></printWhenExpression>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="GridTextHtml" positionType="Float" x="4" y="0" width="140" height="20" uuid="3dfefee7-7ef8-4a75-9539-ef4f2a72ae8a"/>
+				<textElement verticalAlignment="Top">
+					<font isBold="false" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{PhaseEqmEqIdentification0210.ReportLabel_EntityIdentifier}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="GridTextHtml" positionType="Float" x="144" y="0" width="140" height="20" uuid="235d9864-d1ab-4aed-8d15-7b2ac09a9139"/>
+				<textElement verticalAlignment="Top">
+					<font isBold="false" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{PhaseEqmEqIdentification0210.ReportLabel_EntityShortDescription}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="GridTextHtml" positionType="Float" x="284" y="0" width="190" height="20" uuid="7ea9cf27-ee6e-4a51-a84d-f3d516babcf7"/>
+				<textElement verticalAlignment="Top">
+					<font isBold="false" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{PhaseEqmEqIdentification0210.ReportLabel_EntityStatuses}]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement style="TextHtml" positionType="Float" stretchType="RelativeToTallestObject" x="4" y="20" width="464" height="22" isRemoveLineWhenBlank="true" uuid="101ebde7-3256-4ffc-89fe-740a8c4fc26b">
+					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+				</reportElement>
+				<jr:list xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" printOrder="Vertical">
+					<datasetRun subDataset="dataSetChildEntities" uuid="94705e25-ae5f-4ced-b4f0-bf8cdc62d191">
+						<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($V{childGridData})]]></dataSourceExpression>
+					</datasetRun>
+					<jr:listContents height="22" width="464">
+						<textField isStretchWithOverflow="true">
+							<reportElement style="GridText" stretchType="RelativeToTallestObject" x="0" y="0" width="140" height="20" uuid="5d16eee1-58cb-4bc8-9c34-14f653768a30"/>
+							<box>
+								<bottomPen lineWidth="1.0"/>
+							</box>
+							<textFieldExpression><![CDATA[$F{identifier}]]></textFieldExpression>
+						</textField>
+						<textField isStretchWithOverflow="true">
+							<reportElement style="GridText" stretchType="RelativeToTallestObject" x="140" y="0" width="140" height="20" uuid="a84524dc-6305-4ade-b630-2b1223704954"/>
+							<box>
+								<bottomPen lineWidth="1.0"/>
+							</box>
+							<textFieldExpression><![CDATA[$F{shortDescription}]]></textFieldExpression>
+						</textField>
+						<textField isStretchWithOverflow="true">
+							<reportElement style="GridText" stretchType="RelativeToTallestObject" x="280" y="0" width="184" height="20" uuid="9c815de6-0c86-4f80-b662-44e4037f8e3e"/>
+							<box>
+								<bottomPen lineWidth="1.0"/>
+							</box>
+							<textFieldExpression><![CDATA[$F{statusData}]]></textFieldExpression>
+						</textField>
+					</jr:listContents>
+				</jr:list>
+			</componentElement>
+		</band>
+		<band height="20">
+			<printWhenExpression><![CDATA[$V{childGridData}.isEmpty()]]></printWhenExpression>
+			<textField isStretchWithOverflow="true">
+				<reportElement style="GridTextHtml" positionType="Float" x="4" y="0" width="470" height="20" uuid="2be72ccc-2627-43c5-9480-6f9502bc8efe"/>
+				<textElement verticalAlignment="Top" markup="html">
+					<font isBold="false"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$R{NotApplicable_Text}]]></textFieldExpression>
+			</textField>
+		</band>
 	</detail>
 </jasperReport>
