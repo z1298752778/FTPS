@@ -113,6 +113,7 @@ public class ExpressionEvalEx extends ExpressionEval {
             if ("Completion time".equals(outputName)) {
                 return filteredObjects2.get(filteredObjects2.size() - 1).getCompleted();
             } else if ("Identifier".equals(outputName)) {
+                //filteredObjects2.get(filteredObjects2.size() - 1).getPhaseName();
                 return stepName;
             } else if ("Instance count".equals(outputName)) {
                 return filteredObjects2.get(filteredObjects2.size() - 1).getInstanceCount();

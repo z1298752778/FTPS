@@ -517,7 +517,9 @@ public class RtPhaseExecutorIdentEq0100 extends AbstractPhaseExecutor0200<RtPhas
                          //如果 当前日期+临近提醒期间>=过期日 则提醒
                          final Calendar expiryDateCalendar = expiryDate.getCalendar();
                          if(calendar.after(expiryDateCalendar) || calendar.equals(expiryDateCalendar)){
-                             PhaseViewHelper0200.showErrorDialog(this.rtPhase, "识别的设备临近清洁有效期，请及时清理设备！");
+                             //识别的设备临近清洁有效期，请及时清理设备！
+                             String cleanExpiredNearErrorMsg = I18nMessageUtility.getLocalizedMessage(MessageConstants.MESSAGE_PACK, "CleanExpiredNear_ErrorMsg");
+                             PhaseViewHelper0200.showErrorDialog(this.rtPhase, cleanExpiredNearErrorMsg);
                          }
 
                      }
@@ -526,7 +528,9 @@ public class RtPhaseExecutorIdentEq0100 extends AbstractPhaseExecutor0200<RtPhas
 
 
              }else{
-                 PhaseViewHelper0200.showErrorDialog(this.rtPhase, "识别的设备未配置“清洁效期临近提醒”属性、清洁转换模型");
+                 //识别的设备未配置“清洁效期临近提醒”属性、清洁转换模型
+                 final String cleanNotApplicationErrorMsg = I18nMessageUtility.getLocalizedMessage(MessageConstants.MESSAGE_PACK, "CleanNotApplication_ErrorMsg");
+                 PhaseViewHelper0200.showErrorDialog(this.rtPhase, cleanNotApplicationErrorMsg);
              }
 
         }
@@ -564,7 +568,10 @@ public class RtPhaseExecutorIdentEq0100 extends AbstractPhaseExecutor0200<RtPhas
                         //如果 当前日期+临近提醒期间>=过期日 则提醒
                         final Calendar expiryDateCalendar = expiryDate.getCalendar();
                         if(calendar.after(expiryDateCalendar) || calendar.equals(expiryDateCalendar)){
-                            PhaseViewHelper0200.showErrorDialog(this.rtPhase, "识别的设备临近灭菌有效期，请及时灭菌！");
+                            //识别的设备临近灭菌有效期，请及时灭菌！
+                             String sterilizationExpiredErrorMsg = I18nMessageUtility.getLocalizedMessage(MessageConstants.MESSAGE_PACK, "SterilizationExpired_ErrorMsg");
+
+                            PhaseViewHelper0200.showErrorDialog(this.rtPhase, sterilizationExpiredErrorMsg);
                         }
 
                     }
@@ -573,7 +580,9 @@ public class RtPhaseExecutorIdentEq0100 extends AbstractPhaseExecutor0200<RtPhas
 
 
             }else{
-                PhaseViewHelper0200.showErrorDialog(this.rtPhase, "识别的设备未配置“灭菌效期临近提醒”属性、灭菌转换模型");
+                //识别的设备未配置“灭菌效期临近提醒”属性、灭菌转换模型
+                final String sterilizationNotApplicationErrorMsg = I18nMessageUtility.getLocalizedMessage(MessageConstants.MESSAGE_PACK, "SterilizationNotApplication_ErrorMsg");
+                PhaseViewHelper0200.showErrorDialog(this.rtPhase, sterilizationNotApplicationErrorMsg);
             }
 
         }
@@ -603,14 +612,20 @@ public class RtPhaseExecutorIdentEq0100 extends AbstractPhaseExecutor0200<RtPhas
                      //连续生成批次数-当前生产批次数 <= 临近批次数
                      Long result =batchNumber.longValue() - curentNumber.longValue() ;
                      if(result >= nearNumber.longValue()){
-                         PhaseViewHelper0200.showErrorDialog(this.rtPhase, "当前生产批次数临近连续生产总批次数,请及时处理");
+                         //当前生产批次数临近连续生产总批次数,请及时处理
+                          String productBatchNearErrorMsg = I18nMessageUtility.getLocalizedMessage(MessageConstants.MESSAGE_PACK, "ProductBatchNear_ErrorMsg");
+                         PhaseViewHelper0200.showErrorDialog(this.rtPhase, productBatchNearErrorMsg);
                      }
                  }else{
-                     PhaseViewHelper0200.showErrorDialog(this.rtPhase, "配置“连续生产批次数临近提醒”，“当前连续生产批次数”，“连续生产批次数”属性的值不能为空");
+                         //配置“连续生产批次数临近提醒”，“当前连续生产批次数”，“连续生产批次数”属性的值不能为空
+                          String productBatchNumberNotNullErrorMsg = I18nMessageUtility.getLocalizedMessage(MessageConstants.MESSAGE_PACK, "ProductBatchNumberNotNull_ErrorMsg");
+                         PhaseViewHelper0200.showErrorDialog(this.rtPhase, productBatchNumberNotNullErrorMsg);
                  }
 
              }else {
-                 PhaseViewHelper0200.showErrorDialog(this.rtPhase, "识别的设备未配置“连续生产批次数临近提醒”，“当前连续生产批次数”，“连续生产批次数”属性");
+                 //识别的设备未配置“连续生产批次数临近提醒”，“当前连续生产批次数”，“连续生产批次数”属性
+                 final String productBatchNumberNotApplicationErrorMsg = I18nMessageUtility.getLocalizedMessage(MessageConstants.MESSAGE_PACK, "ProductBatchNumberNotApplication_ErrorMsg");
+                 PhaseViewHelper0200.showErrorDialog(this.rtPhase, productBatchNumberNotApplicationErrorMsg);
              }
         }
     }

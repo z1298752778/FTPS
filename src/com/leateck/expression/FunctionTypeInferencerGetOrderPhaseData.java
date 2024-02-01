@@ -19,6 +19,8 @@ public final class FunctionTypeInferencerGetOrderPhaseData implements IExpressio
 
         }
 
-        return support.createTypeDescriptor(Object.class, true);
+//        return support.createTypeDescriptor(Object.class, true);
+        return support.createTypeDescriptorForUnknownType();
     }
+
 }

@@ -9,6 +9,7 @@ import com.rockwell.mes.clientfw.docking.ifc.expression.editor.intellihints.Inte
 import com.rockwell.mes.clientfw.docking.ifc.expression.editor.intellihints.StringConstantIntelliHintDescriptor;
 import com.rockwell.mes.commons.base.ifc.choicelist.IMESChoiceElement;
 import com.rockwell.mes.commons.base.ifc.choicelist.MESChoiceListHelper;
+import com.rockwell.mes.commons.base.ifc.i18n.I18nMessageUtility;
 import com.rockwell.mes.commons.base.ifc.services.ServiceFactory;
 import com.rockwell.mes.services.s88equipment.ifc.statusgraph.IMESS88StatusGraph;
 import com.rockwell.mes.services.s88equipment.ifc.statusgraph.IMESS88StatusGraphFilter;
@@ -25,8 +26,10 @@ public class FunctionSpecificIntelliHintsForTriggerGraphFunctions extends Abstra
         //目的名称
         if (functionCallDescriptor.getIndexOfOpenArgument() == 2) {
             ArrayList<StringConstantIntelliHintDescriptor> list = new ArrayList<>();
+            //目的名称 Purposr_Label
+             String purposrLabel = I18nMessageUtility.getLocalizedMessage("LC_Expression", "Purposr_Label");
             IntelliHintDescriptorsSection section = new IntelliHintDescriptorsSection(1000,
-                    "目的名称",
+                    purposrLabel,
                     ChoiceElementIntelliHintDescriptor.getGenericChoiceListSectionIcon());
             IMESS88StatusGraphFilter var3 = ((IS88StatusGraphService) ServiceFactory.getService(IS88StatusGraphService.class)).createEquipmentStatusGraphFilter();
             final List<IMESS88StatusGraph> filteredObjects = var3.getFilteredObjects();
@@ -48,8 +51,11 @@ public class FunctionSpecificIntelliHintsForTriggerGraphFunctions extends Abstra
             String name = functionCallDescriptor.getArgumentPrecedingTheOpenArgument(2);
             name = declear(name);
             ArrayList<StringConstantIntelliHintDescriptor> list = new ArrayList<>();
+            //允许的触发器名称
+            String purposrLabel = I18nMessageUtility.getLocalizedMessage("LC_Expression", "TriggerName_Label");
+
             IntelliHintDescriptorsSection section = new IntelliHintDescriptorsSection(1000,
-                    "允许的触发器名称",
+                    purposrLabel,
                     ChoiceElementIntelliHintDescriptor.getGenericChoiceListSectionIcon());
             IMESS88StatusGraphFilter var3 = ((IS88StatusGraphService) ServiceFactory.getService(IS88StatusGraphService.class)).createEquipmentStatusGraphFilter();
             //获取key
