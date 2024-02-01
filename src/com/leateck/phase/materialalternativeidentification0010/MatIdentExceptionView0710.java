@@ -42,9 +42,9 @@ public class MatIdentExceptionView0710 extends AbstractPhaseExceptionView0200<Ma
      *
      */
     private enum ExceptionType {
-        /** manual identification */
+        /** manual identification 手动识别*/
         MANUAL("Manual"),
-        /** undo  identification */
+        /** undo  identification  取消识别*/
         UNDO("Undo");
         
         /** The name of the input field */
@@ -85,6 +85,7 @@ public class MatIdentExceptionView0710 extends AbstractPhaseExceptionView0200<Ma
     
     /**
      * @return the id of the identified item id entered by the user for manual identification
+     * 返回用户输入的已识别项目id的id进行手动识别
      */
     public String getItemIDForManualIdent() {
         return itemInputManual.getText();
@@ -214,7 +215,11 @@ public class MatIdentExceptionView0710 extends AbstractPhaseExceptionView0200<Ma
         return recordWarehouseErrorPanel;
     }
 
-
+    /**
+     * 获取异常界面文本翻译
+     * @param exception
+     * @return
+     */
     private String getInstruction(final ExceptionType exception) {
         final boolean isWarehouseSystemConnected = getModel().isWarehauseApplicationAvailable();
         String instruction = StringUtilsEx.EMPTY;

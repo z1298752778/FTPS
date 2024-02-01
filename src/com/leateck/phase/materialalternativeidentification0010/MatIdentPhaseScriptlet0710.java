@@ -2,6 +2,9 @@ package com.leateck.phase.materialalternativeidentification0010;
 
 import com.rockwell.mes.commons.base.ifc.i18n.I18nMessageUtility;
 import com.rockwell.mes.commons.base.ifc.utility.ObjectFactory;
+import com.rockwell.mes.commons.base.ifc.utility.StringConstants;
+import com.rockwell.mes.commons.base.ifc.utility.StringUtilsEx;
+import com.rockwell.mes.services.batchreport.ifc.IBatchProductionRecordDocumentWrapper;
 import com.rockwell.mes.services.batchreport.ifc.IBatchProductionRecordDocumentWrapper.IProcessDataWrapper;
 import com.rockwell.mes.services.batchreport.ifc.IMESB2MMLJRDataSource;
 import com.rockwell.mes.shared.product.material.MaterialPhasesScriptlet0710;
@@ -31,6 +34,15 @@ public class MatIdentPhaseScriptlet0710 extends MaterialPhasesScriptlet0710 {
 
     private static final String SUBLOT_ID = "sublotIDStr";
 
+
+    public String getLocalizedGridHeaderMessage(String msgID) {
+        return I18nMessageUtility.getLocalizedMessage("DataDictionary_Default_LcAbstractProcMaterialDAO0710", msgID);
+    }
+
+    public String getField(JRDataSource ds, String fieldID) {
+        return ((IBatchProductionRecordDocumentWrapper.IProcessDataWrapper)((IMESB2MMLJRDataSource)ds).getCurrentBean()).getProcessValue(fieldID);
+    }
+
     /**
      * Get a localized message from the message pack (summary grid header)
      *
@@ -41,7 +53,7 @@ public class MatIdentPhaseScriptlet0710 extends MaterialPhasesScriptlet0710 {
     }
 
     /**
-     * Get the phase result value from the data source
+     * Get the phase result value from  the data source
      *
      * @param dataListForResult data source
      * @param fieldID           field name
@@ -53,6 +65,51 @@ public class MatIdentPhaseScriptlet0710 extends MaterialPhasesScriptlet0710 {
             resultValue = ipdw.getProcessValue(fieldID);
         }
         return resultValue;
+    }
+
+    public String getComment(Collection<IBatchProductionRecordDocumentWrapper.IProcessDataWrapper> data) {
+        StringBuilder var2 = new StringBuilder();
+        var2.append(I18nMessageUtility.getLocalizedMessage("PhaseProductMaterial0710", "CommentHeader"));
+        boolean var3 = false;
+        Iterator var4 = data.iterator();
+
+        while(var4.hasNext()) {
+            IBatchProductionRecordDocumentWrapper.IProcessDataWrapper var5 = (IBatchProductionRecordDocumentWrapper.IProcessDataWrapper)var4.next();
+            if (Boolean.valueOf(var5.getProcessValue("isHeader"))) {
+                String var6 = var5.getProcessValue("commentToExecutionStr");
+                if (!StringUtilsEx.isEmpty(var6)) {
+                    var3 = true;
+                    var2.append(StringConstants.LINE_BREAK);
+                    String var7 = var5.getProcessValue("materialID");
+                    String var8 = var7.indexOf(44) >= 0 ? var7.split(",", 2)[1] : var7;
+                    var2.append(I18nMessageUtility.getLocalizedMessage("PhaseProductMaterial0710", "CommentFormat", new Object[]{var8, var6}));
+                }
+            }
+        }
+
+        if (var3) {
+            return var2.toString();
+        } else {
+            return "";
+        }
+    }
+
+    public Boolean hasLogisticUnits(Collection<IBatchProductionRecordDocumentWrapper.IProcessDataWrapper> data) {
+        Boolean var2 = Boolean.FALSE;
+        Iterator var3 = data.iterator();
+
+        while(var3.hasNext()) {
+            IBatchProductionRecordDocumentWrapper.IProcessDataWrapper var4 = (IBatchProductionRecordDocumentWrapper.IProcessDataWrapper)var3.next();
+            if (!Boolean.valueOf(var4.getProcessValue("isUnidentified"))) {
+                String var5 = var4.getProcessValue("logisticUnitID");
+                if (StringUtilsEx.isNotEmpty(var5)) {
+                    var2 = Boolean.TRUE;
+                    break;
+                }
+            }
+        }
+
+        return var2;
     }
 
     /**

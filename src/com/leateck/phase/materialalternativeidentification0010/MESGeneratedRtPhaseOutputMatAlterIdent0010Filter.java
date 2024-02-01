@@ -25,7 +25,7 @@ public abstract class MESGeneratedRtPhaseOutputMatAlterIdent0010Filter extends M
     private static final long serialVersionUID = 1L;
 
     /** Generated attribute definition */
-    private static final String ATDEFINITION_NAME = "SC_PhOutMatAlterIdent0010";
+    private static final String ATDEFINITION_NAME = "LC_PhOutMatAlterIdent0010";
 
     /**
      * Generated method definition
@@ -91,7 +91,7 @@ public abstract class MESGeneratedRtPhaseOutputMatAlterIdent0010Filter extends M
      */
     public MESRtPhaseOutputMatAlterIdent0010Filter forResultEqualTo(String value) //
             throws DatasweepException {
-        return (MESRtPhaseOutputMatAlterIdent0010Filter) forColumnNameEqualTo("SC_Result", value);
+        return (MESRtPhaseOutputMatAlterIdent0010Filter) forColumnNameEqualTo("LC_Result", value);
     }
 
     /**
@@ -103,7 +103,7 @@ public abstract class MESGeneratedRtPhaseOutputMatAlterIdent0010Filter extends M
      */
     public MESRtPhaseOutputMatAlterIdent0010Filter forResultNotEqualTo(String value) //
             throws DatasweepException {
-        return (MESRtPhaseOutputMatAlterIdent0010Filter) forColumnNameNotEqualTo("SC_Result", value);
+        return (MESRtPhaseOutputMatAlterIdent0010Filter) forColumnNameNotEqualTo("LC_Result", value);
     }
 
     /**
@@ -115,7 +115,7 @@ public abstract class MESGeneratedRtPhaseOutputMatAlterIdent0010Filter extends M
      */
     public MESRtPhaseOutputMatAlterIdent0010Filter forResultContaining(String value) //
             throws DatasweepException {
-        return (MESRtPhaseOutputMatAlterIdent0010Filter) forColumnNameContaining("SC_Result", value);
+        return (MESRtPhaseOutputMatAlterIdent0010Filter) forColumnNameContaining("LC_Result", value);
     }
 
     /**
@@ -127,7 +127,7 @@ public abstract class MESGeneratedRtPhaseOutputMatAlterIdent0010Filter extends M
      */
     public MESRtPhaseOutputMatAlterIdent0010Filter forResultStartingWith(String value) //
             throws DatasweepException {
-        return (MESRtPhaseOutputMatAlterIdent0010Filter) forColumnNameStartingWith("SC_Result", value);
+        return (MESRtPhaseOutputMatAlterIdent0010Filter) forColumnNameStartingWith("LC_Result", value);
     }
 
 }

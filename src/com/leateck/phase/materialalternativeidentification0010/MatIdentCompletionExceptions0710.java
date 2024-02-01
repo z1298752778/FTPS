@@ -1,10 +1,15 @@
 package com.leateck.phase.materialalternativeidentification0010;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.rockwell.mes.apps.ebr.ifc.phase.ui.PhaseQuestionDialog;
+import com.rockwell.mes.commons.parameter.exceptiondef.MESParamExceptionDef0300;
+import com.rockwell.mes.parameter.product.excptenabledef.MESParamExcptEnableDef0200;
 import com.rockwell.mes.services.s88.ifc.recipe.IMESMaterialParameter;
+import com.rockwell.mes.shared.product.material.MaterialModel0710;
 import org.apache.commons.lang3.StringUtils;
 
 import com.datasweep.compatibility.client.MeasuredValue;
@@ -26,6 +31,7 @@ import com.rockwell.mes.services.wip.ifc.LimitsAndPlannedQuantity;
 import com.rockwell.mes.shared.product.material.AccountMaterialDAO0710;
 import com.rockwell.mes.shared0400.product.util.ParamClassConstants0400;
 
+
 /**
  * Extension of {@link PhaseSystemTriggeredExceptionsCollector}, which contains the specific system triggered exceptions
  * triggered on completion of this phase.
@@ -34,8 +40,80 @@ import com.rockwell.mes.shared0400.product.util.ParamClassConstants0400;
  * @author ikoleva, (c) Copyright 2020 Rockwell Automation Technologies, Inc. All Rights Reserved.
  */
 public class MatIdentCompletionExceptions0710 extends PhaseSystemTriggeredExceptionsCollector<RtPhaseExecutorMatAlterIdent0010> {
+
     /** Enumeration containing all system triggered exceptions for this phase. */
     enum SystemtriggeredExceptionEnum {
+        proportionalAnomaly(RtPhaseExecutorMatAlterIdent0010.PROPORTIONALANOMALY) {
+            @Override
+            boolean conditionForSystemtriggeredException(RtPhaseExecutorMatAlterIdent0010 executor) {
+                /**
+                 * 组合物料 组合比例不一致校验（开启自消耗才校验）
+                 */
+                if(executor.getModel().getAutoConsume()){
+                    if (executor.getModel().checkCombineGroupIsEqualWithRate() == false) {
+                        final String isContinueMsg = I18nMessageUtility.getLocalizedMessage(MaterialModel0710.PHASE_PRODUCT_MATERIAL_MSGPACK, "CombineGroupIsEqualWithRate_Error",new Object[]{RtPhaseExecutorMatAlterIdent0010.mainMaterial,RtPhaseExecutorMatAlterIdent0010.combineGroupName});
+                        PhaseQuestionDialog questionDialog = new PhaseQuestionDialog();
+                        int userChoice = questionDialog.showDialog(isContinueMsg);
+                        flag = userChoice;
+                        if (userChoice != 0) {
+                            return false;
+                        }else{
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+
+            @Override
+            void createException(final MatIdentCompletionExceptions0710 exceptions) {
+                String msg = I18nMessageUtility.getLocalizedMessage(MaterialModel0710.PHASE_PRODUCT_MATERIAL_MSGPACK, "CombineGroupIsEqualWithRate_Msg",new Object[]{RtPhaseExecutorMatAlterIdent0010.mainMaterial,RtPhaseExecutorMatAlterIdent0010.combineGroupName});
+                MESParamExceptionDef0300 def = exceptions.executor.getProportionalAnomaly();
+                String exceptionStr = def.getExceptionDescr() + "\r\n" + msg;
+                long risk = def.getRiskAssessment();
+                RiskClass riskclass = RiskClass.valueOf(risk);
+                exceptions.executor.displayException(getCheckKey(),riskclass,exceptionStr);
+            }
+        },
+        Insufficien(RtPhaseExecutorMatAlterIdent0010.INSUFFICIENTRECOGNITIONQUANTITY) {
+            @Override
+            boolean conditionForSystemtriggeredException(RtPhaseExecutorMatAlterIdent0010 executor) {
+                /**
+                 * 校验主料识别量是否满足计划量
+                 * 1.自消耗：所有物料（包括主料）抓取识别量 / 替代比例 * 主料替代比例 = 主料识别量总量
+                 * 2.不是自消耗：通过当前物料消耗量 / 替代比例 * 主料替代比例 = 主料识别量总量
+                 */
+                if(!executor.getModel().getAutoConsume()){
+                    if (executor.masterOsiException != null && executor.totalConsumedQtyException != null){
+                        BigDecimal plannedQuantity = executor.masterOsiException.getPlannedQuantity().getValue();
+                        if(plannedQuantity != null && plannedQuantity.compareTo(BigDecimal.ZERO) != 0){
+                            if((executor.totalConsumedQtyException.getValue()).compareTo(plannedQuantity) < 0){
+                                //主料实际识别量不足
+                                PhaseQuestionDialog questionDialog = new PhaseQuestionDialog();
+                                int torf = questionDialog.showDialog(I18nMessageUtility.getLocalizedMessage(RtPhaseExecutorMatAlterIdent0010.MSG_PACK, "MainMatInsufficientException", new Object[]{RtPhaseExecutorMatAlterIdent0010.masterOsiException.getPart().getPartNumber()}));
+                                flag = torf;
+                                if(torf != 0){
+                                    return false;
+                                }else{
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+                return false;
+            }
+
+            @Override
+            void createException(final MatIdentCompletionExceptions0710 exceptions) {
+                String msg = I18nMessageUtility.getLocalizedMessage(RtPhaseExecutorMatAlterIdent0010.MSG_PACK, "MainMatInsufficientExceptionMsg", new Object[]{RtPhaseExecutorMatAlterIdent0010.masterOsiException.getPart().getPartNumber()});
+                MESParamExceptionDef0300 def = exceptions.executor.getRecognitionQuantityInsufficient();
+                String exceptionStr = def.getExceptionDescr() + "\r\n" + msg;
+                long risk = def.getRiskAssessment();
+                RiskClass riskclass = RiskClass.valueOf(risk);
+                exceptions.executor.displayException(getCheckKey(),riskclass,exceptionStr);
+            }
+        },
         /** Overweigh. */
         QuantityOutOfTolerance(ParamClassConstants0400.PARAMETER_QTY_OUF_OF_TOLERANCE) {
             /**
@@ -51,6 +129,7 @@ public class MatIdentCompletionExceptions0710 extends PhaseSystemTriggeredExcept
 
                 private final MeasuredValue consumedQuantity;
 
+
                 private ResultSet(String material, LimitsAndPlannedQuantity limits, MeasuredValue consumed) {
                     materialID = material;
                     limitsAndPlannedQuantity = limits;
@@ -58,11 +137,15 @@ public class MatIdentCompletionExceptions0710 extends PhaseSystemTriggeredExcept
                 }
             }
 
+
             @Override
             boolean conditionForSystemtriggeredException(RtPhaseExecutorMatAlterIdent0010 executor) {
                 return isAutoConsume(executor) && !getQuantitiesOutOfRange(executor).isEmpty();
             }
 
+            /**
+            当前phase是否勾选自消耗
+             */
             private Boolean isAutoConsume(RtPhaseExecutorMatAlterIdent0010 executor) {
                 return executor.getModel().getAutoConsume();
             }
@@ -113,6 +196,7 @@ public class MatIdentCompletionExceptions0710 extends PhaseSystemTriggeredExcept
                         // Completion exception this could be overriden. In that case we don't want to have a further
                         // system triggered exception. Furthermore normally phase cannot completed without having
                         // all sublots identified.
+                        //当前物料设置为 按照生产量模式 则返回true
                         final boolean asProduced = isAsProduced(osi);
                         // the entire identified quantity must be in the range
 //                        MeasuredValue totalIdentifiedQty= getTotalIdentifiedQuantity(osi);
@@ -123,6 +207,7 @@ public class MatIdentCompletionExceptions0710 extends PhaseSystemTriggeredExcept
                                 : getIsOutOfRangeAndSaveRangeCondition(osi, totalIdentifiedQty, executor);
 
                         if (!asProduced && isOutOfRange) {
+                            //是自消耗
                             result.add(
                                     new ResultSet(osi.getPart().getPartNumber(), service.determineLimitsAndPlannedQuantity(osi), totalIdentifiedQty));
                         }
@@ -169,6 +254,7 @@ public class MatIdentCompletionExceptions0710 extends PhaseSystemTriggeredExcept
 
         private final String parameterName;
 
+        public static int flag = -1;
         private SystemtriggeredExceptionEnum(final String name) {
             parameterName = name;
         }
@@ -224,13 +310,23 @@ public class MatIdentCompletionExceptions0710 extends PhaseSystemTriggeredExcept
      */
     public boolean checkAndHandleExceptions() {
         for (final SystemtriggeredExceptionEnum e : SystemtriggeredExceptionEnum.values()) {
-            if (e.conditionForSystemtriggeredException(executor) && isNotSigned(e.getCheckKey())) {
+            if (isNotSigned(e.getCheckKey()) && e.conditionForSystemtriggeredException(executor)) {
                 e.createException(this);
+                if(SystemtriggeredExceptionEnum.proportionalAnomaly.equals(e) || SystemtriggeredExceptionEnum.Insufficien.equals(e)){
+                    return false;
+                }
+                return !showExceptionDialog();
+            }else if (SystemtriggeredExceptionEnum.proportionalAnomaly.equals(e) && SystemtriggeredExceptionEnum.proportionalAnomaly.flag == 2){
+                SystemtriggeredExceptionEnum.proportionalAnomaly.flag = -1;
+                return false;
+            }else if(SystemtriggeredExceptionEnum.Insufficien.equals(e) && SystemtriggeredExceptionEnum.Insufficien.flag == 2){
+                SystemtriggeredExceptionEnum.proportionalAnomaly.flag = -1;
+                return false;
             }
         }
         // If we don't show an exception dialog, then all checks have passed successfully.
         // We could remove pending checkkeys.
-        return !showExceptionDialog();
+        return true;
     }
 
     /**

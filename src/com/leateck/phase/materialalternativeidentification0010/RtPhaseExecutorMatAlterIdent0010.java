@@ -4,7 +4,6 @@ import com.datasweep.compatibility.client.*;
 import com.datasweep.plantops.common.measuredvalue.IMeasuredValue;
 import com.datasweep.plantops.common.measuredvalue.IUnitOfMeasure;
 import com.jgoodies.common.base.Strings;
-import com.leateck.phase.accountalternativematerial0010.MESNamedUDAMaterialParameter;
 import com.rockwell.mes.apps.ebr.ifc.phase.IPhaseCompleter;
 import com.rockwell.mes.apps.ebr.ifc.phase.ui.PhaseQuestionDialog;
 import com.rockwell.mes.apps.ebr.ifc.phase.ui.PhaseWarningDialog;
@@ -26,6 +25,7 @@ import com.rockwell.mes.commons.base.ifc.services.ServiceFactory;
 import com.rockwell.mes.commons.base.ifc.utility.*;
 import com.rockwell.mes.commons.deviation.ifc.IESignatureExecutor;
 import com.rockwell.mes.commons.deviation.ifc.exceptionrecording.IMESExceptionRecord;
+import com.rockwell.mes.commons.parameter.exceptiondef.MESParamExceptionDef0300;
 import com.rockwell.mes.parameter.product.excptenabledef.MESParamExcptEnableDef0200;
 import com.rockwell.mes.services.commons.ifc.functional.PartRelatedMeasuredValueUtilities;
 import com.rockwell.mes.services.inventory.ifc.IMFCService;
@@ -57,17 +57,18 @@ import com.rockwell.mes.shared.product.material.util.MaterialHelper0710;
 import com.rockwell.mes.shared0200.product.datatypes.MeasuredValueWrapper;
 import com.rockwell.mes.shared0400.product.ui.basics.util.ProductPhaseSwingHelper;
 import com.rockwell.mes.shared0400.product.util.ParamClassConstants0400;
+import com.rockwell.mes.commons.deviation.ifc.exceptionrecording.IMESExceptionRecord.RiskClass;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.xpath.operations.Bool;
 
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
+
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -124,8 +125,11 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
     /**
      * The name of the message pack containing messages needed for this phase
      */
-    public static final String MSG_PACK = "SCL_PhaseIdentifyMaterial0010";
+    public static final String MSG_PACK = "LC_PhaseIdentifyMaterial0010";
 
+    public static final String KEY_MATERIAL_HYBRID_EXCEPTION = "MaterialHybridException";
+    public static final String KEY_PROPORTIONALANOMALY = "ProprtionAlanomaly";
+    public static final String KEY_INSUFFICIENTRECOGNITIONQUANTITY = "InsufficientrecognitionQuantity";
     private static final String CONSUME_SUBLOT_WAREHOUSE_ERROR_MSG_ID = "ConsumeSublotWarehouseError_Error";
 
     private static final Log LOGGER = LogFactory.getLog(RtPhaseExecutorMatAlterIdent0010.class);
@@ -147,12 +151,25 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
     private MESParamExcptEnableDef0200 sequenceViolationException;
     private MESParamExcptEnableDef0200 openExpirationViolation;
 
+    private MESParamExcptEnableDef0200 mixCheckConfiguration;
+
     public static final String KEY_LOCATION_VIOLATION_EXCEPTION = "Location Violation Exception";
     public static final String KEY_SEQUENCE_VIOLATION_EXCEPTION = "Sequence Violation Exception";
     public static final String KEY_OPEN_EXPIRATION_VIOLATION_EXCEPTION = "Open Expiration Violation Exception";
 
     public final Map<String, List<String>> sclCheckExceptionMessage = new HashMap<>();
     public final Map<String, MESParamExcptEnableDef0200> sclKeyExceptionMap = new HashMap<String, MESParamExcptEnableDef0200>();
+
+    private final static  Map<Integer,String> materialTypeFinal = new HashMap<Integer,String>();
+    public static String mainMaterial;
+    public static String combineGroupName;
+
+    public static OrderStepInput masterOsiException = null;
+    List<IMESMaterialParameter> materialParametersException = null;
+    public static MeasuredValue totalConsumedQtyException = null;
+    public static final String PROPORTIONALANOMALY = "Proportional anomaly";
+
+    public static final String INSUFFICIENTRECOGNITIONQUANTITY = "Insufficient recognition quantity";
 
     /**
      * ctor for an ACTIVE phase or a COMPLETED phase in case of resume.
@@ -180,9 +197,11 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
         if (generateReportData()) {
             saveRtPhase();
         }
+        materialTypeFinal.clear();
         messageController = new MatIdentMessage0710Controller(this);
         messageController.startReceivingMessages();
 
+        //
         locationViolationException = model.getLocationViolation();
         sequenceViolationException = model.getSequenceViolationException();
         openExpirationViolation = model.getOpenExpirationViolation();
@@ -200,21 +219,23 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
         return I18nMessageUtility.getLocalizedMessage(MSG_PACK, msgId);
     }
 
+
     private boolean isMandatoryPositionOpen() {
         if (model.getAutoConsume()) {
             // in case of auto consume no accounting is done and the position is completed in this phase at
-            // phaseCompletion
+            // phaseCompletion 勾选了自消耗，直接返回
             return false;
         }
         List<OrderStepInput> allMasterOSIs = model.getMasterOSIsForPhase();
-        for (OrderStepInput masterOsi : allMasterOSIs) {
+        for(OrderStepInput masterOsi : allMasterOSIs) {
             if (isPlannedQtyModeNone(masterOsi)) {
+                //没有选择物料计划模式
                 continue;
             } else {
-                //isPositionOpen=true,表示orderStepInput未完成，需考虑替代料的情况
+                //isPositionOpen=true, orderStepInput表示当前物料消耗数量未完成，需考虑其他替代物料的情况
                 final boolean isPositionOpen = !getModel().isPositionCompleted(masterOsi);
-
                 if (isPositionOpen) {
+                    //检查
                     boolean replaceIsConsumed = checkReplaceIsConsumed(masterOsi, allMasterOSIs);
                     if (!replaceIsConsumed) {
                         return true;
@@ -224,28 +245,57 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
         }
         return false;
     }
-
     private boolean checkReplaceIsConsumed(OrderStepInput masterOsi, List<OrderStepInput> allMasterOSIs) {
         //dustin-20220302
         List<IMESMaterialParameter> materialParameters = getPhase().getMaterialParameters();
+        //materialParametersException = materialParameters;
         MeasuredValue totalConsumedQty = null;
         try {
+            //返回消耗量
             totalConsumedQty = getSelfAndReplaceConsumedQty(masterOsi, allMasterOSIs, materialParameters);
         } catch (MESException e) {
             throw new MESRuntimeException(e);
         }
+
+        //数量为null 代表没有物料被消耗 无法完成phase
         if (totalConsumedQty == null || totalConsumedQty.getValue().compareTo(BigDecimal.ZERO) == 0) {
             return false;
         }
-//        IOrderStepExecutionService service = ServiceFactory.getService(IOrderStepExecutionService.class);
-//        IOrderStepExecutionService.QuantityRangeCondition qtyCheckResult = null;
-//        try {
-//            qtyCheckResult = service.checkQuantityInRange(masterOsi, totalConsumedQty);
-//            if (qtyCheckResult == IOrderStepExecutionService.QuantityRangeCondition.UNDEFINED || qtyCheckResult.isOutOfRange()) {
-//                return false;
+        /**
+         * 计划量 与实际消耗值做比较，实际主料的识别量不足 是否继续
+         * tx
+         * LC
+         */
+        List<IMESMaterialParameter> matParamList = materialParameters.stream().filter(p -> p.getMaterial() == masterOsi.getPart() && p.getATRow().getValue("LC_isMainPart") != null && (Boolean) p.getATRow().getValue("LC_isMainPart")).collect(Collectors.toList());
+        if(matParamList.size() > 0){
+            //当前物料是主料
+            masterOsiException = null;
+            totalConsumedQtyException = null;
+            masterOsiException = masterOsi;
+            totalConsumedQtyException = totalConsumedQty;
+        }
+//        MatIdentCompletionExceptions0710 exceptionsChecker = new MatIdentCompletionExceptions0710(this);
+//        List<IMESMaterialParameter> matParamList = materialParameters.stream().filter(p -> p.getMaterial() == masterOsi.getPart() && p.getATRow().getValue("LC_isMainPart") != null && (Boolean) p.getATRow().getValue("LC_isMainPart")).collect(Collectors.toList());
+//        if(matParamList.size()>0){
+//            BigDecimal plannedQuantity = masterOsi.getPlannedQuantity().getValue();
+//            if(plannedQuantity != null && plannedQuantity.compareTo(BigDecimal.ZERO) != 0){
+//                if((totalConsumedQty.getValue()).compareTo(plannedQuantity) < 0){
+//                    //主料实际识别量不足
+//                    PhaseQuestionDialog questionDialog = new PhaseQuestionDialog();
+//                    int torf = questionDialog.showDialog(MSG_PACK, "MainMatInsuffcientException", new Object[]{masterOsi.getPart().getPartNumber()});
+//                    if(torf == 0){
+//                        //点击的是 yes 跳转异常，可以完成phase。
+//                        String msg = I18nMessageUtility.getLocalizedMessage(MSG_PACK, "MainMatInsuffcientExceptionMsg", new Object[]{masterOsi.getPart().getPartNumber()});
+//                        if(showInputException(msg,KEY_MATERIAL_HYBRID_EXCEPTION)){
+//                            return true;
+//                        }else{
+//                            return false;
+//                        }
+//                    }else {
+//                        return false;
+//                    }
+//                }
 //            }
-//        } catch (MESException e) {
-//            throw new MESRuntimeException(e);
 //        }
         return true;
     }
@@ -259,18 +309,20 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
      * @return
      */
     private static MeasuredValue getSelfAndReplaceConsumedQty(OrderStepInput osi, List<OrderStepInput> allMasterOSIs, List<IMESMaterialParameter> materialParameters) throws MESIncompatibleUoMException {
-        //获取本身消耗数量
+        //获取本身当前物料消耗数量
         MeasuredValue totalConsumedQtyMV = MESNamedUDAOrderStepInput.getTotalConsumedQuantity(osi);
         /**计算替代料数量**/
-        //获取该物料是否设置为主料
-        List<IMESMaterialParameter> matParamList = materialParameters.stream().filter(p -> p.getMaterial() == osi.getPart() && p.getATRow().getValue("SCL_isMainPart") != null && (Boolean) p.getATRow().getValue("SCL_isMainPart")).collect(Collectors.toList());
+        //获取该物料是否设置为主料 为主料 有list
+        List<IMESMaterialParameter> matParamList = materialParameters.stream().filter(p -> p.getMaterial() == osi.getPart() && p.getATRow().getValue("LC_isMainPart") != null && (Boolean) p.getATRow().getValue("LC_isMainPart")).collect(Collectors.toList());
         if (matParamList == null || matParamList.size() == 0) {
+            //当前物料不为主料 返回当前物料的实际消耗数量
             return totalConsumedQtyMV;
         }
+
         MESNamedUDAMaterialParameter matParam = new MESNamedUDAMaterialParameter(matParamList.get(0));
-        //获取换算比例
+        //获取主料 换算比例（替代比例）
         BigDecimal mainRatio = matParam.getReplaceRatio();
-        //获取替代组号
+        //获取主料 替代组号
         String masterReplaceGroupName = matParam.getReplaceGroupName();
         //判断是否存在替代组号
         if (!StringUtils.isEmpty(masterReplaceGroupName)) {
@@ -283,9 +335,9 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
                 return masterReplaceGroupName.equals(replaceGroupName) && !material.equals(replaceMaterial);
             }).collect(Collectors.toList());
 
-            //替代消耗量
+            //替代 消耗量
             IMeasuredValueConverter converter = MeasuredValueUtilities.getMVConverter(osi.getPart());
-
+            //获取主料计划数量单位
             IUnitOfMeasure unitOfMeasure = osi.getPlannedQuantity().getUnitOfMeasure();
             MeasuredValue replaceConsumedQtyMV = MeasuredValueUtilities.createZero(unitOfMeasure);
             //组合组号HashMap:组合组号-可消耗最小值
@@ -293,27 +345,37 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
             //遍历替代料集合
             for (IMESMaterialParameter item : replaceGroupNameList) {
                 MESNamedUDAMaterialParameter itemMatParam = new MESNamedUDAMaterialParameter(item);
+                //获取计划量
+                MeasuredValue plannedQuantityItem = itemMatParam.getMatParam().getPlannedQuantity();
+                //获取替代比例
                 BigDecimal replaceRatio = itemMatParam.getReplaceRatio();
                 //获取组合组号
                 String combinationGroup = itemMatParam.getCombinationGroup();
                 //根据OSI获取替代消耗数量
                 List<OrderStepInput> consumedList = allMasterOSIs.stream().filter(p -> p.getPart() == item.getMaterial()).collect(Collectors.toList());
                 for (OrderStepInput replaceOSI : consumedList) {
+                    //获取消耗量
                     MeasuredValue consumedQtyMV = MESNamedUDAOrderStepInput.getTotalConsumedQuantity(replaceOSI);
                     if (consumedQtyMV == null || replaceRatio == null) {
+                        //消耗量为null || 替代比例为null   则存入“组合组号”：0 kg
                         groupConsumedMap.put(combinationGroup, MeasuredValueUtilities.createZero(unitOfMeasure));
                         continue;
                     }
+                    //取出消耗量的值
                     BigDecimal consumedQty = consumedQtyMV.getValue();
-                    BigDecimal calcConsumedQty = consumedQty.divide(replaceRatio).multiply(mainRatio);
+                    //  计算总量 = 消耗量/替代比例*主料的替代比例
+                    BigDecimal calcConsumedQty = consumedQty.divide(replaceRatio,4,BigDecimal.ROUND_HALF_UP).multiply(mainRatio);
                     MeasuredValue calcConsumedQtyMV = MeasuredValueUtilities.createMV(calcConsumedQty, consumedQtyMV.getUnitOfMeasure());
-                    //组合组号是空，表示是完全替代料计算
+
                     if (Strings.isEmpty(combinationGroup)) {
+                        //组合组号为null，代表是独立物料替代
                         replaceConsumedQtyMV = MeasuredValueUtilities.addArgsOptional(replaceConsumedQtyMV, calcConsumedQtyMV, converter);
                     } else {
-                        //组合组号计算，以最小值计算
+                        //组合组号不为null，代表是组合计算，以最小值计算
+                        //获取组合组号，获取组号
                         MeasuredValue minConsumedQtyMV = groupConsumedMap.get(combinationGroup);
                         if (minConsumedQtyMV == null) {
+                            //存入 组合组号：计算总量
                             groupConsumedMap.put(combinationGroup, calcConsumedQtyMV);
                             continue;
                         }
@@ -329,7 +391,7 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
                     replaceConsumedQtyMV = MeasuredValueUtilities.addArgsOptional(replaceConsumedQtyMV, minConsumedQtyMV, converter);
                 }
             }
-            //替代料数量+本身数量
+            //替代物料数量 + 主料本身数量
             if (totalConsumedQtyMV != null) {
                 replaceConsumedQtyMV = MeasuredValueUtilities.addArgsOptional(totalConsumedQtyMV, replaceConsumedQtyMV, converter);
             }
@@ -338,6 +400,9 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
         return totalConsumedQtyMV;
     }
 
+    /*
+    是否没有设置计划模式
+     */
     private boolean isPlannedQtyModeNone(OrderStepInput masterOsi) {
         return PlannedQuantityMode.NONE.equals(model.getPlannedQuantityMode(masterOsi));
     }
@@ -428,6 +493,7 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
             throw new MESException(I18nMessageUtility.getLocalizedMessage(MSG_PACK, "SublotNotExistTxt", new Object[]{sublotID}));
         }
     }
+
 
     private String getLogisticUnitByBarcode(String barcode) throws MESException {
         boolean doesExists = false;
@@ -591,11 +657,34 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
             identCheckSuite.clearCheckSuites();
             sclCheckExceptionMessage.clear();
         }
-
+//        if(manulOrScan){
+//            manulOrScan = false;
+//            return identCheckSuite;
+//        }
         final Pair<List<IdentificationSublot>, Map<Sublot, OrderStepInput>> identificationData = getSublotsToIdentify(signatureExecutor, isAction);
         final List<IdentificationSublot> sublotsToIdentify = identificationData.getFirst();
         final Map<Sublot, OrderStepInput> sublotOSIMap = identificationData.getSecond();
         Collection<OrderStepInput> oSIsTOLock = new HashSet<>(sublotOSIMap.values());
+
+        /**
+         * TX
+         * LC
+         *
+         */
+//        if(flagLC){
+//
+//        }
+//        if(isMixCheckConfiguration().getEnabled()) {
+//            //开启，判断子批次与表格中的子批次是否为同一组物料或同一个物料
+//            //manulOrScan = true;
+//            if(!CheckMaterialRule(1)){
+//                return identCheckSuite;
+//            }
+////            else{
+////                flagLC = true;
+////            }
+////            return identCheckSuite;
+//        }
 
 //        /**
 //         * Yonghao Xu
@@ -684,8 +773,6 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
          *
          * SCL
          */
-
-
         if (MapUtils.isNotEmpty(sclCheckExceptionMessage) && signatureExecutor == null) {
             /**
              * SCL
@@ -702,9 +789,8 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
                     model.getOrderStep(true);
                 }
                 Map<Sublot, IdentificationResult> identificationRes = identifySublotsForOSIs(sublotsToIdentify);
-
+                System.out.println("Error_Msg"+identCheckSuite.getCollectedErrorMessage());
                 postIdentificationProcessing(isAction, sublotOSIMap, identificationRes);
-
             } catch (OSILock.LockException e) {
                 throw new MESRuntimeException(e);
             }
@@ -775,27 +861,30 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
     private Pair<List<IdentificationSublot>, Map<Sublot, OrderStepInput>> getSublotsToIdentify(final IESignatureExecutor signatureExecutor, boolean isAction) throws MESException, DatasweepException {
         final IOrderStepExecutionService osExecSrv = MaterialHelper0710.getOrderStepExecutionService();
         final List<IdentificationSublot> sublotsToIdentify = new ArrayList<>();
-        final List<Sublot> sublots = identifiedItem.getSublots();
-        final Map<Sublot, OrderStepInput> sublotOSIMap = new HashMap<>();
+        //if (null != identifiedItem){
+            final List<Sublot> sublots = identifiedItem.getSublots();
+            final Map<Sublot, OrderStepInput> sublotOSIMap = new HashMap<>();
 
-        for (Sublot sublot : sublots) {
-            final OrderStepInput osi = getRelatedOSI(sublot, isAction);
-            IIdentificationCheckSuite checkSuite;
-            List<IESignatureExecutor> signatures = null;
-            List<String> signedExceptions = new ArrayList<>();
-            if (signatureExecutor != null) {
-                sublot.refresh();
-                checkSuite = identCheckSuite.getCheckSuite(sublot);
-                signatures = setupSignatureExecutor(signatureExecutor, signedExceptions, checkSuite);
-            } else {
-                checkSuite = identCheckSuite.createCheckSuite(sublot, getDisabledChecks(sublot));
+            for (Sublot sublot : sublots) {
+                final OrderStepInput osi = getRelatedOSI(sublot, isAction);
+                IIdentificationCheckSuite checkSuite;
+                List<IESignatureExecutor> signatures = null;
+                List<String> signedExceptions = new ArrayList<>();
+                if (signatureExecutor != null) {
+                    sublot.refresh();
+                    checkSuite = identCheckSuite.getCheckSuite(sublot);
+                    signatures = setupSignatureExecutor(signatureExecutor, signedExceptions, checkSuite);
+                } else {
+                    checkSuite = identCheckSuite.createCheckSuite(sublot, getDisabledChecks(sublot));
+                }
+                final IdentificationSublot identificationSublot = //
+                        osExecSrv.createIdentificationSublotData(sublot, null, osExecSrv.getOrderStepInputPosition(osi), signatures, null, checkSuite, signedExceptions);
+                sublotsToIdentify.add(identificationSublot);
+                sublotOSIMap.put(sublot, osi);
             }
-            final IdentificationSublot identificationSublot = //
-                    osExecSrv.createIdentificationSublotData(sublot, null, osExecSrv.getOrderStepInputPosition(osi), signatures, null, checkSuite, signedExceptions);
-            sublotsToIdentify.add(identificationSublot);
-            sublotOSIMap.put(sublot, osi);
-        }
-        return new Pair(sublotsToIdentify, sublotOSIMap);
+            return new Pair(sublotsToIdentify, sublotOSIMap);
+//        }
+//        return new Pair(sublotsToIdentify, null);
     }
 
     private boolean isIdentificationResultOK(final Collection<IdentificationResult> identificationResults) {
@@ -1113,7 +1202,7 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
      * @return list with the configured signature executor
      */
     private List<IESignatureExecutor> setupSignatureExecutor(final IESignatureExecutor signatureExecutor, final List<String> signedExceptions, final IIdentificationCheckSuite checkSuite) {
-        for (int i = 0; i < checkSuite.size(); i++) {
+        for (int i = 0; checkSuite!=null && i < checkSuite.size(); i++) {
             IIdentificationCheck identificationCheck = checkSuite.get(i);
             if (!identificationCheck.isOk()) {
                 signatureExecutor.addInfo(new ArrayList<>(identificationCheck.getExceptionList()));
@@ -1487,11 +1576,11 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
         identCheckSuite = new PhaseIdentificationCheckSuite0710(getParameters(), allocatedBatches);
     }
 
-    /**
-     * Create a map of allocated batches for each material
-     *
-     * @param materialIdFilter material identifier filter
-     * @return map of allocated batches for each material
+        /**
+         * Create a map of allocated batches for each material
+         *
+         * @param materialIdFilter material identifier filter
+         * @return map of allocated batches for each material
      */
     private Map<String, Object> getAllocatedBatches(String materialIdFilter) {
         Map<String, Object> allocatedBatches = new HashMap<>();
@@ -1539,9 +1628,13 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
         return execService.isYoungestRtPhase(getRtPhase());
     }
 
+    /**
+     * 点击phase确认完成时 方法
+     */
     @Override
     protected void performPhaseCompletion() {
         // remove the listeners after complete
+        //删除侦听器
         if (messageController != null) {
             messageController.stopReceivingMessages();
         }
@@ -1550,12 +1643,25 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
         getModel().setPhaseOutputData();
     }
 
+    /**
+     * 点击phase确认时 逻辑检查
+     * @return
+     */
     @Override
     protected boolean performPhaseCompletionCheck() {
         // Refresh first on completion:
+        //完成后首先刷新：
         onRefresh();
         // Focus gets lost by pressing complete button. Re-enable barcode scanning
+        // //按下完成按钮会失去焦点。重新启用条形码扫描
         getView().reenableBarcodeScanning();
+        /**
+         * tx
+         * lc
+         */
+        masterOsiException = null;
+        totalConsumedQtyException = null;
+
 
         if (!doCompletionChecks()) {
             return false;
@@ -1563,14 +1669,14 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
 
         //dustin:自消耗增加替代比例不一致校验
         if (model.getAutoConsume()) {
-            if (model.checkCombineGroupIsEqualWithRate() == false) {
-                final String isContinueMsg = I18nMessageUtility.getLocalizedMessage(MaterialModel0710.PHASE_PRODUCT_MATERIAL_MSGPACK, "CombineGroupIsEqualWithRate_Error");
-                PhaseQuestionDialog questionDialog = new PhaseQuestionDialog();
-                int userChoice = questionDialog.showDialog(isContinueMsg);
-                if (userChoice != 0) {
-                    return false;
-                }
-            }
+//            if (model.checkCombineGroupIsEqualWithRate() == false) {
+//                final String isContinueMsg = I18nMessageUtility.getLocalizedMessage(MaterialModel0710.PHASE_PRODUCT_MATERIAL_MSGPACK, "CombineGroupIsEqualWithRate_Error");
+//                PhaseQuestionDialog questionDialog = new PhaseQuestionDialog();
+//                int userChoice = questionDialog.showDialog(isContinueMsg);
+//                if (userChoice != 0) {
+//                    return false;
+//                }
+//            }
         }
 
         if (!consumeSublots()) {
@@ -1580,20 +1686,34 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
         return true;
     }
 
+    /**
+     * 完成按钮 检查方法
+     * @return
+     */
     private boolean doCompletionChecks() {
         final boolean isDone = getModel().isPhaseResultDone();
+        //是否强制完成判断
         final boolean isForceCompletion = isForceCompletionExceptionSigned();
 
         if (isDone && !isForceCompletion) {
+            //没有强制完成
             String errorText = getCompletionErrors(false);
+            //System.out.println(errorText);
             if (!StringUtils.isEmpty(errorText)) {
                 showErrorAndLockCompleteButton(errorText);
                 return false;
             }
         }
+        /**
+         * 检查上下限公差
+         */
         return doLimitChecks();
     }
 
+    /**
+     * 判断是否强制完成（检查是否有强制完成的签名）
+     * @return
+     */
     private boolean isForceCompletionExceptionSigned() {
         return isExceptionSigned(KEY_FORCE_COMPLETION);
     }
@@ -1623,13 +1743,19 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
             appendLineBreaksIfNeeded(errorTextBuilder);
             errorTextBuilder.append(getSublotsToIdentifyI18nError(exceptionText, sublotsToIdentify));
         }
+        //是否启用自消耗
         if (model.getAutoConsume()) {
             if (model.hasMandatoryPositionsWithoutIdentifications()) {
                 appendLineBreaksIfNeeded(errorTextBuilder);
                 errorTextBuilder.append(getI18nError(getMsgIdCompletionError(exceptionText, "NotAllMaterialIdentified_Error")));
             }
-        } else {
+        }
+        /**
+         * 没有启用自消耗
+         */
+        else {
             if (isMandatoryPositionOpen()) {
+                //Phase不能完成
                 appendLineBreaksIfNeeded(errorTextBuilder);
                 errorTextBuilder.append(getI18nError(getMsgIdCompletionError(exceptionText, "MatIdentPositionStillOpen_Error")));
             }
@@ -1682,8 +1808,12 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
         return false;
     }
 
+    /*
+    异常事务回调
+     */
     @Override
     protected void exceptionTransactionCallback(String checkKey, IMESExceptionRecord exceptionRecord, IESignatureExecutor sigExecutor) {
+        System.out.println(checkKey);
         if (checkKey.equals(KEY_ADDITIONAL_ACTION)) {
             handleIdentificationInTransaction(sigExecutor, true);
         } else if (checkKey.equals(KEY_MANUAL_EXC)) {
@@ -1692,7 +1822,15 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
             undoIdent();
         } else if (checkKey.equals(KEY_IDENTIFICATION)) {
             handleIdentificationInTransaction(sigExecutor, false);
-        } else if (!KEY_FORCE_COMPLETION.equals(checkKey) //
+        }
+        else if (checkKey.equals(KEY_MATERIAL_HYBRID_EXCEPTION)) {
+            //handleIdentificationInTransaction(sigExecutor, false);
+        }else if(checkKey.equals(KEY_PROPORTIONALANOMALY)){
+            //handleIdentificationInTransaction(sigExecutor, false);
+        } else if(checkKey.equals(KEY_INSUFFICIENTRECOGNITIONQUANTITY)){
+            //handleIdentificationInTransaction(sigExecutor, false);
+        }
+          else if (!KEY_FORCE_COMPLETION.equals(checkKey) //
                 && !checkKey.equals(AbstractMaterialPhaseExecutor0710.WAREHOUSE_ERROR_CHECK_KEY) && !MatIdentCompletionExceptions0710.isCompletionCheck(checkKey)) {
             throw new MESRuntimeException("Action not supported! ");
         }
@@ -1703,8 +1841,25 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
         exceptionSigned(checkKey, null);
     }
 
+    /**
+     * 点击签名后 执行的方法
+     * @param checkKey
+     * @param afterCommitException
+     */
     @Override
     public void exceptionSigned(String checkKey, final MESRuntimeException afterCommitException) {
+        if(KEY_MATERIAL_HYBRID_EXCEPTION.equals(checkKey)){
+            //在这里更新子批次、绑定子批次
+            IPhaseIdentificationCheckSuite0710 checksuite = null;
+            try {
+                checksuite = performIdentification( null, false);
+            } catch (MESException e) {
+                throw new RuntimeException(e);
+            } catch (DatasweepException e) {
+                throw new RuntimeException(e);
+            }
+            evaluateIdentificationRequestResult(checksuite);
+        }
         if (AbstractMaterialPhaseExecutor0710.WAREHOUSE_ERROR_CHECK_KEY.equals(checkKey)) {
             try (AutoWaitCursor waitCursor = new AutoWaitCursor(getView())) {
                 getModel().resetLastWarehouseExceptionAndError();
@@ -1761,26 +1916,54 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
         model.fillRecordWarehouseErrorException(MSG_PACK, null);
     }
 
+
     /**
-     * 扫描子批次之后实际校验开始
+     * MixCheckConfiguration过参
+     * @return
+     */
+    public MESParamExcptEnableDef0200 getMixCheckConfiguration(){
+        return getProcessParameterData(MESParamExcptEnableDef0200.class,"Mix check configuration");
+    }
+    public MESParamExceptionDef0300 getRecognitionQuantityInsufficient(){
+        return getProcessParameterData(MESParamExceptionDef0300.class,"RecognitionQuantityInsufficient");
+    }
+
+    public MESParamExceptionDef0300 getProportionalAnomaly(){
+        return getProcessParameterData(MESParamExceptionDef0300.class,"Proportional Anomaly");
+    }
+
+
+
+
+    /**
+     * 扫描开始校验
      */
     @Override
     public void onIdent() {
         if (!isIdentificationAllowed()) {
             return;
         }
-
-        IPhaseIdentificationCheckSuite0710 checksuite;
+        IPhaseIdentificationCheckSuite0710 checksuite = null;
         try {
-            // get the identified item
+            // get the identified item 获取扫描的子批次对象
             identifiedItem = getIdentifiedItemByBarcode(getView().getEnteredBarcode());
-            checksuite = performIdentification(null, false);
-
+            //判断是否启用了扫描描混合检查的过参
+            if(getMixCheckConfiguration().getEnabled()){
+                //开启，判断子批次与表格中的子批次是否为同一组物料或同一个物料
+                if(!CheckMaterialRule(1)){
+                    return;
+                } else{
+                    checksuite = performIdentification( null, false);
+                    evaluateIdentificationRequestResult(checksuite);
+                }
+            }else {
+                checksuite = performIdentification( null, false);
+                evaluateIdentificationRequestResult(checksuite);
+            }
         } catch (MESException | DatasweepException e) {
             ProductPhaseSwingHelper.showErrorDlg(e.getLocalizedMessage());
             return;
         }
-        evaluateIdentificationRequestResult(checksuite);
     }
 
     private boolean isIdentificationAllowed() {
@@ -1805,9 +1988,16 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
         ProductPhaseSwingHelper.showErrorDlg(localizedError);
     }
 
+
     private void evaluateIdentificationRequestResult(IPhaseIdentificationCheckSuite0710 checksuite) {
+        //校验子批次是否已经被识别，返回message错误提示
+        if(checksuite == null){
+            getView().refreshView();
+            return;
+        }
         String errorList = checksuite.getCollectedErrorMessage();
         if (!errorList.isEmpty()) {
+            //有错误提示
             // if there are errors: show error dialog, identification cannot be done
             if (identifiedItem.isLogisticUnit()) {
                 // in case of logistic unit the error list can be quite long
@@ -1820,78 +2010,54 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
             return;
         }
 
-        String excList = checksuite.getCollectedExceptionMessage();
-        if (!excList.isEmpty()
-                /**
-                 * SCL
-                 */ || MapUtils.isEmpty(sclCheckExceptionMessage) == false) {
-            PhaseWarningDialog excDialog = new PhaseWarningDialog();
-            //是否存在区域位置不对的异常
-            boolean locationExceptionFlag = false;
-            StringBuilder stringBuilderExcDialog = new StringBuilder();
-            if (MapUtils.isNotEmpty(sclCheckExceptionMessage)) {
-                if (sclCheckExceptionMessage.containsKey("Location Violation Exception")) {
-                    locationExceptionFlag = true;
-                }
-                sclCheckExceptionMessage.forEach((k, v) -> {
-                    stringBuilderExcDialog.append(StringConstants.LINE_BREAK);
-                    stringBuilderExcDialog.append(StringUtils.join(v, ","));
-                });
-
-                excList = excList + stringBuilderExcDialog;
-            }
-            //直接报错提示
-            if (locationExceptionFlag){
-                ProductPhaseSwingHelper.showErrorDlg(excList);
-                return;
-            }
-
-            int userChoice = excDialog.showDialog(excList);
-            if (userChoice == IExceptionHandler.OK_OPTION) {
-                String exceptionText;
-                AtomicLong maxRisk = new AtomicLong();
-                if (identifiedItem.isLogisticUnit()) {
-                    final StringBuilder exceptionTextBuilder = new StringBuilder(I18nMessageUtility.getLocalizedMessage(MSG_PACK, "LUIdentMsg", new Object[]{identifiedItem.getName()}));
-                    exceptionTextBuilder.append(StringConstants.LINE_BREAK);
-                    exceptionTextBuilder.append(StringConstants.LINE_BREAK);
-                    exceptionTextBuilder.append(checksuite.getCollectedExtendedExceptionMessage());
-                    exceptionText = exceptionTextBuilder.toString();
-                } else {
-                    exceptionText = checksuite.getCollectedExtendedExceptionMessage();
-                    StringBuilder stringBuilder = new StringBuilder();
-
-                    if (StringUtils.isEmpty(exceptionText) == false) {
-                        stringBuilder.append(exceptionText);
-                    }
-
-                    int loopCount = 1;
-                    for (Map.Entry<String, List<String>> item : sclCheckExceptionMessage.entrySet()) {
-                        String k = item.getKey();
-                        List<String> v = item.getValue();
-
-                        String msg = StringUtils.EMPTY;
-                        if (CollectionUtils.isNotEmpty(v)) {
-                            if (Objects.nonNull(sclKeyExceptionMap.get(k)) && sclKeyExceptionMap.get(k).getEnabled()) {
-                                msg = sclKeyExceptionMap.get(k).getMessage();
-                                System.out.println(k + "\t" + maxRisk.get());
-                                maxRisk.set(Math.max(sclKeyExceptionMap.get(k).getRiskAssessment(), maxRisk.get()));
-                                System.out.println(k + "\t" + msg);
-                                System.out.println(k + "\t" + maxRisk.get());
-
-                                stringBuilder.append(StringConstants.LINE_BREAK);
-                                stringBuilder.append(StringConstants.LINE_BREAK);
-                                stringBuilder.append(msg);
-                                stringBuilder.append(StringConstants.LINE_BREAK);
-                                stringBuilder.append(StringConstants.LINE_BREAK);
-                                stringBuilder.append(StringUtils.join(v, ","));
-                            }
-                        }
-
-                    }
-
-//                    sclCheckExceptionMessage.forEach((k, v) -> {
-//                        stringBuilder.append(StringConstants.LINE_BREAK);
-//                        stringBuilder.append(StringConstants.LINE_BREAK);
+        //String excList = checksuite.getCollectedExceptionMessage();
+//        if (!excList.isEmpty()
+//                /**
+//                 * SCL
+//                 */ || MapUtils.isEmpty(sclCheckExceptionMessage) == false) {
+//            PhaseWarningDialog excDialog = new PhaseWarningDialog();
+//            //是否存在区域位置不对的异常
+//            boolean locationExceptionFlag = false;
+//            StringBuilder stringBuilderExcDialog = new StringBuilder();
+//            if (MapUtils.isNotEmpty(sclCheckExceptionMessage)) {
+//                if (sclCheckExceptionMessage.containsKey("Location Violation Exception")) {
+//                    locationExceptionFlag = true;
+//                }
+//                sclCheckExceptionMessage.forEach((k, v) -> {
+//                    stringBuilderExcDialog.append(StringConstants.LINE_BREAK);
+//                    stringBuilderExcDialog.append(StringUtils.join(v, ","));
+//                });
+//
+//                excList = excList + stringBuilderExcDialog;
+//            }
+//            //直接报错提示
+//            if (locationExceptionFlag){
+//                ProductPhaseSwingHelper.showErrorDlg(excList);
+//                return;
+//            }
+//
+//            int userChoice = excDialog.showDialog(excList);
+//            if (userChoice == IExceptionHandler.OK_OPTION) {
+//                String exceptionText;
+//                AtomicLong maxRisk = new AtomicLong();
+//                if (identifiedItem.isLogisticUnit()) {
+//                    final StringBuilder exceptionTextBuilder = new StringBuilder(I18nMessageUtility.getLocalizedMessage(MSG_PACK, "LUIdentMsg", new Object[]{identifiedItem.getName()}));
+//                    exceptionTextBuilder.append(StringConstants.LINE_BREAK);
+//                    exceptionTextBuilder.append(StringConstants.LINE_BREAK);
+//                    exceptionTextBuilder.append(checksuite.getCollectedExtendedExceptionMessage());
+//                    exceptionText = exceptionTextBuilder.toString();
+//                } else {
+//                    exceptionText = checksuite.getCollectedExtendedExceptionMessage();
+//                    StringBuilder stringBuilder = new StringBuilder();
+//
+//                    if (StringUtils.isEmpty(exceptionText) == false) {
+//                        stringBuilder.append(exceptionText);
+//                    }
+//
+//                    int loopCount = 1;
+//                    for (Map.Entry<String, List<String>> item : sclCheckExceptionMessage.entrySet()) {
+//                        String k = item.getKey();
+//                        List<String> v = item.getValue();
 //
 //                        String msg = StringUtils.EMPTY;
 //                        if (CollectionUtils.isNotEmpty(v)) {
@@ -1901,24 +2067,168 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
 //                                maxRisk.set(Math.max(sclKeyExceptionMap.get(k).getRiskAssessment(), maxRisk.get()));
 //                                System.out.println(k + "\t" + msg);
 //                                System.out.println(k + "\t" + maxRisk.get());
+//
+//                                stringBuilder.append(StringConstants.LINE_BREAK);
+//                                stringBuilder.append(StringConstants.LINE_BREAK);
+//                                stringBuilder.append(msg);
+//                                stringBuilder.append(StringConstants.LINE_BREAK);
+//                                stringBuilder.append(StringConstants.LINE_BREAK);
+//                                stringBuilder.append(StringUtils.join(v, ","));
 //                            }
 //                        }
-//                        stringBuilder.append(msg + StringConstants.LINE_BREAK);
-//                        stringBuilder.append(StringUtils.join(v, ","));
-//                    });
-                    exceptionText = stringBuilder.toString();
-                }
-
-                displayException(KEY_IDENTIFICATION, ChoiceLists0710.getRiskClass(Math.max(checksuite.getCollectedMaxRisk(), maxRisk.get())), exceptionText);
-            }
-            return;
-        }
+//
+//                    }
+//
+////                    sclCheckExceptionMessage.forEach((k, v) -> {
+////                        stringBuilder.append(StringConstants.LINE_BREAK);
+////                        stringBuilder.append(StringConstants.LINE_BREAK);
+////
+////                        String msg = StringUtils.EMPTY;
+////                        if (CollectionUtils.isNotEmpty(v)) {
+////                            if (Objects.nonNull(sclKeyExceptionMap.get(k)) && sclKeyExceptionMap.get(k).getEnabled()) {
+////                                msg = sclKeyExceptionMap.get(k).getMessage();
+////                                System.out.println(k + "\t" + maxRisk.get());
+////                                maxRisk.set(Math.max(sclKeyExceptionMap.get(k).getRiskAssessment(), maxRisk.get()));
+////                                System.out.println(k + "\t" + msg);
+////                                System.out.println(k + "\t" + maxRisk.get());
+////                            }
+////                        }
+////                        stringBuilder.append(msg + StringConstants.LINE_BREAK);
+////                        stringBuilder.append(StringUtils.join(v, ","));
+////                    });
+//                    exceptionText = stringBuilder.toString();
+//                }
+//
+//                displayException(KEY_IDENTIFICATION, ChoiceLists0710.getRiskClass(Math.max(checksuite.getCollectedMaxRisk(), maxRisk.get())), exceptionText);
+//            }
+//            return;
+//        }
 
         // no errors or exceptions: identification was successful
         getView().refreshView();
 
     }
 
+    /**
+    tanxin
+    LC
+     check 1：扫描
+     check 2：手动
+     */
+    public Boolean CheckMaterialRule(int check){
+        //重启、解绑操作重新进入，但界面上还是存在绑定的子批次，那当前扫描的子批次将作为“首次扫描”不进行是否同组下的物料检查
+        //当前扫描的物料是为主料 或 替代物料 或组合替代物料
+        String partID = identifiedItem.getSublot().getPartNumber();
+        //获取物料输入参数列表
+        if(model.getMaterialList().size() == model.getMasterOSIsForPhase().size()){
+            materialTypeFinal.clear();
+        }
+        for (IdentifiedMaterialDAO0710 material : model.getMatInputList()) {
+            if (material.getMaterialID().equals(partID)){
+                //物料编码相同 判断是主料、单个替代物料、组合替代物料 0：啥都不是 1：主料(替代组号) 2：替代物料（替代组号） 3：组合替代物料（组合组号）
+                HashMap<Integer, String> stringHashMap = CheckMaterialIsWhichPart(material.getMaterialID());
+                if(stringHashMap == null){
+                    return false;
+                }
+                if(materialTypeFinal.isEmpty()){
+                    //首次进入扫描，将“物料类型 1 / 2 / 3 ”存入字段中，用于下一次子批次扫描判断
+                    for(int key : stringHashMap.keySet()){
+                        materialTypeFinal.put(key,stringHashMap.get(key));
+                        return true;
+                    }
+                }else{
+                    //大于第一次进入 遍历当前扫描子批次的物料 是什么类型， 判断是否与存入的materialTypeFinal值一致
+                    for(int key : stringHashMap.keySet()){
+                        if(materialTypeFinal.containsKey(key) && (stringHashMap.get(key)).equals(materialTypeFinal.get(key))){
+                            //相同 不走异常
+                            return true;
+                        }else{
+                            //不相同 走异常
+                            PhaseQuestionDialog questionDialog = new PhaseQuestionDialog();
+                            int torf = questionDialog.showDialog(MSG_PACK, "MaterialHybridException", new Object[]{identifiedItem.getName()});
+                            if (torf != 0) {
+                                //选择的取消/否 不做任何操作
+                                return false;
+                            }
+                            if (check == 1){
+                                //使用扫描子批次的方式
+                                String msg = I18nMessageUtility.getLocalizedMessage(MSG_PACK, "MaterialHybridExceptionMeg", new Object[]{identifiedItem.getName()});
+                                MESParamExcptEnableDef0200 def = getMixCheckConfiguration();
+                                String exceptionStr = def.getMessage() + "\r\n" + msg;
+                                long risk = def.getRiskAssessment();
+                                RiskClass riskclass = RiskClass.valueOf(risk);
+                                Boolean exceptionValue =  displayException(KEY_MATERIAL_HYBRID_EXCEPTION,riskclass,exceptionStr);
+                                if(exceptionValue){
+                                    //如果签名创建成功 去签名后执行子批次校验
+                                    return false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 获取物料为主料、单个替代物料、组合替代物料类型
+     * @param partID
+     * @return 0：什么都不是 1：主料 2：单个替代物料 3：组合替代物料
+     */
+    public HashMap<Integer, String> CheckMaterialIsWhichPart(String partID){
+        HashMap<Integer, String> map = new HashMap<Integer,String>();
+        List<IMESMaterialParameter> matParamList;
+        MESNamedUDAMaterialParameter matParam = null;
+        List<OrderStepInput> allMasterOSIs = model.getMasterOSIsForPhase();
+        List<IMESMaterialParameter> materialParameters = getPhase().getMaterialParameters();
+        for(OrderStepInput msterosi:allMasterOSIs){
+            //单个物料行对象
+            String partNumber = msterosi.getPart().getPartNumber();
+            if(!partNumber.equals(partID)){
+                continue;
+            }
+            if(isPlannedQtyModeNone(msterosi)){
+                return null;
+            }
+            matParamList = materialParameters.stream().filter(p -> p.getMaterial() == msterosi.getPart() && p.getATRow().getValue("LC_isMainPart") != null && (Boolean) p.getATRow().getValue("LC_isMainPart")).collect(Collectors.toList());
+            if(matParamList.size() > 0){
+                //主料 返回“1”类型
+                matParam = new MESNamedUDAMaterialParameter(matParamList.get(0));
+                //获取主料 替代组号
+                String masterReplaceGroupName = matParam.getReplaceGroupName();
+                map.put(1,masterReplaceGroupName+partNumber);
+                return map;
+            }
+            matParamList = materialParameters.stream().filter(p -> p.getMaterial() == msterosi.getPart() && p.getATRow().getValue("LC_isMainPart") == null && p.getATRow().getValue("LC_combinationGroup") == null).collect(Collectors.toList());
+            if(matParamList.size() > 0){
+                //单个替代物料 返回“2”类型
+                matParam = new MESNamedUDAMaterialParameter(matParamList.get(0));
+                //获取替代组号
+                String masterReplaceGroupName = matParam.getReplaceGroupName();
+                map.put(2,masterReplaceGroupName+partNumber);
+                return map;
+            }
+            matParamList = materialParameters.stream().filter(p -> p.getMaterial() == msterosi.getPart() && p.getATRow().getValue("LC_combinationGroup") != null).collect(Collectors.toList());
+            if(matParamList.size() > 0){
+                //组合替代物料 返回“3”类型
+                matParam = new MESNamedUDAMaterialParameter(matParamList.get(0));
+                //获取 组合组号
+                String combinationGroup = matParam.getCombinationGroup();
+                //获取主料 替代组号
+                String replaceGroupName = matParam.getReplaceGroupName();
+                map.put(3,replaceGroupName+combinationGroup);
+                return map;
+            }
+        }
+        return null;
+    }
+
+
+
+    /**
+    手动识别子批次
+     */
     @Override
     public void onManualIdent(String itemId) {
         try {
@@ -1926,9 +2236,21 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
                 showMustLoopError();
                 return;
             }
+            //子批次校验
             identifiedItem = getIdentifiedItemByIdentifier(itemId);
             final boolean onPostAction = false;
             IPhaseIdentificationCheckSuite0710 checkSuite = executePreChecks(onPostAction);
+            /*
+            tanxin
+            LC
+            手动录入子批次也要校验是否符合规定
+             */
+            if(getMixCheckConfiguration().getEnabled()){
+                //开启，判断子批次与表格中的子批次是否为同一组物料或同一个物料
+                CheckMaterialRule(2);
+                displayException(KEY_MANUAL_EXC, checkSuite);
+                return;
+            }
             displayException(KEY_MANUAL_EXC, checkSuite);
         } catch (MESException e1) {
             ProductPhaseSwingHelper.showErrorDlg(e1.getLocalizedMessage());
@@ -1985,6 +2307,7 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
         }
         displayException(isAction ? KEY_UNDO_ACTION : KEY_UNDO_EXC, null);
     }
+
 
     private boolean displayException(String checkKey, IPhaseIdentificationCheckSuite0710 checkSuite) {
         if (checkSuite != null && !checkSuite.getCollectedErrorMessage().isEmpty()) {
@@ -2101,6 +2424,9 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
         }
     }
 
+    /**
+     * 强制完成按钮
+     */
     @Override
     public void onForceCompletion() {
         String messageFromParameter = model.getExceptionTextFromParameter(PARAM_FORCE_COMPLETION);
@@ -2133,20 +2459,14 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
         refreshModelAndView(tryCalculationOfPlannedQty);
     }
 
+    /**
+     * 扫描条码 校验开始
+     * @param barcode
+     */
     @Override
     protected void handleBarcode(String barcode) {
         super.handleBarcode(barcode);
         getView().getInputField().setText(barcode);
-
-        /**
-         * 对非标准子批次条码的支持
-         *
-         * Yonghao Xu
-         */
-        if (model.getAdditionalBarcodeSupport()) {
-
-        }
-
         if (getModel().getStatus().equals(Status.ACTIVE) && getModel().isFocused()) {
             getView().getEventListener().onIdent();
         }
