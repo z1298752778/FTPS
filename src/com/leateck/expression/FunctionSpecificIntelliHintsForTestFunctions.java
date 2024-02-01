@@ -13,6 +13,7 @@ import com.rockwell.mes.clientfw.docking.ifc.expression.editor.intellihints.IInt
 import com.rockwell.mes.clientfw.docking.ifc.expression.editor.intellihints.IStaticIntelliHintDescriptor;
 import com.rockwell.mes.clientfw.docking.ifc.expression.editor.intellihints.IntelliHintDescriptorsSection;
 import com.rockwell.mes.clientfw.docking.ifc.expression.editor.intellihints.StringConstantIntelliHintDescriptor;
+import com.rockwell.mes.commons.base.ifc.i18n.I18nMessageUtility;
 import com.rockwell.mes.commons.base.ifc.services.PCContext;
 import com.rockwell.mes.services.s88.ifc.execution.IMESRtPhase;
 import com.rockwell.mes.services.s88.ifc.library.IBuildingBlockOutputDescriptor;
@@ -25,8 +26,11 @@ public class FunctionSpecificIntelliHintsForTestFunctions extends AbstractFuncti
 
         if (functionCallDescriptor.getIndexOfOpenArgument() == 1) {
             ArrayList<StringConstantIntelliHintDescriptor> list = new ArrayList<>();
+            //处方
+            String purposrLabel = I18nMessageUtility.getLocalizedMessage("LC_Expression", "Recipe_Label");
+
             IntelliHintDescriptorsSection section = new IntelliHintDescriptorsSection(1000,
-                    "处方",
+                    purposrLabel,
                     ChoiceElementIntelliHintDescriptor.getGenericChoiceListSectionIcon());
             //获取所有的处方
 
@@ -68,8 +72,10 @@ public class FunctionSpecificIntelliHintsForTestFunctions extends AbstractFuncti
             String recipeName = functionCallDescriptor.getArgumentPrecedingTheOpenArgument(1);
             recipeName = declear(recipeName);
             ArrayList<StringConstantIntelliHintDescriptor> list = new ArrayList<>();
+            //"工序"
+            String purposrLabel = I18nMessageUtility.getLocalizedMessage("LC_Expression", "Procedure_Label");
             IntelliHintDescriptorsSection section = new IntelliHintDescriptorsSection(1000,
-                    "工序",
+                    purposrLabel,
                     ChoiceElementIntelliHintDescriptor.getGenericChoiceListSectionIcon());
             //获取所有的处方
 
@@ -113,8 +119,11 @@ public class FunctionSpecificIntelliHintsForTestFunctions extends AbstractFuncti
             recipeName = declear(recipeName);
             processName = declear(processName);
             ArrayList<StringConstantIntelliHintDescriptor> list = new ArrayList<>();
+            //"单位工序"
+            String purposrLabel = I18nMessageUtility.getLocalizedMessage("LC_Expression", "UnitProcedure_Label");
+
             IntelliHintDescriptorsSection section = new IntelliHintDescriptorsSection(1000,
-                    "单位工序",
+                    purposrLabel,
                     ChoiceElementIntelliHintDescriptor.getGenericChoiceListSectionIcon());
             //获取所有的处方
 
@@ -161,8 +170,11 @@ public class FunctionSpecificIntelliHintsForTestFunctions extends AbstractFuncti
             processName = declear(processName);
             operationName = declear(operationName);
             ArrayList<StringConstantIntelliHintDescriptor> list = new ArrayList<>();
+            //操作
+            String purposrLabel = I18nMessageUtility.getLocalizedMessage("LC_Expression", "Operation_Label");
+
             IntelliHintDescriptorsSection section = new IntelliHintDescriptorsSection(1000,
-                    "操作",
+                    purposrLabel,
                     ChoiceElementIntelliHintDescriptor.getGenericChoiceListSectionIcon());
             //获取所有的处方
 
@@ -213,8 +225,11 @@ public class FunctionSpecificIntelliHintsForTestFunctions extends AbstractFuncti
             operationName = declear(operationName);
             stepName = declear(stepName);
             ArrayList<StringConstantIntelliHintDescriptor> list = new ArrayList<>();
+            //步骤
+            String purposrLabel = I18nMessageUtility.getLocalizedMessage("LC_Expression", "PhaseName_Label");
+
             IntelliHintDescriptorsSection section = new IntelliHintDescriptorsSection(1000,
-                    "步骤",
+                    purposrLabel,
                     ChoiceElementIntelliHintDescriptor.getGenericChoiceListSectionIcon());
             //获取所有的处方
 
@@ -266,8 +281,10 @@ public class FunctionSpecificIntelliHintsForTestFunctions extends AbstractFuncti
             stepName = declear(stepName);
             phaseName = declear(phaseName);
             ArrayList<StringConstantIntelliHintDescriptor> list = new ArrayList<>();
+//            输出
+            String purposrLabel = I18nMessageUtility.getLocalizedMessage("LC_Expression", "OutPut_Label");
             IntelliHintDescriptorsSection section = new IntelliHintDescriptorsSection(1000,
-                    "输出",
+                    purposrLabel,
                     ChoiceElementIntelliHintDescriptor.getGenericChoiceListSectionIcon());
             //获取所有的处方
 
@@ -302,14 +319,16 @@ public class FunctionSpecificIntelliHintsForTestFunctions extends AbstractFuncti
                 //SQL获取ATR——key
                 t.forATRowKeyEqualTo(Integer.valueOf(list1.get(0)[0]));
                 final List<IMESRtPhase> filteredObjects2 = t.getFilteredObjects();
-                List<IBuildingBlockOutputDescriptor> listDesc = filteredObjects2.get(0).getRtPhaseOutput().getOutputDescriptors();
-                //filteredObjects2.get(0).get
-                for (IBuildingBlockOutputDescriptor descriptor : listDesc) {
-                    //有效
-                    String showValue = descriptor.getDisplayName() + " : " + descriptor.getDataType().getSimpleName();
-                    String setValue = descriptor.getName();
-                    StringConstantIntelliHintDescriptor stringConstantIntelliHintDescriptor2 = new StringConstantIntelliHintDescriptor(setValue, showValue, section);
-                    list.add(stringConstantIntelliHintDescriptor2);
+                if(filteredObjects2.size()>0) {
+                    List<IBuildingBlockOutputDescriptor> listDesc = filteredObjects2.get(0).getRtPhaseOutput().getOutputDescriptors();
+                    //filteredObjects2.get(0).get
+                    for (IBuildingBlockOutputDescriptor descriptor : listDesc) {
+                        //有效
+                        String showValue = descriptor.getDisplayName() + " : " + descriptor.getDataType().getSimpleName();
+                        String setValue = descriptor.getName();
+                        StringConstantIntelliHintDescriptor stringConstantIntelliHintDescriptor2 = new StringConstantIntelliHintDescriptor(setValue, showValue, section);
+                        list.add(stringConstantIntelliHintDescriptor2);
+                    }
                 }
             }
             return list;
