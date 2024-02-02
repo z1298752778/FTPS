@@ -61,9 +61,9 @@ public class ExecuteFilterWithArrayData extends FilterDataHandler {
             Location storageArea = accessRight.getParentLocation();
             Location warehouse = storageArea.getParentLocation();
             try {
-                if(accessRight.getUDA("location_accPriv") == null || user.hasPrivilege((AccessPrivilege) accessRight.getUDA("location_accPriv"))){
-                    if(storageArea.getUDA("location_accPriv") == null || user.hasPrivilege((AccessPrivilege) storageArea.getUDA("location_accPriv"))){
-                        if(warehouse.getUDA("location_accPriv") == null || user.hasPrivilege((AccessPrivilege) warehouse.getUDA("location_accPriv"))){
+                if(accessRight.getUDA("LC_location_accPriv") == null || user.hasPrivilege((AccessPrivilege) accessRight.getUDA("location_accPriv"))){
+                    if(storageArea.getUDA("LC_location_accPriv") == null || user.hasPrivilege((AccessPrivilege) storageArea.getUDA("location_accPriv"))){
+                        if(warehouse.getUDA("LC_location_accPriv") == null || user.hasPrivilege((AccessPrivilege) warehouse.getUDA("location_accPriv"))){
                             locations.add(accessRight);
                         }
                     }
@@ -72,6 +72,7 @@ public class ExecuteFilterWithArrayData extends FilterDataHandler {
                 e.printStackTrace();
             }
         }
+        this.setNrOfRecords(locations.size(), locations.size());
         return locations;
     }
 
