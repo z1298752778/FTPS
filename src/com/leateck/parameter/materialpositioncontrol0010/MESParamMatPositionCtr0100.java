@@ -9,7 +9,7 @@ import com.rockwell.mes.services.s88.ifc.recipe.IMESProcessParameterData;
 /**
  * Generated class definition
  */
-public class MESParamMatPosiControl0100 extends MESGeneratedParamMatPosiControl0100 //nl
+public class MESParamMatPositionCtr0100 extends MESGeneratedParamMatPositionCtr0100 //nl
                                                   implements IMESProcessParameterData {
 
     /**
@@ -17,7 +17,7 @@ public class MESParamMatPosiControl0100 extends MESGeneratedParamMatPosiControl0
      *
      * @param key The key of the ATRow to load.
      */
-    public MESParamMatPosiControl0100(long key) {
+    public MESParamMatPositionCtr0100(long key) {
         super(key);
     }
 
@@ -26,7 +26,7 @@ public class MESParamMatPosiControl0100 extends MESGeneratedParamMatPosiControl0
      *
      * @param source the source to copy.
      */
-    public MESParamMatPosiControl0100(MESParamMatPosiControl0100 source) {
+    public MESParamMatPositionCtr0100(MESParamMatPositionCtr0100 source) {
         super(source);
     }
 
@@ -35,7 +35,7 @@ public class MESParamMatPosiControl0100 extends MESGeneratedParamMatPosiControl0
      *
      * @param baseATRow The ATRow to wrap.
      */
-    public MESParamMatPosiControl0100(ATRow baseATRow) {
+    public MESParamMatPositionCtr0100(ATRow baseATRow) {
         super(baseATRow);
     }
 
@@ -43,7 +43,7 @@ public class MESParamMatPosiControl0100 extends MESGeneratedParamMatPosiControl0
      * Generated method definition
      *
      */
-    public MESParamMatPosiControl0100() {
+    public MESParamMatPositionCtr0100() {
         super();
     }
 

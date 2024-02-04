@@ -18,20 +18,20 @@ import com.rockwell.mes.commons.base.ifc.services.PCContext;
 /**
  * Generated class definition
  */
-public abstract class MESGeneratedParamMatPosiControl0100Filter extends MESATObjectFilter  {
+public abstract class MESGeneratedParamMatPositionCtr0100Filter extends MESATObjectFilter  {
 
     /** Generated attribute definition */
     private static final long serialVersionUID = 1L;
 
     /** Generated attribute definition */
-    private static final String ATDEFINITION_NAME = "LC_ParamMatPosiControl0100";
+    private static final String ATDEFINITION_NAME = "LC_ParamMatPositionCtr0100";
 
     /**
      * Generated method definition
      *
      * @param server The Server object
      */
-    public MESGeneratedParamMatPosiControl0100Filter(Server server) {
+    public MESGeneratedParamMatPositionCtr0100Filter(Server server) {
         super(server, ATDEFINITION_NAME);
     }
 
@@ -39,7 +39,7 @@ public abstract class MESGeneratedParamMatPosiControl0100Filter extends MESATObj
      * Generated method definition
      *
      */
-    public MESGeneratedParamMatPosiControl0100Filter() {
+    public MESGeneratedParamMatPositionCtr0100Filter() {
         super(PCContext.getServerImpl(), ATDEFINITION_NAME);
     }
 
@@ -49,7 +49,7 @@ public abstract class MESGeneratedParamMatPosiControl0100Filter extends MESATObj
      * @param server the corresponding server
      * @param atdefinitionName the name of the at definition
      */
-    protected MESGeneratedParamMatPosiControl0100Filter(Server server, String atdefinitionName) {
+    protected MESGeneratedParamMatPositionCtr0100Filter(Server server, String atdefinitionName) {
         super(server, atdefinitionName);
     }
     
@@ -58,8 +58,8 @@ public abstract class MESGeneratedParamMatPosiControl0100Filter extends MESATObj
      *
      * @return the list of the objects
      */
-    public List<MESParamMatPosiControl0100> getFilteredObjects () {
-        return MESATObject.getFilteredMESATObjectList(this, MESParamMatPosiControl0100.class);
+    public List<MESParamMatPositionCtr0100> getFilteredObjects () {
+        return MESATObject.getFilteredMESATObjectList(this, MESParamMatPositionCtr0100.class);
     }
 
 
@@ -70,9 +70,9 @@ public abstract class MESGeneratedParamMatPosiControl0100Filter extends MESATObj
      * @return the filter object
      * @throws DatasweepException the PC exception
      */
-    public MESParamMatPosiControl0100Filter forEnableEqualTo(Boolean value) //
+    public MESParamMatPositionCtr0100Filter forEnableEqualTo(Boolean value) //
             throws DatasweepException {
-        return (MESParamMatPosiControl0100Filter) forColumnNameEqualTo("LC_Enable", value);
+        return (MESParamMatPositionCtr0100Filter) forColumnNameEqualTo("LC_Enable", value);
     }
 
     /**
@@ -82,58 +82,9 @@ public abstract class MESGeneratedParamMatPosiControl0100Filter extends MESATObj
      * @return the filter object
      * @throws DatasweepException the PC exception
      */
-    public MESParamMatPosiControl0100Filter forEnableNotEqualTo(Boolean value) //
+    public MESParamMatPositionCtr0100Filter forEnableNotEqualTo(Boolean value) //
             throws DatasweepException {
-        return (MESParamMatPosiControl0100Filter) forColumnNameNotEqualTo("LC_Enable", value);
-    }
-
-
-    /**
-     * Generated method definition
-     *
-     * @param value the value to be filtered for
-     * @return the filter object
-     * @throws DatasweepException the PC exception
-     */
-    public MESParamMatPosiControl0100Filter forStorageAreaEqualTo(String value) //
-            throws DatasweepException {
-        return (MESParamMatPosiControl0100Filter) forColumnNameEqualTo("LC_StorageArea", value);
-    }
-
-    /**
-     * Generated method definition
-     *
-     * @param value the value to be filtered for
-     * @return the filter object
-     * @throws DatasweepException the PC exception
-     */
-    public MESParamMatPosiControl0100Filter forStorageAreaNotEqualTo(String value) //
-            throws DatasweepException {
-        return (MESParamMatPosiControl0100Filter) forColumnNameNotEqualTo("LC_StorageArea", value);
-    }
-
-    /**
-     * Generated method definition
-     *
-     * @param value the value to be filtered for
-     * @return the filter object
-     * @throws DatasweepException the PC exception
-     */
-    public MESParamMatPosiControl0100Filter forStorageAreaContaining(String value) //
-            throws DatasweepException {
-        return (MESParamMatPosiControl0100Filter) forColumnNameContaining("LC_StorageArea", value);
-    }
-
-    /**
-     * Generated method definition
-     *
-     * @param value the value to be filtered for
-     * @return the filter object
-     * @throws DatasweepException the PC exception
-     */
-    public MESParamMatPosiControl0100Filter forStorageAreaStartingWith(String value) //
-            throws DatasweepException {
-        return (MESParamMatPosiControl0100Filter) forColumnNameStartingWith("LC_StorageArea", value);
+        return (MESParamMatPositionCtr0100Filter) forColumnNameNotEqualTo("LC_Enable", value);
     }
 
 
@@ -144,9 +95,9 @@ public abstract class MESGeneratedParamMatPosiControl0100Filter extends MESATObj
      * @return the filter object
      * @throws DatasweepException the PC exception
      */
-    public MESParamMatPosiControl0100Filter forStorageLocationEqualTo(String value) //
+    public MESParamMatPositionCtr0100Filter forStorageAreaEqualTo(String value) //
             throws DatasweepException {
-        return (MESParamMatPosiControl0100Filter) forColumnNameEqualTo("LC_StorageLocation", value);
+        return (MESParamMatPositionCtr0100Filter) forColumnNameEqualTo("LC_StorageArea", value);
     }
 
     /**
@@ -156,9 +107,9 @@ public abstract class MESGeneratedParamMatPosiControl0100Filter extends MESATObj
      * @return the filter object
      * @throws DatasweepException the PC exception
      */
-    public MESParamMatPosiControl0100Filter forStorageLocationNotEqualTo(String value) //
+    public MESParamMatPositionCtr0100Filter forStorageAreaNotEqualTo(String value) //
             throws DatasweepException {
-        return (MESParamMatPosiControl0100Filter) forColumnNameNotEqualTo("LC_StorageLocation", value);
+        return (MESParamMatPositionCtr0100Filter) forColumnNameNotEqualTo("LC_StorageArea", value);
     }
 
     /**
@@ -168,9 +119,9 @@ public abstract class MESGeneratedParamMatPosiControl0100Filter extends MESATObj
      * @return the filter object
      * @throws DatasweepException the PC exception
      */
-    public MESParamMatPosiControl0100Filter forStorageLocationContaining(String value) //
+    public MESParamMatPositionCtr0100Filter forStorageAreaContaining(String value) //
             throws DatasweepException {
-        return (MESParamMatPosiControl0100Filter) forColumnNameContaining("LC_StorageLocation", value);
+        return (MESParamMatPositionCtr0100Filter) forColumnNameContaining("LC_StorageArea", value);
     }
 
     /**
@@ -180,9 +131,58 @@ public abstract class MESGeneratedParamMatPosiControl0100Filter extends MESATObj
      * @return the filter object
      * @throws DatasweepException the PC exception
      */
-    public MESParamMatPosiControl0100Filter forStorageLocationStartingWith(String value) //
+    public MESParamMatPositionCtr0100Filter forStorageAreaStartingWith(String value) //
             throws DatasweepException {
-        return (MESParamMatPosiControl0100Filter) forColumnNameStartingWith("LC_StorageLocation", value);
+        return (MESParamMatPositionCtr0100Filter) forColumnNameStartingWith("LC_StorageArea", value);
+    }
+
+
+    /**
+     * Generated method definition
+     *
+     * @param value the value to be filtered for
+     * @return the filter object
+     * @throws DatasweepException the PC exception
+     */
+    public MESParamMatPositionCtr0100Filter forStorageLocationEqualTo(String value) //
+            throws DatasweepException {
+        return (MESParamMatPositionCtr0100Filter) forColumnNameEqualTo("LC_StorageLocation", value);
+    }
+
+    /**
+     * Generated method definition
+     *
+     * @param value the value to be filtered for
+     * @return the filter object
+     * @throws DatasweepException the PC exception
+     */
+    public MESParamMatPositionCtr0100Filter forStorageLocationNotEqualTo(String value) //
+            throws DatasweepException {
+        return (MESParamMatPositionCtr0100Filter) forColumnNameNotEqualTo("LC_StorageLocation", value);
+    }
+
+    /**
+     * Generated method definition
+     *
+     * @param value the value to be filtered for
+     * @return the filter object
+     * @throws DatasweepException the PC exception
+     */
+    public MESParamMatPositionCtr0100Filter forStorageLocationContaining(String value) //
+            throws DatasweepException {
+        return (MESParamMatPositionCtr0100Filter) forColumnNameContaining("LC_StorageLocation", value);
+    }
+
+    /**
+     * Generated method definition
+     *
+     * @param value the value to be filtered for
+     * @return the filter object
+     * @throws DatasweepException the PC exception
+     */
+    public MESParamMatPositionCtr0100Filter forStorageLocationStartingWith(String value) //
+            throws DatasweepException {
+        return (MESParamMatPositionCtr0100Filter) forColumnNameStartingWith("LC_StorageLocation", value);
     }
 
 }

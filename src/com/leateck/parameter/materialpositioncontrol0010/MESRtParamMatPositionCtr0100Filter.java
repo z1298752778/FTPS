@@ -8,7 +8,7 @@ import com.datasweep.compatibility.client.Server;
 /**
  * Generated class definition
  */
-public class MESRtParamMatPosiControl0100Filter extends MESGeneratedRtParamMatPosiControl0100Filter {
+public class MESRtParamMatPositionCtr0100Filter extends MESGeneratedRtParamMatPositionCtr0100Filter {
 
     /** Generated attribute definition */
     private static final long serialVersionUID = 1L;
@@ -18,7 +18,7 @@ public class MESRtParamMatPosiControl0100Filter extends MESGeneratedRtParamMatPo
      *
      * @param server The Server object
      */
-    public MESRtParamMatPosiControl0100Filter(Server server) {
+    public MESRtParamMatPositionCtr0100Filter(Server server) {
         super(server);
     }
 
@@ -26,7 +26,7 @@ public class MESRtParamMatPosiControl0100Filter extends MESGeneratedRtParamMatPo
      * Generated method definition
      *
      */
-    public MESRtParamMatPosiControl0100Filter() {
+    public MESRtParamMatPositionCtr0100Filter() {
         super();
     }
 }

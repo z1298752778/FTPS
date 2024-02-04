@@ -1,7 +1,7 @@
 <ParameterClassDescription>
     <OutputDir>C:\output\parameter</OutputDir>
-    <Name>Material Position Control (LC) [1.0]</Name>
-    <ParamClassBaseName>MatPosiControl0100</ParamClassBaseName>
+    <Name>Material Position Control(LC)[1.0]</Name>
+    <ParamClassBaseName>MatPositionCtr0100</ParamClassBaseName>
     <Description>Enabling verification will check the corresponding location of the material</Description>
     <PackageName>com.leateck.parameter.materialpositioncontrol0010</PackageName>
     <ATDefinitionPrefix>LC_</ATDefinitionPrefix>

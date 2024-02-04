@@ -12,20 +12,20 @@ import com.rockwell.mes.commons.base.ifc.services.PCContext;
 /**
  * Generated class definition
  */
-public abstract class MESGeneratedRtParamMatPosiControl0100Filter extends MESGeneratedParamMatPosiControl0100Filter  {
+public abstract class MESGeneratedRtParamMatPositionCtr0100Filter extends MESGeneratedParamMatPositionCtr0100Filter  {
 
     /** Generated attribute definition */
     private static final long serialVersionUID = 1L;
 
     /** Generated attribute definition */
-    private static final String ATDEFINITION_NAME = "LC_RtParMatPosiControl0100";
+    private static final String ATDEFINITION_NAME = "LC_RtParMatPositionCtr0100";
 
     /**
      * Generated method definition
      *
      * @param server The Server object
      */
-    public MESGeneratedRtParamMatPosiControl0100Filter(Server server) {
+    public MESGeneratedRtParamMatPositionCtr0100Filter(Server server) {
         super(server, ATDEFINITION_NAME);
     }
 
@@ -33,7 +33,7 @@ public abstract class MESGeneratedRtParamMatPosiControl0100Filter extends MESGen
      * Generated method definition
      *
      */
-    public MESGeneratedRtParamMatPosiControl0100Filter() {
+    public MESGeneratedRtParamMatPositionCtr0100Filter() {
         super(PCContext.getServerImpl(), ATDEFINITION_NAME);
     }
 }

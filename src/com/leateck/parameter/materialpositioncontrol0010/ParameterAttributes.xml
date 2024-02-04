@@ -17,7 +17,7 @@
 
 	<ParameterAttribute>
 		<Name>StorageLocation</Name>
-		<Description>select storage area</Description>
+		<Description>select storage Location</Description>
 		<DataType>
 			<String length="100" />
 		</DataType>

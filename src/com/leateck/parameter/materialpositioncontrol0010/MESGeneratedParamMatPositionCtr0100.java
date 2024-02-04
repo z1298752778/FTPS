@@ -14,16 +14,15 @@ import com.rockwell.mes.commons.base.ifc.objects.BulkSaveableMESATObject;
 
 
 
-
 /**
  * Generated class definition
-* <br/>Application table: LC_ParamMatPosiControl0100
+* <br/>Application table: LC_ParamMatPositionCtr0100
  */
-public abstract class MESGeneratedParamMatPosiControl0100
+public abstract class MESGeneratedParamMatPositionCtr0100
  extends BulkSaveableMESATObject {
 
     /** Generated attribute definition */
-    protected static final String ATDEFINITION_NAME = "LC_ParamMatPosiControl0100";
+    protected static final String ATDEFINITION_NAME = "LC_ParamMatPositionCtr0100";
 
 
     @Override
@@ -36,7 +35,7 @@ public abstract class MESGeneratedParamMatPosiControl0100
      *
      * @param key The key of the ATRow to load.
      */
-    public MESGeneratedParamMatPosiControl0100(long key) {
+    public MESGeneratedParamMatPositionCtr0100(long key) {
         super(key);     
     }
 
@@ -45,7 +44,7 @@ public abstract class MESGeneratedParamMatPosiControl0100
      *
      * @param source the source to copy.
      */
-    public MESGeneratedParamMatPosiControl0100(MESGeneratedParamMatPosiControl0100 source) {
+    public MESGeneratedParamMatPositionCtr0100(MESGeneratedParamMatPositionCtr0100 source) {
         super(source);
     }
 
@@ -54,14 +53,14 @@ public abstract class MESGeneratedParamMatPosiControl0100
      *
      * @param baseATRow The ATRow to wrap.
      */
-    public MESGeneratedParamMatPosiControl0100(ATRow baseATRow) {
+    public MESGeneratedParamMatPositionCtr0100(ATRow baseATRow) {
         super(baseATRow);    
     }
 
     /**
      * Generated constructor
      */
-    public MESGeneratedParamMatPosiControl0100() {
+    public MESGeneratedParamMatPositionCtr0100() {
         super();
     }
 

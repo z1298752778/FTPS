@@ -8,10 +8,10 @@ import com.datasweep.compatibility.client.ATRow;
 /**
  * Generated class definition
  */
-public class MESRtParamMatPosiControl0100 extends MESParamMatPosiControl0100 {
+public class MESRtParamMatPositionCtr0100 extends MESParamMatPositionCtr0100 {
 
     /** Generated attribute definition */
-    protected static final String ATDEFINITION_NAME = "LC_RtParMatPosiControl0100";
+    protected static final String ATDEFINITION_NAME = "LC_RtParMatPositionCtr0100";
     
     /**
      * Generated method definition
@@ -28,7 +28,7 @@ public class MESRtParamMatPosiControl0100 extends MESParamMatPosiControl0100 {
      *
      * @param key The key of the ATRow to load.
      */
-    public MESRtParamMatPosiControl0100(long key) {
+    public MESRtParamMatPositionCtr0100(long key) {
         super(key);
     }
 
@@ -37,7 +37,7 @@ public class MESRtParamMatPosiControl0100 extends MESParamMatPosiControl0100 {
      *
      * @param source the source to copy.
      */
-    public MESRtParamMatPosiControl0100(MESParamMatPosiControl0100 source) {
+    public MESRtParamMatPositionCtr0100(MESParamMatPositionCtr0100 source) {
         super(source);
     }
 
@@ -46,7 +46,7 @@ public class MESRtParamMatPosiControl0100 extends MESParamMatPosiControl0100 {
      *
      * @param baseATRow The ATRow to wrap.
      */
-    public MESRtParamMatPosiControl0100(ATRow baseATRow) {
+    public MESRtParamMatPositionCtr0100(ATRow baseATRow) {
         super(baseATRow);
     }
 
@@ -54,7 +54,7 @@ public class MESRtParamMatPosiControl0100 extends MESParamMatPosiControl0100 {
      * Generated method definition
      *
      */
-    public MESRtParamMatPosiControl0100() {
+    public MESRtParamMatPositionCtr0100() {
         super();
     }
 
