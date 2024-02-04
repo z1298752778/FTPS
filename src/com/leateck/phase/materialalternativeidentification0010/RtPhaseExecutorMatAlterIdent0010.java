@@ -4,6 +4,7 @@ import com.datasweep.compatibility.client.*;
 import com.datasweep.plantops.common.measuredvalue.IMeasuredValue;
 import com.datasweep.plantops.common.measuredvalue.IUnitOfMeasure;
 import com.jgoodies.common.base.Strings;
+import com.leateck.parameter.materialpositioncontrol0010.MESParamMatPositionCtr0100;
 import com.rockwell.mes.apps.ebr.ifc.phase.IPhaseCompleter;
 import com.rockwell.mes.apps.ebr.ifc.phase.ui.PhaseQuestionDialog;
 import com.rockwell.mes.apps.ebr.ifc.phase.ui.PhaseWarningDialog;
@@ -63,7 +64,6 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.xpath.operations.Bool;
 
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
@@ -657,34 +657,12 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
             identCheckSuite.clearCheckSuites();
             sclCheckExceptionMessage.clear();
         }
-//        if(manulOrScan){
-//            manulOrScan = false;
-//            return identCheckSuite;
-//        }
+
         final Pair<List<IdentificationSublot>, Map<Sublot, OrderStepInput>> identificationData = getSublotsToIdentify(signatureExecutor, isAction);
         final List<IdentificationSublot> sublotsToIdentify = identificationData.getFirst();
         final Map<Sublot, OrderStepInput> sublotOSIMap = identificationData.getSecond();
         Collection<OrderStepInput> oSIsTOLock = new HashSet<>(sublotOSIMap.values());
 
-        /**
-         * TX
-         * LC
-         *
-         */
-//        if(flagLC){
-//
-//        }
-//        if(isMixCheckConfiguration().getEnabled()) {
-//            //开启，判断子批次与表格中的子批次是否为同一组物料或同一个物料
-//            //manulOrScan = true;
-//            if(!CheckMaterialRule(1)){
-//                return identCheckSuite;
-//            }
-////            else{
-////                flagLC = true;
-////            }
-////            return identCheckSuite;
-//        }
 
 //        /**
 //         * Yonghao Xu
@@ -1745,6 +1723,9 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
         }
         //是否启用自消耗
         if (model.getAutoConsume()) {
+            /**
+             * 除了主料，其他辅料物料都不能为0 kg识别量 或 没有消耗量
+             */
             if (model.hasMandatoryPositionsWithoutIdentifications()) {
                 appendLineBreaksIfNeeded(errorTextBuilder);
                 errorTextBuilder.append(getI18nError(getMsgIdCompletionError(exceptionText, "NotAllMaterialIdentified_Error")));
@@ -1755,6 +1736,9 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
          */
         else {
             if (isMandatoryPositionOpen()) {
+                /**
+                 * 除了主料，其他辅料物料都不能为0 kg消耗量 或 没有消耗量
+                 */
                 //Phase不能完成
                 appendLineBreaksIfNeeded(errorTextBuilder);
                 errorTextBuilder.append(getI18nError(getMsgIdCompletionError(exceptionText, "MatIdentPositionStillOpen_Error")));
@@ -1932,6 +1916,11 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
         return getProcessParameterData(MESParamExceptionDef0300.class,"Proportional Anomaly");
     }
 
+    public MESParamMatPositionCtr0100 getMaterialPosiControl(){
+        return getProcessParameterData(MESParamMatPositionCtr0100.class,"Material position control");
+    }
+
+
 
 
 
@@ -1947,6 +1936,13 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
         try {
             // get the identified item 获取扫描的子批次对象
             identifiedItem = getIdentifiedItemByBarcode(getView().getEnteredBarcode());
+            if(getMaterialPosiControl().getEnable()){
+                //开启子批次 存储位置、存储区域校验
+                if(!CheckMaterialLocationRule()){
+                    //校验不通过
+                    return;
+                }
+            }
             //判断是否启用了扫描描混合检查的过参
             if(getMixCheckConfiguration().getEnabled()){
                 //开启，判断子批次与表格中的子批次是否为同一组物料或同一个物料
@@ -1956,7 +1952,7 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
                     checksuite = performIdentification( null, false);
                     evaluateIdentificationRequestResult(checksuite);
                 }
-            }else {
+            } else{
                 checksuite = performIdentification( null, false);
                 evaluateIdentificationRequestResult(checksuite);
             }
@@ -2222,6 +2218,55 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
             }
         }
         return null;
+    }
+
+
+    /**
+     * 子批次存储区域、存储位置校验
+     * true:校验通过
+     */
+    public Boolean CheckMaterialLocationRule(){
+        //获取子批次的位置
+        String locationStr = identifiedItem.getSublot().getCarrier().getLocation();
+        if(locationStr == null){
+            return false;
+        }
+        //通过位置Str获取存储位置
+        Location location = PCContext.getFunctions().getLocation(locationStr);
+        //通过存储位置获取存储区域
+        String  parentLocationStr = location.getParentLocation().toString();
+        if(parentLocationStr == null){
+            return false;
+        }
+
+
+        //获取处方中配置的 存储区域、存储位置
+        String storageArea = getMaterialPosiControl().getStorageArea();
+        String storageLocation = getMaterialPosiControl().getStorageLocation();
+        String msg = I18nMessageUtility.getLocalizedMessage(MSG_PACK, "IdentifyMaterialLocation_Error");
+        if(storageArea == null && storageLocation == null){
+            //存储区域、存储位置都为空 不进行校验
+            return true;
+        }else if(storageArea != null && storageLocation != null){
+            //存储区域，存储位置都不为空，判断子批次的存储位置、区域是否与处方中设置的存储位置、区域一致
+            if(!storageArea.equals(parentLocationStr) || !storageLocation.equals(locationStr)){
+                ProductPhaseSwingHelper.showErrorDlg(msg);
+                return false;
+            }
+        }else if(storageArea == null && storageLocation != null){
+            //存储区域为空，存储位置不为空，判断子批次的存储位置是否与处方中设置的存储位置一致
+            if(!storageLocation.equals(locationStr)){
+                ProductPhaseSwingHelper.showErrorDlg(msg);
+                return false;
+            }
+        }else if(storageArea != null && storageLocation == null){
+            //存储区域不为空，存储位置为空，判断子批次的存储区域是否与处方中设置的存储区域一致
+            if(!storageArea.equals(parentLocationStr)){
+                ProductPhaseSwingHelper.showErrorDlg(msg);
+                return false;
+            }
+        }
+        return true;
     }
 
 
