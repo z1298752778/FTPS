@@ -25,6 +25,7 @@ import com.rockwell.mes.parameter.product.excptenabledef.MESParamExcptEnableDef0
 import com.rockwell.mes.services.order.ifc.EnumOrderStepInputStatus;
 import com.rockwell.mes.services.s88.ifc.recipe.IMESMaterialParameter;
 import com.rockwell.mes.services.s88.ifc.recipe.PlannedQuantityMode;
+import com.rockwell.mes.services.s88.impl.recipe.MESMaterialParameter;
 import com.rockwell.mes.services.wip.ifc.IOrderStepExecutionService;
 import com.rockwell.mes.services.wip.ifc.IOrderStepExecutionService.QuantityRangeCondition;
 import com.rockwell.mes.services.wip.ifc.LimitsAndPlannedQuantity;
@@ -35,10 +36,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ecs.html.S;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -131,15 +129,39 @@ public class MatAccountCompletionExceptions0710 extends PhaseSystemTriggeredExce
         AbnormalMaterialCombinationRatio(LcAccountMaterialDAO0710.ABNORMAL_MATERIAL_COMBINATIONRATIO) {
             @Override
             boolean conditionForSystemtriggeredException(RtPhaseExecutorMatAlterAcct0010 executor) {
+
+
                 //判断组合比例是否一致
                 if (executor.getModel().checkCombineGroupIsEqualWithRate() == false) {
-                    final String isContinueMsg =
-                            I18nMessageUtility.getLocalizedMessage(LcAccountMaterialDAO0710.MSG_PACK, "CombineGroupIsEqualWithRate_Error",
-                            executor.getModel().getNotEqualRatePart());
+                    StringBuffer errorMag = new StringBuffer("");
+                    List<String[]> notEqualRatePartList = executor.getModel().getNotEqualRatePartList();
+                    Map<String,String> diffCom = new HashMap<>();
+                    errorMag.append(I18nMessageUtility.getLocalizedMessage(LcAccountMaterialDAO0710.MSG_PACK,"configurationRatioDialog"));
+                    for (String[] notEqualRatePart: notEqualRatePartList){
+                        if (diffCom.get(notEqualRatePart[1]) != null) {
+                            String subs = diffCom.get(notEqualRatePart[1]);
+                            diffCom.put(notEqualRatePart[1],subs+","+notEqualRatePart[2]);
+                        }else {
+                            diffCom.put(notEqualRatePart[1],notEqualRatePart[2]);
+                        }
+                    }
+                    ArrayList<String> allcom = new ArrayList<>();
+                    for (String[] notEqualRatePart: notEqualRatePartList){
+                        if (allcom.contains(notEqualRatePart[0])) {
+                            continue;
+                        }
+                        allcom.add(notEqualRatePart[0]);
+                        notEqualRatePart[2] = diffCom.get(notEqualRatePart[1]);
+                        errorMag.append(
+                                I18nMessageUtility.getLocalizedMessage(LcAccountMaterialDAO0710.MSG_PACK, "CombineGroupIsEqualWithRate_Error",
+                                        notEqualRatePart));
+                        errorMag.append("\n");
+                    }
 
-
+                    errorMag.append(I18nMessageUtility.getLocalizedMessage(LcAccountMaterialDAO0710.MSG_PACK,"RecordAnomalieDialog"));
+                    //提示弹框
                     PhaseQuestionDialog questionDialog = new PhaseQuestionDialog();
-                    int userChoice = questionDialog.showDialog(isContinueMsg);
+                    int userChoice = questionDialog.showDialog(errorMag.toString());
                     isOK = userChoice;
                     if (userChoice != 0) {
                         return false;
@@ -152,18 +174,45 @@ public class MatAccountCompletionExceptions0710 extends PhaseSystemTriggeredExce
 
             @Override
             void createException(final MatAccountCompletionExceptions0710 exceptions) {
-                 String isContinueMsg = I18nMessageUtility.getLocalizedMessage(LcAccountMaterialDAO0710.MSG_PACK, "CombineGroupIsEqualWithRate_Exception",
-                         exceptions.executor.getModel().getNotEqualRatePart());
+
+                StringBuffer errorMag = new StringBuffer("");
+                List<String[]> notEqualRatePartList = exceptions.executor.getModel().getNotEqualRatePartList();
+                Map<String,String> diffCom = new HashMap<>();
+                errorMag.append(I18nMessageUtility.getLocalizedMessage(LcAccountMaterialDAO0710.MSG_PACK,"configurationRatioDialog"));
+                for (String[] notEqualRatePart: notEqualRatePartList){
+                    if (diffCom.get(notEqualRatePart[1]) != null) {
+                        String subs = diffCom.get(notEqualRatePart[1]);
+                        diffCom.put(notEqualRatePart[1],subs+","+notEqualRatePart[2]);
+                    }else {
+                        diffCom.put(notEqualRatePart[1],notEqualRatePart[2]);
+                    }
+                }
+                ArrayList<String> allcom = new ArrayList<>();
+                for (String[] notEqualRatePart: notEqualRatePartList){
+                    if (allcom.contains(notEqualRatePart[0])) {
+                        continue;
+                    }
+                    allcom.add(notEqualRatePart[0]);
+                    notEqualRatePart[2] = diffCom.get(notEqualRatePart[1]);
+                    errorMag.append(
+                            I18nMessageUtility.getLocalizedMessage(LcAccountMaterialDAO0710.MSG_PACK, "CombineGroupIsEqualWithRate_Error",
+                                    notEqualRatePart));
+                    errorMag.append("\n");
+                }
+
 
 
                 MESParamExceptionDef0300 paramExceptionDef0300 = null;
                 paramExceptionDef0300 = exceptions.executor.getProcessParameterData(MESParamExceptionDef0300.class, LcAccountMaterialDAO0710.ABNORMAL_MATERIAL_COMBINATIONRATIO);
-                String exceptionStr = paramExceptionDef0300.getExceptionDescr() + "\r\n" + isContinueMsg;
+                String exceptionStr = paramExceptionDef0300.getExceptionDescr() + "\r\n" + errorMag.toString();
                 long risk = paramExceptionDef0300.getRiskAssessment();
                 IMESExceptionRecord.RiskClass riskclass = IMESExceptionRecord.RiskClass.valueOf(risk);
                 exceptions.executor.displayException(getCheckKey(),riskclass,exceptionStr);
             }
         },
+        /*
+        * 消耗数量与计划量不一致
+        * */
         /**
          * Overweigh.
          */
@@ -183,59 +232,146 @@ public class MatAccountCompletionExceptions0710 extends PhaseSystemTriggeredExce
 
                 private final QuantityRangeCondition result;
 
-                private ResultSet(Part mat, LimitsAndPlannedQuantity limits, MeasuredValue consumed, QuantityRangeCondition res) {
+                private final OrderStepInput orderStepInput;
+
+                private ResultSet(Part mat, LimitsAndPlannedQuantity limits, MeasuredValue consumed, QuantityRangeCondition res,OrderStepInput orderStepInput) {
                     material = mat;
                     limitsAndPlannedQuantity = limits;
                     consumedQuantity = consumed;
                     result = res;
+                    this.orderStepInput = orderStepInput;
                 }
             }
 
             @Override
             boolean conditionForSystemtriggeredException(RtPhaseExecutorMatAlterAcct0010 executor) {
-                return !getQuantitiesOutOfRange(executor).isEmpty();
+                List<ResultSet> quantitiesOutOfRange = getQuantitiesOutOfRange(executor);
+                List<ResultSet> limitPlanned = new ArrayList<>();//保存消耗量到计划量
+                List<ResultSet> limitPlannedRange = new ArrayList<>();//保存消耗量到计划量范围
+                    //判断计划量是否在范围
+                if(quantitiesOutOfRange.isEmpty()) return false;
+                for(ResultSet resultSet: quantitiesOutOfRange){
+
+                    List<IMESMaterialParameter> materialParameters = executor.getPhase().getMaterialParameters();
+                    OrderStepInput orderStepInput = resultSet.orderStepInput;
+                    //获取限制模式不为空的物料
+                    List<IMESMaterialParameter> matParamList = materialParameters.stream()
+                            .filter(p -> p.getMaterial() == orderStepInput.getPart()
+                                    && p.getATRow().getValue("LC_restrictionMode") != null).collect(Collectors.toList());
+                    if(matParamList.size() > 0){
+                        //将不同限制模式的物料放入集合
+                        if(20 == (Long)matParamList.get(0).getATRow().getValue("LC_restrictionMode")){
+                            //限制到达计划量
+                            limitPlanned.add(resultSet);
+                            //提示弹框
+                        }
+                        else if (30 ==(Long)matParamList.get(0).getATRow().getValue("LC_restrictionMode")){
+                            //限制到达计划量范围
+                            limitPlannedRange.add(resultSet);
+                        }
+                    }
+                }
+
+                if(limitPlannedRange.size() >0 || limitPlanned.size()>0) {
+                    //提示框
+                    StringBuffer isContinueMsg = new StringBuffer(I18nMessageUtility.getLocalizedMessage(LcAccountMaterialDAO0710.MSG_PACK, "FollowMaterialDialog" ));
+                    //不等于计划量的物料
+                    for (ResultSet set: limitPlanned){
+                        isContinueMsg.append(
+                                I18nMessageUtility.getLocalizedMessage(LcAccountMaterialDAO0710.MSG_PACK, "PlannedQtyNotReached_dialog",
+                                        new Object[]{set.material.getPartNumber(),set.orderStepInput.getPlannedQuantity().toString()}));
+                        isContinueMsg.append("\n");
+                    }
+
+                    //不等于计划量范围的物料
+                    for (ResultSet set: limitPlannedRange){
+                        //拼接计划量范围
+                        String range = (set.limitsAndPlannedQuantity.getLowerLimit()==null?set.limitsAndPlannedQuantity.getPlannedQuantity():set.limitsAndPlannedQuantity.getLowerLimit())
+                                +"~"+ (set.limitsAndPlannedQuantity.getUpperLimit()==null?set.limitsAndPlannedQuantity.getPlannedQuantity():set.limitsAndPlannedQuantity.getUpperLimit());
+                        //提示计划量范围
+                        isContinueMsg.append(
+                                I18nMessageUtility.getLocalizedMessage(LcAccountMaterialDAO0710.MSG_PACK, "PlannedQtyRangeNotReached_dialog",
+                                        new Object[]{set.material.getPartNumber(),range}));
+                        isContinueMsg.append("\n");
+                    }
+
+                    isContinueMsg.append(I18nMessageUtility.getLocalizedMessage(LcAccountMaterialDAO0710.MSG_PACK, "RecordAnomalieDialog" ));
+                    PhaseQuestionDialog questionDialog = new PhaseQuestionDialog();
+                    int userChoice = questionDialog.showDialog(isContinueMsg.toString());
+                    isOK = userChoice;
+                    //点击否
+                    if (userChoice != 0) {
+                        return false;
+                    }else {//点击是
+                        return true;
+                    }
+                }
+                //消耗量满足计划量
+                return false;
+                //return !getQuantitiesOutOfRange(executor).isEmpty();
             }
+
 
             @Override
             void createException(final MatAccountCompletionExceptions0710 exceptions) {
                 final String additionalInfoHeader =
                         I18nMessageUtility.getLocalizedMessage(AccountMaterialDAO0710.MSG_PACK, "QuantitiesOufOfRangeMsg");
-                StringBuilder msg = new StringBuilder(additionalInfoHeader);
                 List<ResultSet> result = getQuantitiesOutOfRange(exceptions.executor);
-                result.forEach(res -> {
-                    msg.append(StringConstants.LINE_BREAK);
-                    final IMeasuredValue plannedQuantity = res.limitsAndPlannedQuantity.getPlannedQuantity();
-                    final MeasuredValue accountedQuantity = res.consumedQuantity != null ? res.consumedQuantity
-                            : MeasuredValueUtilities.createMV(BigDecimal.ZERO, plannedQuantity.getUnitOfMeasure());
-                    IMeasuredValue convertedAccountedQuantity;
-                    try {
-                        convertedAccountedQuantity = MatAccountModel0710.convertMeasuredValue(accountedQuantity, plannedQuantity.getUnitOfMeasure(),
-                                MeasuredValueUtilities.getMVConverter(res.material));
-                    } catch (MESIncompatibleUoMException e) {
-                        throw new MESRuntimeException(e);
-                    }
-                    final String consumedQuantityLocalized = MeasuredValueUtilities.toDisplayString(convertedAccountedQuantity);
-                    if (res.result == QuantityRangeCondition.UNDEFINED) {
-                        msg.append(I18nMessageUtility.getLocalizedMessage(AccountMaterialDAO0710.MSG_PACK, "PlannedQtyUndefinedDetailsMsg",
-                                new Object[]{res.material.getPartNumber(), consumedQuantityLocalized}));
-                    } else {
-                        final String plannedQuantityLocalized = MeasuredValueUtilities.toDisplayString(plannedQuantity);
-                        final String lowerLimitLocalized = MeasuredValueUtilities.toDisplayString(res.limitsAndPlannedQuantity.getLowerLimit());
-                        final String upperLimitLocalized = MeasuredValueUtilities.toDisplayString(res.limitsAndPlannedQuantity.getUpperLimit());
-                        if (StringUtils.isEmpty(lowerLimitLocalized) && StringUtils.isEmpty(upperLimitLocalized)) {
-                            msg.append(I18nMessageUtility.getLocalizedMessage(AccountMaterialDAO0710.MSG_PACK, "PosOutOfRangeNoTolDetailsMsg",
-                                    new Object[]{res.material.getPartNumber(), plannedQuantityLocalized, //
-                                            consumedQuantityLocalized}));
-                        } else {
-                            msg.append(I18nMessageUtility.getLocalizedMessage(AccountMaterialDAO0710.MSG_PACK, "PositionOutOfRangeDetailsMsg",
-                                    new Object[]{res.material.getPartNumber(), plannedQuantityLocalized, //
-                                            lowerLimitLocalized, upperLimitLocalized, consumedQuantityLocalized}));
+
+                List<ResultSet> limitPlanned = new ArrayList<>();//保存消耗量到计划量
+                List<ResultSet> limitPlannedRange = new ArrayList<>();//保存消耗量到计划量范围
+                for (ResultSet resultSet :result){
+                    List<IMESMaterialParameter> materialParameters = exceptions.executor.getPhase().getMaterialParameters();
+                    OrderStepInput orderStepInput = resultSet.orderStepInput;
+                    //获取限制模式不为空的物料
+                    List<IMESMaterialParameter> matParamList = materialParameters.stream()
+                            .filter(p -> p.getMaterial() == orderStepInput.getPart()
+                                    && p.getATRow().getValue("LC_restrictionMode") != null).collect(Collectors.toList());
+
+                    if(matParamList.size() > 0){
+                        //设置计划量的放入集合
+                        if(20 == (Long)matParamList.get(0).getATRow().getValue("LC_restrictionMode")){
+                            //限制到达计划量
+                            limitPlanned.add(resultSet);
+                        } //设置计划量范围的放入集合
+                        else if (30 ==(Long)matParamList.get(0).getATRow().getValue("LC_restrictionMode")){
+                            //限制到达计划量范围
+                            limitPlannedRange.add(resultSet);
+
                         }
                     }
-                });
-                String exceptionText = exceptions.executor.getModel().getExceptionTextFromParameter(getParameterName());
+                }
+                //提示
+                StringBuffer isContinueMsg = new StringBuffer(I18nMessageUtility.getLocalizedMessage(LcAccountMaterialDAO0710.MSG_PACK, "FollowMaterialDialog" ));
+                //提示不等于集合量的物料
+                for (ResultSet set: limitPlanned){
+                    //提示计划量
+                    isContinueMsg.append(
+                            I18nMessageUtility.getLocalizedMessage(LcAccountMaterialDAO0710.MSG_PACK, "PlannedQtyNotReached_dialog",
+                                    new Object[]{set.material.getPartNumber(),set.orderStepInput.getPlannedQuantity().toString()}));
+                    //提示消耗量
+                    isContinueMsg.append( I18nMessageUtility.getLocalizedMessage(LcAccountMaterialDAO0710.MSG_PACK, "ConsumeQtyException",
+                            new Object[]{set.consumedQuantity== null? MeasuredValueUtilities.createZero(set.limitsAndPlannedQuantity.getPlannedQuantity().getUnitOfMeasure()).toString():set.consumedQuantity.toString()}));
+                    isContinueMsg.append("\n");
+                }
+
+                //获取不在计划量范围的物料
+                for (ResultSet set: limitPlannedRange){
+                    //拼接计划量范围
+                    String range = (set.limitsAndPlannedQuantity.getLowerLimit()==null?set.limitsAndPlannedQuantity.getPlannedQuantity():set.limitsAndPlannedQuantity.getLowerLimit())
+                            +"~"+ (set.limitsAndPlannedQuantity.getUpperLimit()==null?set.limitsAndPlannedQuantity.getPlannedQuantity():set.limitsAndPlannedQuantity.getUpperLimit());
+                    //提示计划量
+                    isContinueMsg.append(
+                            I18nMessageUtility.getLocalizedMessage(LcAccountMaterialDAO0710.MSG_PACK, "PlannedQtyRangeNotReached_dialog",
+                                    new Object[]{set.material.getPartNumber(),range}));
+                    //提示消耗量
+                    isContinueMsg.append( I18nMessageUtility.getLocalizedMessage(LcAccountMaterialDAO0710.MSG_PACK, "ConsumeQtyException",
+                            new Object[]{set.consumedQuantity== null? MeasuredValueUtilities.createZero(set.limitsAndPlannedQuantity.getPlannedQuantity().getUnitOfMeasure()).toString():set.consumedQuantity.toString()}));
+
+                    isContinueMsg.append("\n");
+                }
                 RiskClass riskClass = exceptions.executor.getModel().getExceptionRiskFromParameter(getParameterName());
-                exceptions.addSystemtriggeredException(exceptionText, riskClass, getCheckKey(), msg.toString());
+                exceptions.executor.displayException(getCheckKey(),riskClass,isContinueMsg.toString());
             }
 
             private List<ResultSet> getQuantitiesOutOfRange(RtPhaseExecutorMatAlterAcct0010 executor) {
@@ -258,12 +394,12 @@ public class MatAccountCompletionExceptions0710 extends PhaseSystemTriggeredExce
                                     MESNamedUDAOrderStepInput.getTotalWastedQuantity(osi), converter);
                         }
                         if (totalConsumedQty == null) {
-                            result.add(new ResultSet(osi.getPart(), service.determineLimitsAndPlannedQuantity(osi), null, null));
+                            result.add(new ResultSet(osi.getPart(), service.determineLimitsAndPlannedQuantity(osi), null, null,osi));
                         } else {
                             QuantityRangeCondition qtyCheckResult = service.checkQuantityInRange(osi, totalConsumedQty);
                             if (qtyCheckResult == QuantityRangeCondition.UNDEFINED || qtyCheckResult.isOutOfRange()) {
                                 result.add(new ResultSet(osi.getPart(), service.determineLimitsAndPlannedQuantity(osi), totalConsumedQty,
-                                        qtyCheckResult));
+                                        qtyCheckResult,osi));
                             }
                         }
 
@@ -342,7 +478,8 @@ public class MatAccountCompletionExceptions0710 extends PhaseSystemTriggeredExce
             if (isNotSigned(e.getCheckKey()) && e.conditionForSystemtriggeredException(executor)){
                     e.createException(this);
                     if(SystemtriggeredExceptionEnum.UnconsumedSublot.equals(e) ||
-                            SystemtriggeredExceptionEnum.AbnormalMaterialCombinationRatio.equals(e)){
+                            SystemtriggeredExceptionEnum.AbnormalMaterialCombinationRatio.equals(e)
+                    || SystemtriggeredExceptionEnum.QuantityOutOfTolerance.equals(e)){
                         return false;
                     }
                     return !showExceptionDialog();
@@ -353,6 +490,9 @@ public class MatAccountCompletionExceptions0710 extends PhaseSystemTriggeredExce
             }
             else if(SystemtriggeredExceptionEnum.AbnormalMaterialCombinationRatio.equals(e) && SystemtriggeredExceptionEnum.AbnormalMaterialCombinationRatio.isOK == 2){ ;
                 SystemtriggeredExceptionEnum.AbnormalMaterialCombinationRatio.isOK = -1;
+                return false;
+            }else if(SystemtriggeredExceptionEnum.QuantityOutOfTolerance.equals(e) && SystemtriggeredExceptionEnum.QuantityOutOfTolerance.isOK == 2){
+                SystemtriggeredExceptionEnum.QuantityOutOfTolerance.isOK = -1;
                 return false;
             }
         }
@@ -441,7 +581,12 @@ public class MatAccountCompletionExceptions0710 extends PhaseSystemTriggeredExce
                         continue;
                     }
                     BigDecimal consumedQty = consumedQtyMV.getValue();
-                    BigDecimal calcConsumedQty = consumedQty.divide(replaceRatio).multiply(mainRatio);
+                    BigDecimal calcConsumedQty;
+                    try {
+                        calcConsumedQty = consumedQty.divide(replaceRatio).multiply(mainRatio);
+                   }catch (ArithmeticException e){
+                        calcConsumedQty = consumedQty.divide(replaceRatio,6,BigDecimal.ROUND_HALF_UP).multiply(mainRatio).multiply(mainRatio);
+                    }
                     MeasuredValue calcConsumedQtyMV = MeasuredValueUtilities.createMV(calcConsumedQty, consumedQtyMV.getUnitOfMeasure());
                     //组合组号是空，表示是完全替代料计算
                     if (Strings.isEmpty(combinationGroup)) {

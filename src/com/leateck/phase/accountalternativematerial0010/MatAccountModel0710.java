@@ -56,7 +56,7 @@ import java.util.stream.Collectors;
 public class MatAccountModel0710 extends MaterialModel0710<AccountMaterialDAO0710, MESRtPhaseDataMatAlterAcct0010, MESRtPhaseOutputMatAlterAcct0010> {
 
     private static final Log LOGGER = LogFactory.getLog(MatAccountModel0710.class);
-    private String[]  NotEqualRatePart= new String[2];
+    private List<String[]> NotEqualRatePartList = new ArrayList<>();
     /**
      * list of the input materials + identified sublots
      */
@@ -765,6 +765,7 @@ public class MatAccountModel0710 extends MaterialModel0710<AccountMaterialDAO071
      * @return
      */
     public boolean checkCombineGroupIsEqualWithRate() {
+        NotEqualRatePartList.clear();
         List<OrderStepInput> masterOSIToCheck = new ArrayList();
         List<OrderStepInput> allMasterOSIs = getMasterOSIsForPhase();
         masterOSIToCheck.addAll(allMasterOSIs.stream().filter(osi -> mustCheckQuantityForOsi(osi))
@@ -774,13 +775,14 @@ public class MatAccountModel0710 extends MaterialModel0710<AccountMaterialDAO071
         for (OrderStepInput osi : masterOSIToCheck) {
             try {
                 boolean result = getCombineGroupIsEqualWithRate(osi, allMasterOSIs, materialParameters);
-                if (!result) {
+                /*if (!result) {
                     return false;
-                }
+                }*/
             } catch (MESIncompatibleUoMException e) {
                 e.printStackTrace();
             }
         }
+        if(NotEqualRatePartList.size() > 0 ) return false;
         return true;
     }
 
@@ -809,8 +811,6 @@ public class MatAccountModel0710 extends MaterialModel0710<AccountMaterialDAO071
             return true;
         }
         MESNamedUDAMaterialParameter matParam = new MESNamedUDAMaterialParameter(matParamList.get(0));
-        //保存主料物料号
-        NotEqualRatePart[0] = matParamList.get(0).getMaterial().getPartNumber();
 
         //获取替代组号
         String masterReplaceGroupName = matParam.getReplaceGroupName();
@@ -839,11 +839,13 @@ public class MatAccountModel0710 extends MaterialModel0710<AccountMaterialDAO071
             BigDecimal firstRatio = BigDecimal.ZERO;//组合比例
             String firstGroup = null;//组合组号
             for (IMESMaterialParameter item : combinationGroupList) {
+
                 MESNamedUDAMaterialParameter itemMatParam = new MESNamedUDAMaterialParameter(item);
                 BigDecimal replaceRatio = itemMatParam.getReplaceRatio();
                 //获取组合组号
                 String combinationGroup = itemMatParam.getCombinationGroup();
                 if (StringUtils.isEmpty(firstGroup)) {
+
                     firstGroup = combinationGroup;
                     firstRatio = replaceRatio;
                 }
@@ -862,6 +864,7 @@ public class MatAccountModel0710 extends MaterialModel0710<AccountMaterialDAO071
                         continue;
                     }
                 }
+                String[]  NotEqualRatePart= new String[3];
                 if (firstConsumedMV == null) {
                     firstConsumedMV = consumedQtyMV;//消耗总量
                 }
@@ -874,15 +877,22 @@ public class MatAccountModel0710 extends MaterialModel0710<AccountMaterialDAO071
                 MeasuredValue calcConsumedQtyMV = MeasuredValueUtilities.createMV(consumedQty.multiply(firstRatio),
                         consumedQtyMV.getUnitOfMeasure());
                 if (MeasuredValueUtilities.compare(firstCalcQtyMV, calcConsumedQtyMV) != 0) {
+                    //保存主料物料号
+                    NotEqualRatePart[0] = matParamList.get(0).getMaterial().getPartNumber();
                     NotEqualRatePart[1] =  firstGroup;
-                    return false;
+                    NotEqualRatePart[2] =  item.getMaterial().getPartNumber();
+                    NotEqualRatePartList.add(NotEqualRatePart);
+//                    return false;
                 }
             }
+        }
+        if (NotEqualRatePartList.size()>0) {
+            return false;
         }
         return true;
     }
 
-    public String[] getNotEqualRatePart() {
-        return NotEqualRatePart;
+    public List<String[]> getNotEqualRatePartList() {
+        return NotEqualRatePartList;
     }
 }
