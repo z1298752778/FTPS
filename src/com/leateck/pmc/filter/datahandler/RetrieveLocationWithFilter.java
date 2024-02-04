@@ -71,7 +71,7 @@ public class RetrieveLocationWithFilter extends FilterDataHandler {
 
         for (Location accessRight : locationList) {
             try {
-                if(accessRight.getUDA("location_accPriv") == null || user.hasPrivilege((AccessPrivilege) accessRight.getUDA("location_accPriv")))
+                if(accessRight.getUDA("LC_location_accPriv") == null || user.hasPrivilege((AccessPrivilege) accessRight.getUDA("location_accPriv")))
                     var1.add(accessRight);
             } catch (DatasweepException e) {
                 e.printStackTrace();
