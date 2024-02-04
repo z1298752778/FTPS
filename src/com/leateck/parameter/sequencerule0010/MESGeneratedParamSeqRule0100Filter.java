@@ -24,7 +24,7 @@ public abstract class MESGeneratedParamSeqRule0100Filter extends MESATObjectFilt
     private static final long serialVersionUID = 1L;
 
     /** Generated attribute definition */
-    private static final String ATDEFINITION_NAME = "CL_ParamSeqRule0100";
+    private static final String ATDEFINITION_NAME = "LC_ParamSeqRule0100";
 
     /**
      * Generated method definition
@@ -72,7 +72,7 @@ public abstract class MESGeneratedParamSeqRule0100Filter extends MESATObjectFilt
      */
     public MESParamSeqRule0100Filter forRuleEqualTo(String value) //
             throws DatasweepException {
-        return (MESParamSeqRule0100Filter) forColumnNameEqualTo("CL_rule", value);
+        return (MESParamSeqRule0100Filter) forColumnNameEqualTo("LC_rule", value);
     }
 
     /**
@@ -84,7 +84,7 @@ public abstract class MESGeneratedParamSeqRule0100Filter extends MESATObjectFilt
      */
     public MESParamSeqRule0100Filter forRuleNotEqualTo(String value) //
             throws DatasweepException {
-        return (MESParamSeqRule0100Filter) forColumnNameNotEqualTo("CL_rule", value);
+        return (MESParamSeqRule0100Filter) forColumnNameNotEqualTo("LC_rule", value);
     }
 
     /**
@@ -96,7 +96,7 @@ public abstract class MESGeneratedParamSeqRule0100Filter extends MESATObjectFilt
      */
     public MESParamSeqRule0100Filter forRuleContaining(String value) //
             throws DatasweepException {
-        return (MESParamSeqRule0100Filter) forColumnNameContaining("CL_rule", value);
+        return (MESParamSeqRule0100Filter) forColumnNameContaining("LC_rule", value);
     }
 
     /**
@@ -108,7 +108,7 @@ public abstract class MESGeneratedParamSeqRule0100Filter extends MESATObjectFilt
      */
     public MESParamSeqRule0100Filter forRuleStartingWith(String value) //
             throws DatasweepException {
-        return (MESParamSeqRule0100Filter) forColumnNameStartingWith("CL_rule", value);
+        return (MESParamSeqRule0100Filter) forColumnNameStartingWith("LC_rule", value);
     }
 
 
@@ -121,7 +121,7 @@ public abstract class MESGeneratedParamSeqRule0100Filter extends MESATObjectFilt
      */
     public MESParamSeqRule0100Filter forComment1EqualTo(String value) //
             throws DatasweepException {
-        return (MESParamSeqRule0100Filter) forColumnNameEqualTo("CL_comment1", value);
+        return (MESParamSeqRule0100Filter) forColumnNameEqualTo("LC_comment1", value);
     }
 
     /**
@@ -133,7 +133,7 @@ public abstract class MESGeneratedParamSeqRule0100Filter extends MESATObjectFilt
      */
     public MESParamSeqRule0100Filter forComment1NotEqualTo(String value) //
             throws DatasweepException {
-        return (MESParamSeqRule0100Filter) forColumnNameNotEqualTo("CL_comment1", value);
+        return (MESParamSeqRule0100Filter) forColumnNameNotEqualTo("LC_comment1", value);
     }
 
     /**
@@ -145,7 +145,7 @@ public abstract class MESGeneratedParamSeqRule0100Filter extends MESATObjectFilt
      */
     public MESParamSeqRule0100Filter forComment1Containing(String value) //
             throws DatasweepException {
-        return (MESParamSeqRule0100Filter) forColumnNameContaining("CL_comment1", value);
+        return (MESParamSeqRule0100Filter) forColumnNameContaining("LC_comment1", value);
     }
 
     /**
@@ -157,7 +157,7 @@ public abstract class MESGeneratedParamSeqRule0100Filter extends MESATObjectFilt
      */
     public MESParamSeqRule0100Filter forComment1StartingWith(String value) //
             throws DatasweepException {
-        return (MESParamSeqRule0100Filter) forColumnNameStartingWith("CL_comment1", value);
+        return (MESParamSeqRule0100Filter) forColumnNameStartingWith("LC_comment1", value);
     }
 
 
@@ -170,7 +170,7 @@ public abstract class MESGeneratedParamSeqRule0100Filter extends MESATObjectFilt
      */
     public MESParamSeqRule0100Filter forComment2EqualTo(String value) //
             throws DatasweepException {
-        return (MESParamSeqRule0100Filter) forColumnNameEqualTo("CL_comment2", value);
+        return (MESParamSeqRule0100Filter) forColumnNameEqualTo("LC_comment2", value);
     }
 
     /**
@@ -182,7 +182,7 @@ public abstract class MESGeneratedParamSeqRule0100Filter extends MESATObjectFilt
      */
     public MESParamSeqRule0100Filter forComment2NotEqualTo(String value) //
             throws DatasweepException {
-        return (MESParamSeqRule0100Filter) forColumnNameNotEqualTo("CL_comment2", value);
+        return (MESParamSeqRule0100Filter) forColumnNameNotEqualTo("LC_comment2", value);
     }
 
     /**
@@ -194,7 +194,7 @@ public abstract class MESGeneratedParamSeqRule0100Filter extends MESATObjectFilt
      */
     public MESParamSeqRule0100Filter forComment2Containing(String value) //
             throws DatasweepException {
-        return (MESParamSeqRule0100Filter) forColumnNameContaining("CL_comment2", value);
+        return (MESParamSeqRule0100Filter) forColumnNameContaining("LC_comment2", value);
     }
 
     /**
@@ -206,7 +206,7 @@ public abstract class MESGeneratedParamSeqRule0100Filter extends MESATObjectFilt
      */
     public MESParamSeqRule0100Filter forComment2StartingWith(String value) //
             throws DatasweepException {
-        return (MESParamSeqRule0100Filter) forColumnNameStartingWith("CL_comment2", value);
+        return (MESParamSeqRule0100Filter) forColumnNameStartingWith("LC_comment2", value);
     }
 
 }

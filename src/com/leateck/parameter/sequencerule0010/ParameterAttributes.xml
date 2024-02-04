@@ -1,0 +1,27 @@
+<ParameterAttributes>
+
+    <ParameterAttribute>
+        <Name>rule</Name>
+        <Description>Sequence Rule</Description>
+        <DataType>
+            <String length="100" />
+        </DataType>
+    </ParameterAttribute>
+
+    <ParameterAttribute>
+        <Name>comment1</Name>
+        <Description>Comments</Description>
+        <DataType>
+            <String length="4000" />
+        </DataType>
+    </ParameterAttribute>
+
+    <ParameterAttribute>
+        <Name>comment2</Name>
+        <Description>Comments</Description>
+        <DataType>
+            <String length="4000" />
+        </DataType>
+    </ParameterAttribute>
+
+</ParameterAttributes>

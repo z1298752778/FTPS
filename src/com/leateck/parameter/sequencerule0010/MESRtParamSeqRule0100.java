@@ -11,7 +11,7 @@ import com.datasweep.compatibility.client.ATRow;
 public class MESRtParamSeqRule0100 extends MESParamSeqRule0100 {
 
     /** Generated attribute definition */
-    protected static final String ATDEFINITION_NAME = "CL_RtParSeqRule0100";
+    protected static final String ATDEFINITION_NAME = "LC_RtParSeqRule0100";
     
     /**
      * Generated method definition
