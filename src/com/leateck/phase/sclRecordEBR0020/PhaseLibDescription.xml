@@ -1,0 +1,230 @@
+<PhaseLibDescription>
+    <OutputDir>C:\output</OutputDir>
+    <Name>Record EBR(SCL) [2.0]</Name>
+    <Description>Record EBR Data.</Description>
+    <PackageName>com.rockwell.scl.phase.recordebr0020</PackageName>
+    <PhaseLibBaseName>RecordEBR0020</PhaseLibBaseName>
+    <VisibleInNavigator value="true" />
+    <InternalBuildingBlock value="false" />
+    <ReportDesignName>PS-BatchReport-PhaseRecordEBRSCL_0001</ReportDesignName>
+    <SupportExceptions value="true" />
+    <MaterialInputMin>0</MaterialInputMin>
+    <MaterialInputMax>0</MaterialInputMax>
+    <MaterialOutputMin>0</MaterialOutputMin>
+    <MaterialOutputMax>0</MaterialOutputMax>
+    <ATDefinitionPrefix>SC_</ATDefinitionPrefix>
+    <UsageContext>All</UsageContext>
+    <ParameterClasses>
+        <ParameterClass>
+            <Name>Instruction (RS) [3.0]</Name>
+            <UsageIdentifier>Instruction</UsageIdentifier>
+            <SortIndex>1</SortIndex>
+        </ParameterClass>
+		<ParameterClass>
+            <Name>MeasuredValue Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>MeasuredValue1</UsageIdentifier>
+            <SortIndex>2</SortIndex>
+        </ParameterClass>
+		
+		<ParameterClass>
+            <Name>MeasuredValue Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>MeasuredValue2</UsageIdentifier>
+            <SortIndex>3</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>MeasuredValue Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>MeasuredValue3</UsageIdentifier>
+            <SortIndex>4</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>MeasuredValue Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>MeasuredValue4</UsageIdentifier>
+            <SortIndex>5</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>MeasuredValue Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>MeasuredValue5</UsageIdentifier>
+            <SortIndex>6</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>MeasuredValue Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>MeasuredValue6</UsageIdentifier>
+            <SortIndex>7</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>MeasuredValue Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>MeasuredValue7</UsageIdentifier>
+            <SortIndex>8</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>MeasuredValue Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>MeasuredValue8</UsageIdentifier>
+            <SortIndex>9</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>MeasuredValue Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>MeasuredValue9</UsageIdentifier>
+            <SortIndex>10</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>MeasuredValue Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>MeasuredValue10</UsageIdentifier>
+            <SortIndex>11</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>MeasuredValue Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>MeasuredValue11</UsageIdentifier>
+            <SortIndex>12</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>MeasuredValue Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>MeasuredValue12</UsageIdentifier>
+            <SortIndex>13</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>MeasuredValue Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>MeasuredValue13</UsageIdentifier>
+            <SortIndex>14</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>MeasuredValue Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>MeasuredValue14</UsageIdentifier>
+            <SortIndex>15</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>MeasuredValue Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>MeasuredValue15</UsageIdentifier>
+            <SortIndex>16</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>MeasuredValue Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>MeasuredValue16</UsageIdentifier>
+            <SortIndex>17</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>MeasuredValue Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>MeasuredValue17</UsageIdentifier>
+            <SortIndex>18</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>MeasuredValue Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>MeasuredValue18</UsageIdentifier>
+            <SortIndex>19</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>MeasuredValue Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>MeasuredValue19</UsageIdentifier>
+            <SortIndex>20</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>MeasuredValue Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>MeasuredValue20</UsageIdentifier>
+            <SortIndex>21</SortIndex>
+        </ParameterClass>
+		<ParameterClass>
+            <Name>String Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>String1</UsageIdentifier>
+            <SortIndex>22</SortIndex>
+        </ParameterClass>
+		<ParameterClass>
+            <Name>String Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>String2</UsageIdentifier>
+            <SortIndex>23</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>String Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>String3</UsageIdentifier>
+            <SortIndex>24</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>String Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>String4</UsageIdentifier>
+            <SortIndex>25</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>String Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>String5</UsageIdentifier>
+            <SortIndex>26</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>String Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>String6</UsageIdentifier>
+            <SortIndex>27</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>String Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>String7</UsageIdentifier>
+            <SortIndex>28</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>String Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>String8</UsageIdentifier>
+            <SortIndex>29</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>String Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>String9</UsageIdentifier>
+            <SortIndex>30</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>String Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>String10</UsageIdentifier>
+            <SortIndex>31</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>String Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>String11</UsageIdentifier>
+            <SortIndex>32</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>String Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>String12</UsageIdentifier>
+            <SortIndex>33</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>String Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>String13</UsageIdentifier>
+            <SortIndex>34</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>String Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>String14</UsageIdentifier>
+            <SortIndex>35</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>String Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>String15</UsageIdentifier>
+            <SortIndex>36</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>String Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>String16</UsageIdentifier>
+            <SortIndex>37</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>String Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>String17</UsageIdentifier>
+            <SortIndex>38</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>String Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>String18</UsageIdentifier>
+            <SortIndex>39</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>String Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>String19</UsageIdentifier>
+            <SortIndex>40</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>String Key Value Pair(RS) [1.0]</Name>
+            <UsageIdentifier>String20</UsageIdentifier>
+            <SortIndex>41</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Phase Completion Mode (RS) [2.0]</Name>
+            <UsageIdentifier>Completion Mode</UsageIdentifier>
+            <SortIndex>42</SortIndex>
+        </ParameterClass>
+    </ParameterClasses>
+</PhaseLibDescription>
