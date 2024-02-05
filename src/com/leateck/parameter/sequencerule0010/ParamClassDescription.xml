@@ -1,0 +1,8 @@
+<ParameterClassDescription>
+    <OutputDir>C:\output\parameter</OutputDir>
+    <Name>Sequence Rule (LC) [1.0]</Name>
+    <ParamClassBaseName>SeqRule0100</ParamClassBaseName>
+    <Description>This parameter class holds texts for sequence rule.</Description>
+    <PackageName>com.leateck.parameter.sequencerule0010</PackageName>
+    <ATDefinitionPrefix>LC_</ATDefinitionPrefix>
+</ParameterClassDescription>

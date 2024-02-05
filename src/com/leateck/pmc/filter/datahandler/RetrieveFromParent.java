@@ -47,7 +47,7 @@ public class RetrieveFromParent extends BasicDataHandler {
 
                 for (Location accessRight : locationList) {
                     try {
-                        if(accessRight.getUDA("location_accPriv") == null || user.hasPrivilege((AccessPrivilege) accessRight.getUDA("location_accPriv")))
+                        if(accessRight.getUDA("LC_location_accPriv") == null || user.hasPrivilege((AccessPrivilege) accessRight.getUDA("location_accPriv")))
                             locations.add(accessRight);
                     } catch (DatasweepException e) {
                         e.printStackTrace();

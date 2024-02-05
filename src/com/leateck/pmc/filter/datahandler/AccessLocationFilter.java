@@ -33,9 +33,9 @@ public class AccessLocationFilter extends FilterDataHandler {
                 Location storageArea = accessRight.getParentLocation();
                 Location warehouse = storageArea.getParentLocation();
                 try {
-                    if(accessRight.getUDA("location_accPriv") == null || user.hasPrivilege((AccessPrivilege) accessRight.getUDA("location_accPriv"))){
-                        if(storageArea.getUDA("location_accPriv") == null || user.hasPrivilege((AccessPrivilege) storageArea.getUDA("location_accPriv"))){
-                            if(warehouse.getUDA("location_accPriv") == null || user.hasPrivilege((AccessPrivilege) warehouse.getUDA("location_accPriv"))){
+                    if(accessRight.getUDA("LC_location_accPriv") == null || user.hasPrivilege((AccessPrivilege) accessRight.getUDA("location_accPriv"))){
+                        if(storageArea.getUDA("LC_location_accPriv") == null || user.hasPrivilege((AccessPrivilege) storageArea.getUDA("location_accPriv"))){
+                            if(warehouse.getUDA("LC_location_accPriv") == null || user.hasPrivilege((AccessPrivilege) warehouse.getUDA("location_accPriv"))){
                                 locations.add(accessRight);
                             }
                         }
@@ -44,8 +44,10 @@ public class AccessLocationFilter extends FilterDataHandler {
                     e.printStackTrace();
                 }
             }
+            var2.setNrAllRecords(locations.size());
             return locations;
         }else {
+            var2.setNrAllRecords(var4.size());
             return var4;
         }
     }

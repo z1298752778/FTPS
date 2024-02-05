@@ -1,0 +1,25 @@
+<ParameterAttributes>
+	<ParameterAttribute>
+		<Name>Enable</Name>
+		<Description>Check if enabled</Description>
+		<DataType>
+			<Bool />
+		</DataType>
+	</ParameterAttribute>
+
+	<ParameterAttribute>
+		<Name>StorageArea</Name>
+		<Description>select storage area</Description>
+        <DataType>
+			<String length="100" />
+        </DataType>
+	</ParameterAttribute>
+
+	<ParameterAttribute>
+		<Name>StorageLocation</Name>
+		<Description>select storage Location</Description>
+		<DataType>
+			<String length="100" />
+		</DataType>
+	</ParameterAttribute>
+</ParameterAttributes>
