@@ -319,7 +319,7 @@ public class FunctionSpecificIntelliHintsForTestFunctions extends AbstractFuncti
                 //SQL获取ATR——key
                 t.forATRowKeyEqualTo(Integer.valueOf(list1.get(0)[0]));
                 final List<IMESRtPhase> filteredObjects2 = t.getFilteredObjects();
-                if(filteredObjects2.size()>0) {
+                if(filteredObjects2.size()>0 && filteredObjects2.get(0).getRtPhaseOutput() != null ) {
                     List<IBuildingBlockOutputDescriptor> listDesc = filteredObjects2.get(0).getRtPhaseOutput().getOutputDescriptors();
                     //filteredObjects2.get(0).get
                     for (IBuildingBlockOutputDescriptor descriptor : listDesc) {

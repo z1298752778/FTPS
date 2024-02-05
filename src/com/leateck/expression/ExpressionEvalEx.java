@@ -19,6 +19,7 @@ import com.rockwell.mes.commons.deviation.ifc.IMESSignature;
 import com.rockwell.mes.phase.eqtriggergraphtransition.RtPhaseModelEqTriggerTrans0200;
 import com.rockwell.mes.services.s88.ifc.IS88EquipmentExecutionService;
 import com.rockwell.mes.services.s88.ifc.execution.IMESRtPhase;
+import com.rockwell.mes.services.s88.ifc.execution.equipment.statusgraph.IS88StatusGraphFireTriggerResult;
 import com.rockwell.mes.services.s88.ifc.execution.equipment.statusgraph.MESFireStatusGraphTriggerFailedException;
 import com.rockwell.mes.services.s88.ifc.library.IBuildingBlockOutputDescriptor;
 import com.rockwell.mes.services.s88.ifc.processdata.IMESRtPhaseOutput;
@@ -79,6 +80,7 @@ public class ExpressionEvalEx extends ExpressionEval {
         //获取当前工单的关联工单/工作流
         MESLCOrderMappingFilter meslcOrderMappingFilter = new MESLCOrderMappingFilter();
         meslcOrderMappingFilter.forOrdernameEqualTo(orderNumber);
+        meslcOrderMappingFilter.forDelflagEqualTo(Long.valueOf(0));
         List<IMESLCOrderMapping> filteredObjects = meslcOrderMappingFilter.getFilteredObjects();
         for (IMESLCOrderMapping filteredObject : filteredObjects) {
             //一个工单只能关联不同处方的工单
@@ -130,13 +132,11 @@ public class ExpressionEvalEx extends ExpressionEval {
                     final String name = outputDescriptor.getName();
                     if (name != null && name.equals(outputName)) {
                         isExist = true;
+                        break;
                     }
-//                        final String displayName = outputDescriptor.getDisplayName();
-//                        Object outputValue = rtPhaseOutput.getOutputValue(displayName);
-//                        Object str= outputValue;
 
                 }
-                if (isExist) {
+                if (isExist && filteredObjects2.get(filteredObjects2.size() - 1).getRtPhaseOutput() != null) {
                     return filteredObjects2.get(filteredObjects2.size() - 1).getRtPhaseOutput().getOutputValue(outputName);
                 }
 
@@ -188,7 +188,11 @@ public class ExpressionEvalEx extends ExpressionEval {
         if(equipment != null && isConversion){
             try {
                  IMESChoiceElement s88StatusGraphPurpose = MESChoiceListHelper.getChoiceElement("S88StatusGraphPurpose", transName);
-                ((IS88EquipmentExecutionService) ServiceFactory.getService(IS88EquipmentExecutionService.class)).fireGraphTrigger(equipment,s88StatusGraphPurpose ,triggleName,(IMESSignature)null);
+                 //判断该设备是否有该转换模型
+                final IMESS88StatusGraphAssignment statusGraphAssignment = equipment.getStatusGraphAssignment(s88StatusGraphPurpose.getLocalizedMessage());
+                if(statusGraphAssignment != null){
+                    final IS88StatusGraphFireTriggerResult is88StatusGraphFireTriggerResult = ((IS88EquipmentExecutionService) ServiceFactory.getService(IS88EquipmentExecutionService.class)).fireGraphTrigger(equipment, s88StatusGraphPurpose, triggleName, (IMESSignature) null);
+                }
             }catch (MESFireStatusGraphTriggerFailedException e) {
                 throw new RuntimeException(e);
             }

@@ -22,6 +22,7 @@ public class MappingOrderReportScript extends AbstractReportScriptlet0100 {
 
     public static ArrayList getMapData(String orderNumber) {
         ArrayList<MappingOrderBean> list = new ArrayList<MappingOrderBean>();
+
         String sql = "SELECT distinct\n" +
                 "\tlgop.order_name,\n" +
                 "\tlgop.phase_name\n" +
