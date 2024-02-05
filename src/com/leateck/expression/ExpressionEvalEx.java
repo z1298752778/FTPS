@@ -189,7 +189,7 @@ public class ExpressionEvalEx extends ExpressionEval {
             try {
                  IMESChoiceElement s88StatusGraphPurpose = MESChoiceListHelper.getChoiceElement("S88StatusGraphPurpose", transName);
                  //判断该设备是否有该转换模型
-                final IMESS88StatusGraphAssignment statusGraphAssignment = equipment.getStatusGraphAssignment(s88StatusGraphPurpose.getLocalizedMessage());
+                final IMESS88StatusGraphAssignment statusGraphAssignment = equipment.getStatusGraphAssignment(s88StatusGraphPurpose);
                 if(statusGraphAssignment != null){
                     final IS88StatusGraphFireTriggerResult is88StatusGraphFireTriggerResult = ((IS88EquipmentExecutionService) ServiceFactory.getService(IS88EquipmentExecutionService.class)).fireGraphTrigger(equipment, s88StatusGraphPurpose, triggleName, (IMESSignature) null);
                 }
