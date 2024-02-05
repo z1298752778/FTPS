@@ -539,13 +539,9 @@ public class RtPhaseExecutorIdentEq0100 extends AbstractPhaseExecutor0200<RtPhas
                     if (expiryDate != null) {
                         //如果 当前日期+临近提醒期间>=过期日 则提醒
                         final Calendar expiryDateCalendar = expiryDate.getCalendar();
-
-
                         if (calendar.after(expiryDateCalendar) || calendar.equals(expiryDateCalendar)) {
                             //距离清洁效期还有几天几时几分
                             final long decaleTimeInMillis = expiryDateCalendar.getTimeInMillis() - curTime.getCalendar().getTimeInMillis();
-
-
                             String day = decaleTimeInMillis / (24 * 60 * 60 * 1000) + "";
                             String hour = (decaleTimeInMillis % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000) + "";
                             String minute = (decaleTimeInMillis % (60 * 60 * 1000)) / (60 * 1000) + "";
