@@ -33,6 +33,7 @@ public class FunctionSpecificIntelliHintsForTriggerGraphFunctions extends Abstra
                     ChoiceElementIntelliHintDescriptor.getGenericChoiceListSectionIcon());
             IMESS88StatusGraphFilter var3 = ((IS88StatusGraphService) ServiceFactory.getService(IS88StatusGraphService.class)).createEquipmentStatusGraphFilter();
             final List<IMESS88StatusGraph> filteredObjects = var3.getFilteredObjects();
+            ArrayList<String> list1 = new ArrayList<>();
             for (IMESS88StatusGraph filteredObject : filteredObjects) {
                 //触发器键
                 //final List<IMESS88StatusGraphTrigger> triggers = filteredObject.getTriggers();
@@ -41,8 +42,18 @@ public class FunctionSpecificIntelliHintsForTriggerGraphFunctions extends Abstra
                 final String meaning = purpose.getMeaning();
 
                 final String localizedMessage = purpose.getLocalizedMessage();
-                StringConstantIntelliHintDescriptor stringConstantIntelliHintDescriptor2 = new StringConstantIntelliHintDescriptor(meaning, localizedMessage, section);
-                list.add(stringConstantIntelliHintDescriptor2);
+                Boolean isAdd = true;
+                for (String s : list1) {
+                    if(localizedMessage != null && localizedMessage.equals(s)){
+                        isAdd = false;
+                    }
+                }
+                list1.add(localizedMessage);
+                if(isAdd){
+                    StringConstantIntelliHintDescriptor stringConstantIntelliHintDescriptor2 = new StringConstantIntelliHintDescriptor(meaning, localizedMessage, section);
+                    list.add(stringConstantIntelliHintDescriptor2);
+                }
+
             }
             return list;
         }
@@ -73,12 +84,15 @@ public class FunctionSpecificIntelliHintsForTriggerGraphFunctions extends Abstra
                 //触发器键
                 final List<IMESS88StatusGraphTrigger> triggers = filteredObject.getTriggers();
                 if(triggers.size()>0){
-                    final IMESS88StatusGraphTrigger trigger = triggers.get(0);
-                    String displayString = trigger.getDisplayString();
-                    String identifier = trigger.getIdentifier();
-                    //String purposeAsMeaning = trigger.getStatusGraph().getPurposeAsMeaning();
-                    StringConstantIntelliHintDescriptor stringConstantIntelliHintDescriptor2 = new StringConstantIntelliHintDescriptor(identifier, displayString, section);
-                    list.add(stringConstantIntelliHintDescriptor2);
+                    for (IMESS88StatusGraphTrigger trigger : triggers) {
+//                        final IMESS88StatusGraphTrigger trigger = triggers.get(0);
+                        String displayString = trigger.getDisplayString();
+                        String identifier = trigger.getIdentifier();
+                        //String purposeAsMeaning = trigger.getStatusGraph().getPurposeAsMeaning();
+                        StringConstantIntelliHintDescriptor stringConstantIntelliHintDescriptor2 = new StringConstantIntelliHintDescriptor(identifier, displayString, section);
+                        list.add(stringConstantIntelliHintDescriptor2);
+                    }
+
                 }
             }
             return list;
