@@ -172,7 +172,7 @@ public class AccessObjectLockFilter {
         return accessObjectLockFilter.MasterExecuteHandler(accessEquipment);
     }
 
-    //筛选工单，处方对象
+    //筛选工单，处方，运行时操作对象
     public List<MESObjectLock> MasterExecuteHandler(List<MESObjectLock> objectLocks) throws DatasweepException {
         //获取当前用户
         User user = PCContext.getFunctions().getCurrentUser();
@@ -202,6 +202,19 @@ public class AccessObjectLockFilter {
                 }else if (user.hasPrivilege(PCContext.getFunctions().getAccessPrivilegeByKey(Long.parseLong(array[0])))) {
                     accessMaster.add(accessRightObjectLock);
                 }
+            }else if("ATRow X_RtOperation".equals(accessRightObjectLock.getObjectType())){
+                String[] objectDetails = accessRightObjectLock.getObjectDetails().split("-");
+                String orderName = objectDetails[0];
+                String sql = " SELECT t3.X_accPrivConfidentialObject_98 FROM PROCESS_ORDER_ITEM t join CONTROL_RECIPE t1 on t.order_item_key = t1.order_item_key \n" +
+                        "join MASTER_RECIPE t2 on t1.master_recipe_key = t2.master_recipe_key\n" +
+                        "join UDA_MasterRecipe t3 on t2.master_recipe_key = t3.object_key  WHERE t.order_item_name = N'" +orderName+"'";
+                Vector result = PCContext.getFunctions().getArrayDataFromActive(sql);
+                String[] array = (String[]) result.get(0);
+                if(array[0] == null){
+                    accessMaster.add(accessRightObjectLock);
+                }else if (user.hasPrivilege(PCContext.getFunctions().getAccessPrivilegeByKey(Long.parseLong(array[0])))) {
+                    accessMaster.add(accessRightObjectLock);
+                }
             }else {
                 accessMaster.add(accessRightObjectLock);
             }
@@ -210,7 +223,7 @@ public class AccessObjectLockFilter {
         return accessObjectLockFilter.StationExecuteHandler(accessMaster);
     }
 
-    //筛选工作站对象
+    //筛选工作站,工作中心对象
     public List<MESObjectLock> StationExecuteHandler(List<MESObjectLock> objectLocks) throws DatasweepException {
         //获取当前用户
         User user = PCContext.getFunctions().getCurrentUser();
