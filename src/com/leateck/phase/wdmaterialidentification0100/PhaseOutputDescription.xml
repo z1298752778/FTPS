@@ -1,0 +1,58 @@
+<PhaseOutputDescription>
+	<PhaseOutput>
+		<Name>Result</Name>
+		<DisplayName>Identification result</DisplayName>
+		<Description>The result of a material identification phase: 
+				Release: if release scale is required, 
+				Weigh: if weighing is required,
+				Complete: if material list is empty
+		</Description>
+		<DataType>
+			<String />
+		</DataType>
+	</PhaseOutput>
+    <PhaseOutput>
+        <Name>TargetClosed</Name>
+        <DisplayName>Target closed</DisplayName>
+        <Description>If target sublot was closed YES. NO otherwise.
+        </Description>
+        <DataType>
+            <Bool />
+        </DataType>
+    </PhaseOutput>
+    <PhaseOutput>
+        <Name>MFCPosition</Name>
+        <DisplayName>MFC Position</DisplayName>
+        <Description>Current (selected OSI) MFC position
+        </Description>
+        <DataType>
+            <String />
+        </DataType>
+    </PhaseOutput>
+	<PhaseOutput>
+		<Name>sublotIdentifier</Name>
+		<DisplayName>Sublot identifier</DisplayName>
+		<Description>Identifier of the closed target sublot.</Description>
+		<DataType>
+			<String length="100" />
+		</DataType>
+	</PhaseOutput>
+        <PhaseOutput>
+		<Name>contId</Name>
+		<DisplayName>Container ID</DisplayName>
+		<Description>The source container identifier</Description>
+		<DataType>
+			<String length="80" />
+		</DataType>
+	</PhaseOutput>
+	<PhaseOutput>
+		<Name>contObject</Name>
+		<DisplayName>Container object</DisplayName>
+		<Description>The identified source container</Description>
+		<DataType>
+			<ApplicationTable name="X_S88Equipment"
+				interfaceClassName="com.rockwell.mes.services.s88equipment.ifc.IMESS88Equipment"
+				implClassName="com.rockwell.mes.services.s88equipment.impl.MESS88Equipment" />
+		</DataType>
+	</PhaseOutput>
+</PhaseOutputDescription>
