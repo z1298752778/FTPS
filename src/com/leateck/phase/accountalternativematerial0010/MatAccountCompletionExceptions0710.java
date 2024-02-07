@@ -7,6 +7,7 @@ import com.datasweep.compatibility.client.Sublot;
 import com.datasweep.plantops.common.measuredvalue.IMeasuredValue;
 import com.datasweep.plantops.common.measuredvalue.IUnitOfMeasure;
 import com.jgoodies.common.base.Strings;
+import com.rockwell.mes.apps.ebr.ifc.phase.ui.PhaseErrorDialog;
 import com.rockwell.mes.apps.ebr.ifc.phase.ui.PhaseQuestionDialog;
 import com.rockwell.mes.apps.ebr.ifc.swing.PhaseSystemTriggeredExceptionsCollector;
 import com.rockwell.mes.commons.base.ifc.exceptions.MESException;
@@ -21,6 +22,7 @@ import com.rockwell.mes.commons.base.ifc.utility.StringConstants;
 import com.rockwell.mes.commons.deviation.ifc.exceptionrecording.IMESExceptionRecord;
 import com.rockwell.mes.commons.deviation.ifc.exceptionrecording.IMESExceptionRecord.RiskClass;
 import com.rockwell.mes.commons.parameter.exceptiondef.MESParamExceptionDef0300;
+import com.rockwell.mes.commons.parameter.string.MESParamString0100;
 import com.rockwell.mes.parameter.product.excptenabledef.MESParamExcptEnableDef0200;
 import com.rockwell.mes.services.order.ifc.EnumOrderStepInputStatus;
 import com.rockwell.mes.services.s88.ifc.recipe.IMESMaterialParameter;
@@ -34,6 +36,7 @@ import com.rockwell.mes.shared.product.material.MaterialModel0710;
 import com.rockwell.mes.shared0400.product.util.ParamClassConstants0400;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ecs.html.S;
+import org.apache.ecs.wml.I;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -416,6 +419,260 @@ public class MatAccountCompletionExceptions0710 extends PhaseSystemTriggeredExce
                 return !PlannedQuantityMode.NONE.equals(executor.getModel().getPlannedQuantityMode(osi))
                         && !EnumOrderStepInputStatus.isFinishedStatus(MESNamedUDAOrderStepInput.getStatus(osi));
             }
+        },
+        /**
+         * 物料平衡不在范围异常
+         */
+        MaterialBalanceCheckConfiguration(LcAccountMaterialDAO0710.Material_Balance_Check_Configuration) {
+            /**
+             * The result set
+             * <p>
+             *
+             * @author ikoleva, (c) Copyright 2020 Rockwell Automation Technologies, Inc. All Rights Reserved.
+             */
+
+            @Override
+            boolean conditionForSystemtriggeredException(RtPhaseExecutorMatAlterAcct0010 executor) {
+                //判断是否启用了异常
+                MESParamExcptEnableDef0200 paramExcptEnableDef0200  =  executor.getProcessParameterData(MESParamExcptEnableDef0200.class, LcAccountMaterialDAO0710.Material_Balance_Check_Configuration);
+                if (!paramExcptEnableDef0200.getEnabled()) {
+                    return false;
+                }
+                //判断处方是否配置物料平衡检查
+                MESParamString0100 paramString0100 =  executor.getProcessParameterData(MESParamString0100.class,LcAccountMaterialDAO0710.Position_And_Material_Balance);
+
+                String balanceValues = paramString0100.getValue();
+                if (balanceValues == null || "".equals(balanceValues)) {//上下限未配置
+                    PhaseErrorDialog phaseErrorDialog = new PhaseErrorDialog();
+                    phaseErrorDialog.showDialog(LcAccountMaterialDAO0710.MSG_PACK,"MaterialBalance_Error");
+                    isOK = 2;
+                    return false;
+                }
+                //获取所有消耗的物料
+                List<AccountMaterialDAO0710> materialList = executor.getModel().getMaterialList();
+                List<String[]> balanceNotScope = new ArrayList<>();
+                //解析配置的上下限
+                try {
+                    String[]  balanceValue = balanceValues.split(",");
+                    for (String materialAndBalances :balanceValue){
+                        String[] materialAndBalance = materialAndBalances.split(":");
+                        if(materialAndBalance.length != 2){//才分物料和物料平衡
+                            PhaseErrorDialog phaseErrorDialog = new PhaseErrorDialog();
+                            phaseErrorDialog.showDialog(LcAccountMaterialDAO0710.MSG_PACK,"MaterialBalance_Error");
+                            isOK = 2;
+                            return false;
+                        }
+                        //解析物料平衡范围
+                        String[] balances = materialAndBalance[1].split("-");
+                        BigDecimal upperLimit ;//物料平衡上限
+                        BigDecimal lowerLimit ;//物料平衡下限
+                        try {
+                            if (balances.length != 2){
+                                PhaseErrorDialog phaseErrorDialog = new PhaseErrorDialog();
+                                phaseErrorDialog.showDialog(LcAccountMaterialDAO0710.MSG_PACK,"MaterialBalance_Error");
+                                isOK = 2;
+                                return false;
+                            }
+                            upperLimit = BigDecimal.valueOf(Long.valueOf(balances[1]));
+                            lowerLimit = BigDecimal.valueOf(Long.valueOf(balances[0]));
+
+                        }catch (Exception e){
+                            PhaseErrorDialog phaseErrorDialog = new PhaseErrorDialog();
+                            phaseErrorDialog.showDialog(LcAccountMaterialDAO0710.MSG_PACK,"MaterialBalance_Error");
+                            e.printStackTrace();
+                            isOK = 2;
+                            return false;
+                        }
+                        String pos = materialAndBalance[0];
+                        int index = -1; //记录下标
+                        //将不是表头的去除掉 ,获取行号对应的物料
+                        for(int i = 0; i<materialList.size();i++){
+                            AccountMaterialDAO0710 accountMaterialDAO0710 = materialList.get(i);
+                            if (!accountMaterialDAO0710.isHeader()) continue;//不是表头
+                            if (accountMaterialDAO0710.getMfcPosition().equals(pos)) {
+                                index = i;
+                                break;
+                            }
+
+                        }
+                        if (index == -1){
+                            PhaseErrorDialog phaseErrorDialog = new PhaseErrorDialog();
+                            phaseErrorDialog.showDialog(LcAccountMaterialDAO0710.MSG_PACK,"MaterialBalance_Error");
+                            isOK = 2;
+                            return false;
+                        }
+                        AccountMaterialDAO0710 accountMaterialDAO0710 = materialList.get(index);
+                        //获取设置上下值，判断物料平衡是否超限
+                        double overLimit = isOverLimit(materialAndBalance[0] , executor,accountMaterialDAO0710);
+                        if (overLimit == -1.0) {
+                            isOK = 2;
+                            return false;
+                        }
+                        //物料平衡不在范围
+                        if (upperLimit.compareTo(BigDecimal.valueOf(overLimit)) < 0  || lowerLimit.compareTo(BigDecimal.valueOf(overLimit)) > 0){
+                            //存入集合
+                            balanceNotScope.add(new String[]{pos,accountMaterialDAO0710.getMaterialID(),MeasuredValueUtilities.createMV(String.valueOf(overLimit),"%").toString()});
+                        }
+                    }
+                    if(balanceNotScope.size() < 1 ){
+                        isOK = 0;//不触发异常，并且校验通过
+                        return false;//没有超限物料
+                    }
+                    Boolean recordException = isRecordException(balanceNotScope);
+                    if (recordException) {
+                        isOK = 0;
+                        return true;
+                    }else {
+                        isOK = 2;
+                        return false;
+                    }
+
+
+                }catch (Exception e){
+                    PhaseErrorDialog phaseErrorDialog = new PhaseErrorDialog();
+                    phaseErrorDialog.showDialog(LcAccountMaterialDAO0710.MSG_PACK,"MaterialBalance_Error");
+                    isOK = 2;
+                    return false;
+                }
+            }
+
+            @Override
+            void createException(final MatAccountCompletionExceptions0710 exceptions) {
+
+
+                //获取所有消耗的物料
+                List<AccountMaterialDAO0710> materialList = exceptions.executor.getModel().getMaterialList();
+                List<String[]> balanceNotScope = new ArrayList<>();
+                //获取配置物料平衡检查
+                MESParamString0100 paramString0100 =  exceptions.executor.getProcessParameterData(MESParamString0100.class,LcAccountMaterialDAO0710.Position_And_Material_Balance);
+                String balanceValues = paramString0100.getValue();
+                String[]  balanceValue = balanceValues.split(",");
+                for (String materialAndBalances :balanceValue){
+                    //拆分行号
+                    String[] materialAndBalance = materialAndBalances.split(":");
+                    //解析物料平衡范围
+                    String[] balances = materialAndBalance[1].split("-");
+                    BigDecimal upperLimit ;//物料平衡上限
+                    BigDecimal lowerLimit ;//物料平衡下限
+                    upperLimit = BigDecimal.valueOf(Long.valueOf(balances[1]));
+                    lowerLimit = BigDecimal.valueOf(Long.valueOf(balances[0]));
+                   //行号
+                    String pos = materialAndBalance[0];
+                    int index = -1; //记录下标
+                    //将不是表头的去除掉 ,获取行号对应的物料
+                    for(int i = 0; i<materialList.size();i++){
+                        AccountMaterialDAO0710 accountMaterialDAO0710 = materialList.get(i);
+                        if (!accountMaterialDAO0710.isHeader()) continue;//不是表头
+                        if (accountMaterialDAO0710.getMfcPosition().equals(pos)) {
+                            index = i;
+                            break;
+                        }
+
+                    }
+                    AccountMaterialDAO0710 accountMaterialDAO0710 = materialList.get(index);
+                    //获取设置上下值，判断物料平衡是否超限
+                    double overLimit = isOverLimit(materialAndBalance[0] , exceptions.executor,accountMaterialDAO0710);
+                    //物料平衡不在范围
+                    if (upperLimit.compareTo(BigDecimal.valueOf(overLimit)) < 0  || lowerLimit.compareTo(BigDecimal.valueOf(overLimit)) > 0){
+                        //存入集合
+                        balanceNotScope.add(new String[]{pos,accountMaterialDAO0710.getMaterialID(),MeasuredValueUtilities.createMV(String.valueOf(overLimit),"%").toString(),lowerLimit+"%"+"~"+upperLimit+"%"});
+                    }
+                }
+
+                MESParamExcptEnableDef0200 paramExcptEnableDef0200  =  exceptions.executor.getProcessParameterData(MESParamExcptEnableDef0200.class, LcAccountMaterialDAO0710.Material_Balance_Check_Configuration);
+
+                //将物料平衡不在范围的信息记录
+                StringBuffer errorMag = new StringBuffer("");
+                errorMag.append(paramExcptEnableDef0200.getMessage());
+                errorMag.append("\n");
+                errorMag.append(I18nMessageUtility.getLocalizedMessage(LcAccountMaterialDAO0710.MSG_PACK,"MaterialBalanceNotRange_dialog"));
+
+                for(String[] balance:balanceNotScope){
+                    errorMag.append(I18nMessageUtility.getLocalizedMessage(LcAccountMaterialDAO0710.MSG_PACK,"Material_Error",balance));
+                }
+
+
+                String exceptionStr =  errorMag.toString();
+                long risk = paramExcptEnableDef0200.getRiskAssessment();
+                IMESExceptionRecord.RiskClass riskclass = IMESExceptionRecord.RiskClass.valueOf(risk);
+                exceptions.executor.displayException(getCheckKey(),riskclass,exceptionStr);
+            }
+
+            /**
+             * * 判断是否物料超限
+             *              * 根据转入过来的物料行号，判断是否平衡物料超限
+             * @param pos 行号
+             * @param executor RtPhaseExecutorMatAlterAcct0010
+             * @param accountMaterialDAO0710 物料
+             * @return  -1参数不符合  物料平衡
+             */
+            private Double isOverLimit(String pos,RtPhaseExecutorMatAlterAcct0010 executor,AccountMaterialDAO0710 accountMaterialDAO0710){
+                OrderStepInput osi = executor.getOrderStep().getOrderStepInput(accountMaterialDAO0710.getOsiKey());
+                List<OrderStepInput> allMasterOSIs = executor.getModel().getMasterOSIsForPhase();
+                List<IMESMaterialParameter> materialParameters = executor.getPhase().getMaterialParameters();
+
+                //总消耗数量=消耗数量+折算数量
+                MeasuredValue selfAndReplaceConsumedQty = MeasuredValueUtilities.createZero();
+
+                //是否识别了物料
+                if (accountMaterialDAO0710.getIdentifiedQtyMV() == null  || "".equals(accountMaterialDAO0710.getIdentifiedQtyMV())) {
+                    //没有识别数量
+                    PhaseErrorDialog phaseErrorDialog = new PhaseErrorDialog();
+                    phaseErrorDialog.showDialog(LcAccountMaterialDAO0710.MSG_PACK,"MaterialBalanceNotIden_Error");
+
+                    return -1.0;
+                }
+                try {
+                    selfAndReplaceConsumedQty = getSelfAndReplaceConsumedQty(osi, allMasterOSIs, materialParameters);
+                } catch (MESIncompatibleUoMException e) {
+                    e.printStackTrace();
+                }
+                //取样数量
+                String sampledQty = accountMaterialDAO0710.getSampledQty();
+                MeasuredValue sampledQtyMV = StringUtils.isEmpty(sampledQty)?MeasuredValueUtilities.createZero(accountMaterialDAO0710.getIdentifiedQtyMV().getUnitOfMeasure()):MeasuredValueUtilities.createMV(sampledQty);
+                //报废数量
+                String wastedQty = accountMaterialDAO0710.getWastedQty();
+                MeasuredValue wastedQtyMV = StringUtils.isEmpty(wastedQty)?MeasuredValueUtilities.createZero(accountMaterialDAO0710.getIdentifiedQtyMV().getUnitOfMeasure()):MeasuredValueUtilities.createMV(wastedQty);
+
+                //退库数量
+                String returnedQty = accountMaterialDAO0710.getReturnedQty();
+                MeasuredValue returnedQtyMV = StringUtils.isEmpty(returnedQty)?MeasuredValueUtilities.createZero(accountMaterialDAO0710.getIdentifiedQtyMV().getUnitOfMeasure()):MeasuredValueUtilities.createMV(returnedQty);
+                //识别量
+                IMeasuredValue identifiedQtyMV = accountMaterialDAO0710.getIdentifiedQtyMV();
+
+                //计算物料平衡  = （消耗量+退库量+取样量+报废量）/识别量
+                IMeasuredValue materialBalanceMv = MeasuredValueUtilities.createZero();//物料平衡
+                IMeasuredValue materialTotalMv;//总消耗量
+                try {
+                     materialTotalMv = wastedQtyMV.add(returnedQtyMV).add(selfAndReplaceConsumedQty).add(sampledQtyMV);
+                     materialBalanceMv = materialTotalMv.divide(identifiedQtyMV,4);
+                }catch (Exception e){
+                        PhaseErrorDialog phaseErrorDialog = new PhaseErrorDialog();
+                        phaseErrorDialog.showDialog(LcAccountMaterialDAO0710.MSG_PACK,"MaterialBalance_Error");
+                        e.printStackTrace();
+                        return -1.0;
+                }
+                return materialBalanceMv.getValue().doubleValue()*100;
+            }
+
+            protected Boolean isRecordException(List<String[]> materialList){
+                StringBuffer stringBuffer = new StringBuffer("");
+                stringBuffer.append(I18nMessageUtility.getLocalizedMessage(LcAccountMaterialDAO0710.MSG_PACK,"MaterialBalanceNotRange_dialog"));
+                for (String[] materialInfo:materialList){
+                    stringBuffer.append(I18nMessageUtility.getLocalizedMessage(LcAccountMaterialDAO0710.MSG_PACK,"MaterInfo_dialog",materialInfo));
+
+                }
+                stringBuffer.append(I18nMessageUtility.getLocalizedMessage(LcAccountMaterialDAO0710.MSG_PACK,"RecordAnomalieDialog"));
+                PhaseQuestionDialog questionDialog = new PhaseQuestionDialog();
+                int userChoice = questionDialog.showDialog(stringBuffer.toString());
+                isOK = userChoice;
+                //点击否
+                if (userChoice != 0) {
+                    return false;
+                }else {//点击是
+                    return true;
+                }
+            }
         };
 
         private final String parameterName;
@@ -466,6 +723,8 @@ public class MatAccountCompletionExceptions0710 extends PhaseSystemTriggeredExce
         super(executor);
     }
 
+
+
     /**
      * Checks condition for any of the available system triggered exception and triggers a combined system triggered
      * exception if at least one exception condition is fulfilled.
@@ -475,14 +734,21 @@ public class MatAccountCompletionExceptions0710 extends PhaseSystemTriggeredExce
      */
     public boolean checkAndHandleExceptions() {
         for (final SystemtriggeredExceptionEnum e : SystemtriggeredExceptionEnum.values()) {
+            //判断异常是否已经签名，是否要触发异常
             if (isNotSigned(e.getCheckKey()) && e.conditionForSystemtriggeredException(executor)){
-                    e.createException(this);
-                    if(SystemtriggeredExceptionEnum.UnconsumedSublot.equals(e) ||
-                            SystemtriggeredExceptionEnum.AbnormalMaterialCombinationRatio.equals(e)
-                    || SystemtriggeredExceptionEnum.QuantityOutOfTolerance.equals(e)){
-                        return false;
-                    }
-                    return !showExceptionDialog();
+
+       /*         if(SystemtriggeredExceptionEnum.MaterialBalanceCheckConfiguration.equals(e)){
+                    return false;
+                }*/
+                e.createException(this);
+                //有消耗子批次或组合比例不一致
+                if(SystemtriggeredExceptionEnum.UnconsumedSublot.equals(e) ||
+                        SystemtriggeredExceptionEnum.AbnormalMaterialCombinationRatio.equals(e)
+                || SystemtriggeredExceptionEnum.QuantityOutOfTolerance.equals(e)
+                        || SystemtriggeredExceptionEnum.MaterialBalanceCheckConfiguration.equals(e)){
+                    return false;
+                }
+                return !showExceptionDialog();
             }
             else if(SystemtriggeredExceptionEnum.UnconsumedSublot.equals(e) && SystemtriggeredExceptionEnum.UnconsumedSublot.isOK == 2){ ;
                 SystemtriggeredExceptionEnum.UnconsumedSublot.isOK = -1;
@@ -493,6 +759,9 @@ public class MatAccountCompletionExceptions0710 extends PhaseSystemTriggeredExce
                 return false;
             }else if(SystemtriggeredExceptionEnum.QuantityOutOfTolerance.equals(e) && SystemtriggeredExceptionEnum.QuantityOutOfTolerance.isOK == 2){
                 SystemtriggeredExceptionEnum.QuantityOutOfTolerance.isOK = -1;
+                return false;
+            }else if(SystemtriggeredExceptionEnum.MaterialBalanceCheckConfiguration.equals(e) && SystemtriggeredExceptionEnum.MaterialBalanceCheckConfiguration.isOK == 2){
+                SystemtriggeredExceptionEnum.MaterialBalanceCheckConfiguration.isOK = -1;
                 return false;
             }
         }

@@ -27,6 +27,7 @@ import javax.swing.SwingConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import com.rockwell.mes.parameter.product.excptenabledef.MESParamExcptEnableDef0200;
 import org.apache.commons.lang3.StringUtils;
 
 import com.datasweep.compatibility.client.AccessPrivilege;
@@ -142,6 +143,7 @@ public class AccountQuantitiesDialog0710 extends PhaseDialog {
     private transient IESignatureExecutor signatureExecutor;
 
     private JPanel separator;
+    private RtPhaseExecutorMatAlterAcct0010 phaseExecutorMatAlterAcct0010;
 
     /**
      * @param argActionPrivilege the action privilege used for the phase action signature, {@code null} if phase action
@@ -149,10 +151,11 @@ public class AccountQuantitiesDialog0710 extends PhaseDialog {
      * @param argPrivilegeParameter the privilege parameter related to the phase action, {@code null} if phase action
      *            signature is disabled
      */
-    public AccountQuantitiesDialog0710(AccessPrivilege argActionPrivilege, IMESPrivilegeParameter argPrivilegeParameter) {
+    public AccountQuantitiesDialog0710(AccessPrivilege argActionPrivilege, IMESPrivilegeParameter argPrivilegeParameter,RtPhaseExecutorMatAlterAcct0010 phaseExecutorMatAlterAcct0010) {
         super(DialogType.PLAIN);
         phaseActionPrivilege = argActionPrivilege;
         phaseActionPrivilegeParameter = argPrivilegeParameter;
+        this.phaseExecutorMatAlterAcct0010 = phaseExecutorMatAlterAcct0010;
     }
 
     @Override
@@ -327,8 +330,15 @@ public class AccountQuantitiesDialog0710 extends PhaseDialog {
                             .showErrorDlg(I18nMessageUtility.getLocalizedMessage(AccountMaterialDAO0710.MSG_PACK, "InvalidQtyTxt"));
                     return false;
                 }
+                if(getReturnedQuantity().compareTo(identifiedQty.subtract(getConsumedQuantity()).subtract(getSamlpedQuantity()).subtract(getWastedQuantity()) )  > 0){
+                    //抛异常
+                    throw new MESException(I18nMessageUtility.getLocalizedMessage(MessageUtil.SHARED_PRODUCT_MSG_PACK, MessageUtil.NON_PARSABLE_MSG));
+                }
             } catch (MESException e) {
                 ProductPhaseSwingHelper.showErrorDlg(e.getLocalizedMessage());
+                return false;
+            } catch (Exception e) {
+                e.printStackTrace();
                 return false;
             }
             return true;
@@ -386,10 +396,12 @@ public class AccountQuantitiesDialog0710 extends PhaseDialog {
 
         // input fields for returned quantity should be disabled if returned
         // quantity is calculated
-        ParallelGroup returnedGroup =
+
+   ParallelGroup returnedGroup =
                 addQttyLine(AccountType.RETURNED,
-                        isSingleRow && !accountCalcType.equals(AccountCalculation0200.RETURN), labelsGroup, inputGroup,
+                        isSingleRow && isparamExcptEnableDefGetEnable(), labelsGroup, inputGroup,
                         uomGroup);
+
         // add dynamic gap between lines
         verticalGroup
                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
@@ -459,7 +471,7 @@ public class AccountQuantitiesDialog0710 extends PhaseDialog {
             case WASTE:
                 // calculate wasted quantity based on the other quantities
                 // use the MeasuredValue objects, the subtract method handles
-                // conversions
+                // conversionsq
                 resultQty =
                         (MeasuredValue) identifiedQty.subtract(getConsumedQuantity()).subtract(getSamlpedQuantity())
                                 .subtract(getReturnedQuantity());
@@ -477,7 +489,20 @@ public class AccountQuantitiesDialog0710 extends PhaseDialog {
                         (MeasuredValue) identifiedQty.subtract(getConsumedQuantity()).subtract(getSamlpedQuantity())
                                 .subtract(getWastedQuantity());
                 resultQty = (MeasuredValue) resultQty.convert(returnedUoM.getUnitOfMeasure());
-                returnedEdit.setText(I18nBigDecimalUtility.bigDecimalToLocalizedString(resultQty.getValue()));
+                if (!isparamExcptEnableDefGetEnable()){
+                    returnedEdit.setText(I18nBigDecimalUtility.bigDecimalToLocalizedString(resultQty.getValue()));
+
+                }else {
+                    //实际退库量小于输入的退库量，提示参数不合法
+                    if (resultQty.compareTo(getReturnedQuantity()) <0){
+                        //抛异常
+                        throw new MESException(I18nMessageUtility.getLocalizedMessage(MessageUtil.SHARED_PRODUCT_MSG_PACK, MessageUtil.NON_PARSABLE_MSG));
+
+
+                    }
+                }
+                MeasuredValueUtilities.createMV(getReturnedQuantity().toString());
+
                 break;
             }
 
@@ -731,5 +756,15 @@ public class AccountQuantitiesDialog0710 extends PhaseDialog {
      */
     private void addToGroup(ParallelGroup group, JComponent control) {
         group.addComponent(control, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE);
+    }
+
+    /**
+     * 判断物料平衡是否启用
+     * @return
+     */
+    private Boolean isparamExcptEnableDefGetEnable(){
+        //判断是否启用了异常
+        MESParamExcptEnableDef0200 paramExcptEnableDef0200  =  phaseExecutorMatAlterAcct0010.getProcessParameterData(MESParamExcptEnableDef0200.class, LcAccountMaterialDAO0710.Material_Balance_Check_Configuration);
+        return paramExcptEnableDef0200.getEnabled();
     }
 }

@@ -3,6 +3,9 @@ package com.leateck.phase.accountalternativematerial0010;
 import com.datasweep.compatibility.client.*;
 import com.datasweep.plantops.common.measuredvalue.IMeasuredValue;
 import com.datasweep.plantops.common.measuredvalue.IUnitOfMeasure;
+import com.leateck.phase.accountalternativematerial0010.at.IMESLCLossQtyAccountCon;
+import com.leateck.phase.accountalternativematerial0010.at.MESLCLossQtyAccountCon;
+import com.leateck.phase.accountalternativematerial0010.at.MESLCLossQtyAccountConFilter;
 import com.rockwell.mes.apps.ebr.ifc.phase.IPhaseExecutor.Status;
 import com.rockwell.mes.commons.base.ifc.OSILock.LockException;
 import com.rockwell.mes.commons.base.ifc.OSILockCollection;
@@ -56,7 +59,7 @@ import java.util.stream.Collectors;
 public class MatAccountModel0710 extends MaterialModel0710<AccountMaterialDAO0710, MESRtPhaseDataMatAlterAcct0010, MESRtPhaseOutputMatAlterAcct0010> {
 
     private static final Log LOGGER = LogFactory.getLog(MatAccountModel0710.class);
-    private List<String[]> NotEqualRatePartList = new ArrayList<>();
+    private List<String[]> NotEqualRatePartList = new ArrayList<>();//比例不一致的物料集合
     /**
      * list of the input materials + identified sublots
      */
@@ -485,7 +488,15 @@ public class MatAccountModel0710 extends MaterialModel0710<AccountMaterialDAO071
             sublot.setIdentifiedQtyMV(convertMeasuredValue(identifiedQty, defaultUoM, converter));
             sublot.setQtyMV(AccountType.CONSUMED, osiSublot.getConsumedQuantity());
             setQuantityInMaterialRow(defaultUoM, sublot, osiSublot.getSampledQuantity(), AccountType.SAMPLED);
-            setQuantityInMaterialRow(defaultUoM, sublot, osiSublot.getWastedQuantity(), AccountType.WASTED);
+            //查询是否有损耗率
+
+            IMESLCLossQtyAccountCon imeslcLossQtyAccountCon = filterLossQtyAccountCon(sublot.getSublot(), executor.getPhase().getKey());
+            IMeasuredValue wastedQuantity = osiSublot.getWastedQuantity();
+            //如果有，废弃量-损耗量
+            if(imeslcLossQtyAccountCon != null){
+                wastedQuantity = wastedQuantity.subtract(imeslcLossQtyAccountCon.getLossQty());
+            }
+            setQuantityInMaterialRow(defaultUoM, sublot, wastedQuantity, AccountType.WASTED);
             // returned quantity: quantity that was identified but not accounted
             if (sublot.isAccounted()) {
                 sublot.setQtyMV(AccountType.RETURNED, MeasuredValueUtilities.subtract(identifiedQty, osiSublot.getAccountedQuantity(), converter));
@@ -527,7 +538,26 @@ public class MatAccountModel0710 extends MaterialModel0710<AccountMaterialDAO071
         }
     }
     // CHECKSTYLE:MethodLength:on
-
+    /**
+     * 查询表中是否已经存在子批次数量了
+     * @param subNo
+     * @param phaseKey
+     * @return
+     */
+    private IMESLCLossQtyAccountCon filterLossQtyAccountCon(String subNo,Long phaseKey){
+        MESLCLossQtyAccountConFilter filter = new MESLCLossQtyAccountConFilter();
+        try {
+            filter.forPhaseKeyEqualTo(phaseKey);
+            filter.forSublotNumberEqualTo(subNo);
+        } catch (DatasweepException e) {
+            e.printStackTrace();
+        }
+        List<IMESLCLossQtyAccountCon> filteredObjects = filter.getFilteredObjects();
+        if(filteredObjects.size() == 1){
+            return filteredObjects.get(0);
+        }
+        return null;
+    }
     /**
      * @param quantity  the MV to convert
      * @param toUom     target UoM
