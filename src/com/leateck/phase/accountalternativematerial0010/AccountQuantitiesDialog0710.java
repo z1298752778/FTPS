@@ -333,6 +333,7 @@ public class AccountQuantitiesDialog0710 extends PhaseDialog {
                 if(getReturnedQuantity().compareTo(identifiedQty.subtract(getConsumedQuantity()).subtract(getSamlpedQuantity()).subtract(getWastedQuantity()) )  > 0){
                     //抛异常
                     throw new MESException(I18nMessageUtility.getLocalizedMessage(MessageUtil.SHARED_PRODUCT_MSG_PACK, MessageUtil.NON_PARSABLE_MSG));
+
                 }
             } catch (MESException e) {
                 ProductPhaseSwingHelper.showErrorDlg(e.getLocalizedMessage());
@@ -381,6 +382,7 @@ public class AccountQuantitiesDialog0710 extends PhaseDialog {
         ParallelGroup wastedGroup =
                 addQttyLine(AccountType.WASTED, isSingleRow && !accountCalcType.equals(AccountCalculation0200.WASTE),
                         labelsGroup, inputGroup, uomGroup);
+
         // add dynamic gap between lines
         verticalGroup
                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
@@ -399,7 +401,7 @@ public class AccountQuantitiesDialog0710 extends PhaseDialog {
 
    ParallelGroup returnedGroup =
                 addQttyLine(AccountType.RETURNED,
-                        isSingleRow && isparamExcptEnableDefGetEnable(), labelsGroup, inputGroup,
+                        isSingleRow && (isparamExcptEnableDefGetEnable() || !accountCalcType.equals(AccountCalculation0200.RETURN)), labelsGroup, inputGroup,
                         uomGroup);
 
         // add dynamic gap between lines
