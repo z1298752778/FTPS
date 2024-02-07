@@ -1,42 +1,41 @@
-<?xml version="1.0" encoding="ISO-8859-1" ?>
-<!-- Common config.xml including all service definitions  -->
+<!--  Common config.xml including all service definitions   -->
 <configuration>
-    <override>
-      <!-- Override means: configuration files included first will override 
-           properties in configuration files included later.
-           See http://commons.apache.org/configuration/userguide/howto_configurationbuilder.html#Overriding_properties
-           Optional means: the configurations files may exist or not, if they don't, no error will be issued.
-       -->
-      <configuration fileName="extension-config.xml" config-optional="true" />
-      <hierarchicalXml fileName="lc-functions.xml" config-optional="true" />
-      <hierarchicalXml fileName="apps-ebr.xml" config-optional="true" />
-      <hierarchicalXml fileName="apps-wd.xml" config-optional="true" />
-      <hierarchicalXml fileName="apps-wip.xml" config-optional="true" />
-      <hierarchicalXml fileName="apps-recipeeditor.xml" config-optional="true" />
-      <hierarchicalXml fileName="clientfw-commons.xml" config-optional="true" />
-      <hierarchicalXml fileName="clientfw-grapheditor.xml" config-optional="true" />
-      <hierarchicalXml fileName="clientfw-pec.xml" config-optional="true" />
-      <hierarchicalXml fileName="clientfw-pmc.xml" config-optional="true" />
-      <hierarchicalXml fileName="commons-base.xml" config-optional="true" />
-      <hierarchicalXml fileName="commons-deviation.xml" config-optional="true" />
-      <hierarchicalXml fileName="commons-livedata.xml" config-optional="true" />
-      <hierarchicalXml fileName="commons-messaging.xml" config-optional="true" />
-      <hierarchicalXml fileName="commons-versioning.xml" config-optional="true" />
-      <hierarchicalXml fileName="commons-security.xml" config-optional="true" />
-      <hierarchicalXml fileName="commons-audittrail.xml" config-optional="true" />
-      <hierarchicalXml fileName="services-archivepurge.xml" config-optional="true" />
-      <hierarchicalXml fileName="services-batchrecord.xml" config-optional="true" />
-      <hierarchicalXml fileName="services-batchreport.xml" config-optional="true" />
-      <hierarchicalXml fileName="services-eqm.xml" config-optional="true" />
-      <hierarchicalXml fileName="services-eto.xml" config-optional="true" />
-      <hierarchicalXml fileName="services-inventory.xml" config-optional="true" />
-      <hierarchicalXml fileName="services-recipe.xml" config-optional="true" />
-      <hierarchicalXml fileName="services-s88.xml" config-optional="true" />
-      <hierarchicalXml fileName="services-s88eqmexportimport.xml" config-optional="true" />
-      <hierarchicalXml fileName="services-s88equipment.xml" config-optional="true" />
-      <hierarchicalXml fileName="services-wd.xml" config-optional="true" />
-      <hierarchicalXml fileName="services-wip.xml" config-optional="true" />
-      <hierarchicalXml fileName="services-order.xml" config-optional="true" />
-      <hierarchicalXml fileName="services-exportrecord.xml" config-optional="true" />
-    </override>
+  <override>
+    <!--  Override means: configuration files included first will override
+               properties in configuration files included later.
+               See http://commons.apache.org/configuration/userguide/howto_configurationbuilder.html#Overriding_properties
+               Optional means: the configurations files may exist or not, if they don't, no error will be issued.
+            -->
+    <configuration fileName="extension-config.xml" config-optional="true"/>
+    <hierarchicalXml fileName="lc-functions.xml" config-optional="true"/>
+    <hierarchicalXml fileName="apps-ebr.xml" config-optional="true"/>
+    <hierarchicalXml fileName="apps-wd.xml" config-optional="true"/>
+    <hierarchicalXml fileName="apps-wip.xml" config-optional="true"/>
+    <hierarchicalXml fileName="apps-recipeeditor.xml" config-optional="true"/>
+    <hierarchicalXml fileName="clientfw-commons.xml" config-optional="true"/>
+    <hierarchicalXml fileName="clientfw-grapheditor.xml" config-optional="true"/>
+    <hierarchicalXml fileName="clientfw-pec.xml" config-optional="true"/>
+    <hierarchicalXml fileName="clientfw-pmc.xml" config-optional="true"/>
+    <hierarchicalXml fileName="commons-base.xml" config-optional="true"/>
+    <hierarchicalXml fileName="commons-deviation.xml" config-optional="true"/>
+    <hierarchicalXml fileName="commons-livedata.xml" config-optional="true"/>
+    <hierarchicalXml fileName="commons-messaging.xml" config-optional="true"/>
+    <hierarchicalXml fileName="commons-versioning.xml" config-optional="true"/>
+    <hierarchicalXml fileName="commons-security.xml" config-optional="true"/>
+    <hierarchicalXml fileName="commons-audittrail.xml" config-optional="true"/>
+    <hierarchicalXml fileName="services-archivepurge.xml" config-optional="true"/>
+    <hierarchicalXml fileName="services-batchrecord.xml" config-optional="true"/>
+    <hierarchicalXml fileName="services-batchreport.xml" config-optional="true"/>
+    <hierarchicalXml fileName="services-eqm.xml" config-optional="true"/>
+    <hierarchicalXml fileName="services-eto.xml" config-optional="true"/>
+    <hierarchicalXml fileName="services-inventory.xml" config-optional="true"/>
+    <hierarchicalXml fileName="services-recipe.xml" config-optional="true"/>
+    <hierarchicalXml fileName="services-s88.xml" config-optional="true"/>
+    <hierarchicalXml fileName="services-s88eqmexportimport.xml" config-optional="true"/>
+    <hierarchicalXml fileName="services-s88equipment.xml" config-optional="true"/>
+    <hierarchicalXml fileName="services-wd.xml" config-optional="true"/>
+    <hierarchicalXml fileName="services-wip.xml" config-optional="true"/>
+    <hierarchicalXml fileName="services-order.xml" config-optional="true"/>
+    <hierarchicalXml fileName="services-exportrecord.xml" config-optional="true"/>
+  </override>
 </configuration>

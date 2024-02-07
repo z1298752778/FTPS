@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PhaseLibDescription>
+    <OutputDir>C:\output\phase</OutputDir>
+    <Name>D Identify Material (LC) [1.0]</Name>
+    <Description>Provides material identification for Dispense and Inline Weighing operations.</Description>
+    <PackageName>com.leateck.phase.wdmaterialidentification0100</PackageName>
+    <PhaseLibBaseName>WDMatIdent0010</PhaseLibBaseName>
+    <VisibleInNavigator value="true"/>
+    <InternalBuildingBlock value="false"/>
+    <ReportDesignName>PS-BatchReport-PhaseWDMatIdentLC_0010</ReportDesignName>
+    <SupportExceptions value="true"/>
+    <MaterialInputMin>1</MaterialInputMin>
+    <MaterialInputMax>50</MaterialInputMax>
+    <MaterialOutputMin>0</MaterialOutputMin>
+    <MaterialOutputMax>0</MaterialOutputMax>
+    <EquipmentRequirementMin>0</EquipmentRequirementMin>
+    <EquipmentRequirementMax>1</EquipmentRequirementMax>
+    <ATDefinitionPrefix>LC_</ATDefinitionPrefix>
+    <UsageContext>Recipe</UsageContext>
+    <ParameterClasses>
+        <ParameterClass>
+            <Name>Instruction (RS) [3.0]</Name>
+            <UsageIdentifier>Instruction</UsageIdentifier>
+            <SortIndex>1</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>MeasuredValue (RS) [1.0]</Name>
+            <UsageIdentifier>Prorate factor</UsageIdentifier>
+            <SortIndex>2</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>D Check Configuration (RS) [1.0]</Name>
+            <UsageIdentifier>Batch status check configuration</UsageIdentifier>
+            <SortIndex>3</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>D Check Configuration (RS) [1.0]</Name>
+            <UsageIdentifier>Minimum time to expire configuration</UsageIdentifier>
+            <SortIndex>4</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>D Check Configuration (RS) [1.0]</Name>
+            <UsageIdentifier>Expiry date passed configuration</UsageIdentifier>
+            <SortIndex>5</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>D Check Configuration (RS) [1.0]</Name>
+            <UsageIdentifier>Minimum time to retest configuration</UsageIdentifier>
+            <SortIndex>6</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>D Check Configuration (RS) [1.0]</Name>
+            <UsageIdentifier>Retest date passed configuration</UsageIdentifier>
+            <SortIndex>7</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>D Check Configuration (RS) [1.0]</Name>
+            <UsageIdentifier>Allocation check configuration</UsageIdentifier>
+            <SortIndex>8</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>D Check Configuration (RS) [1.0]</Name>
+            <UsageIdentifier>Use-by date check configuration</UsageIdentifier>
+            <SortIndex>9</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>D Check Configuration (RS) [1.0]</Name>
+            <UsageIdentifier>Sequence check configuration</UsageIdentifier>
+            <SortIndex>10</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>D Batch Checks Configuration (RS) [1.0]</Name>
+            <UsageIdentifier>Batch check definition</UsageIdentifier>
+            <SortIndex>11</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>D Check Configuration (RS) [1.0]</Name>
+            <UsageIdentifier>Sublot status check configuration</UsageIdentifier>
+            <SortIndex>12</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Sublot Check Definition (RS) [1.0]</Name>
+            <UsageIdentifier>Sublot check definition</UsageIdentifier>
+            <SortIndex>13</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Identify manually</UsageIdentifier>
+            <SortIndex>14</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Abort BOM position</UsageIdentifier>
+            <SortIndex>15</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Reprint label</UsageIdentifier>
+            <SortIndex>16</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Replace target sublot</UsageIdentifier>
+            <SortIndex>17</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Close target sublot</UsageIdentifier>
+            <SortIndex>18</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Status transition failed</UsageIdentifier>
+            <SortIndex>19</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Property value check</UsageIdentifier>
+            <SortIndex>20</SortIndex>
+        </ParameterClass>
+         <ParameterClass>
+            <Name>EQ Status Check Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Container status check</UsageIdentifier>
+            <SortIndex>21</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Unforeseen resume</UsageIdentifier>
+            <SortIndex>22</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Undo identification</UsageIdentifier>
+            <SortIndex>23</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Complete position</UsageIdentifier>
+            <SortIndex>24</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Override prorate factor</UsageIdentifier>
+            <SortIndex>25</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Re-open position / declare waste</UsageIdentifier>
+            <SortIndex>26</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Warehouse error</UsageIdentifier>
+            <SortIndex>27</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Material Position Control (LC) [1.0]</Name>
+            <UsageIdentifier>Material position control</UsageIdentifier>
+            <SortIndex>28</SortIndex>
+        </ParameterClass>
+    </ParameterClasses>
+</PhaseLibDescription>

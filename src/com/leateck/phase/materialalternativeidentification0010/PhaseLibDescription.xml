@@ -130,5 +130,25 @@
             <UsageIdentifier>Batch Exclusive Use</UsageIdentifier>
             <SortIndex>23</SortIndex>
         </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Enable Definition (RS) [2.0]</Name>
+            <UsageIdentifier>Mix check configuration</UsageIdentifier>
+            <SortIndex>24</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>RecognitionQuantityInsufficient</UsageIdentifier>
+            <SortIndex>25</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Proportional Anomaly</UsageIdentifier>
+            <SortIndex>26</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Material Position Control (LC) [1.0]</Name>
+            <UsageIdentifier>Material position control</UsageIdentifier>
+            <SortIndex>27</SortIndex>
+        </ParameterClass>
     </ParameterClasses>
 </PhaseLibDescription>

@@ -1,0 +1,193 @@
+<RtPhaseDataAttributes>
+    <RtPhaseDataAttribute>
+        <Name>sublotIdentifier</Name>
+        <Description>The identifier of the identified sublot</Description>
+        <DataType>
+            <String length="100" />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>batchIdentifier</Name>
+        <Description>The identifier of the identified batch</Description>
+        <DataType>
+            <String length="100" />
+        </DataType>
+    </RtPhaseDataAttribute>
+     <RtPhaseDataAttribute>
+        <Name>srcContainerId</Name>
+        <Description>The identifier of the identified source container</Description>
+        <DataType>
+            <String length="80" />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>srcContainerShortDesc</Name>
+        <Description>The short description of the source container</Description>
+        <DataType>
+            <String length="2000" />
+        </DataType>
+    </RtPhaseDataAttribute>
+     <RtPhaseDataAttribute>
+        <Name>srcContainerObject</Name>
+        <Description>The directly or indirectly identified source container</Description>
+        <DataType>
+            <ApplicationTable name="X_S88Equipment"
+                interfaceClassName="com.rockwell.mes.services.s88equipment.ifc.IMESS88Equipment"
+                implClassName="com.rockwell.mes.services.s88equipment.impl.MESS88Equipment" />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>originalQuantity</Name>
+        <Description>The original planned quantity of the order-step-input</Description>
+        <DataType>
+            <MeasuredValue />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>plannedQuantity</Name>
+        <Description>The planned quantity of the order-step-input</Description>
+        <DataType>
+            <MeasuredValue />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>nominalQuantity</Name>
+        <Description>The nominal quantity based on the identified sublot
+        </Description>
+        <DataType>
+            <MeasuredValue />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>plannedPotency</Name>
+        <Description>The planned potency of the order-step-input</Description>
+        <DataType>
+            <MeasuredValue />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>actualPotency</Name>
+        <Description>The potency of the identified sublot</Description>
+        <DataType>
+            <MeasuredValue />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>printedSublotKey</Name>
+        <Description>ID of the target sublot, for which a label was printed in
+            this phase
+        </Description>
+        <DataType>
+            <Long />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>orderStepInputKey</Name>
+        <Description>The key of the current order step input (OSI)
+        </Description>
+        <DataType>
+            <Long />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>materialIdentifier</Name>
+        <Description>The identifier of material of the identified batch
+        </Description>
+        <DataType>
+            <String length="100" />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>materialShortDescr</Name>
+        <Description>The short description of material of the identified batch
+        </Description>
+        <DataType>
+            <String length="100" />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>materialType</Name>
+        <Description>The type of material of the identified batch
+        </Description>
+        <DataType>
+            <String length="100" />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>isSplitPosition</Name>
+        <Description>Is it a split position?</Description>
+        <DataType>
+            <Bool />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>splitPosition</Name>
+        <Description>The split number (0 for the main position, 1..n for split positions, if applicable)</Description>
+        <DataType>
+            <Long />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>sublotIdentified</Name>
+        <Description>Was a sublot identified? Otherwise batch supposed.
+        </Description>
+        <DataType>
+            <Bool />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>weighingType</Name>
+        <Description>The weighing type of material of the identified batch
+        </Description>
+        <DataType>
+            <String length="100" />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>weighingMethod</Name>
+        <Description>The weighing method of material of the identified batch
+            (Identification Only)
+        </Description>
+        <DataType>
+            <String length="100" />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>actualQuantity</Name>
+        <Description>The actual quantity of material of the identified batch
+            (Identification Only)
+        </Description>
+        <DataType>
+            <MeasuredValue />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>targetSublotIdent</Name>
+        <Description>Ident of the target sublot (Identification Only)
+        </Description>
+        <DataType>
+            <String length="100" />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>identifiedOnly</Name>
+        <Description>Was material only identified?</Description>
+        <DataType>
+            <Bool />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>diffBatchIdentified</Name>
+        <Description>Was a different batch identified?</Description>
+        <DataType>
+            <Bool />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>targetContainerClosed</Name>
+        <Description>Was the target container closed (no material identified)?</Description>
+        <DataType>
+            <Bool />
+        </DataType>
+    </RtPhaseDataAttribute>
+</RtPhaseDataAttributes>

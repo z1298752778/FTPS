@@ -49,7 +49,7 @@ public class MESParamSeqRule0100 extends MESGeneratedParamSeqRule0100 //nl
 
     /**
      * {@inheritDoc}
-     * @see IMESProcessParameterData#getDataAsString()
+     * @see com.rockwell.mes.services.s88.ifc.recipe.IMESProcessParameterData#getDataAsString()
      */
     public String getDataAsString() {
         // TASK: implement!

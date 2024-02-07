@@ -6,7 +6,6 @@ import com.datasweep.plantops.common.measuredvalue.IMeasuredValue;
 import com.datasweep.plantops.common.measuredvalue.IUnitOfMeasure;
 import com.jgoodies.common.base.Strings;
 import com.leateck.parameter.sequencerule0010.MESParamSeqRule0100;
-import com.leateck.phase.accountalternativematerial0010.MESNamedUDAMaterialParameter;
 import com.rockwell.mes.apps.ebr.ifc.phase.IPhaseExecutor.Status;
 import com.rockwell.mes.commons.base.ifc.exceptions.MESException;
 import com.rockwell.mes.commons.base.ifc.exceptions.MESIncompatibleUoMException;
@@ -23,6 +22,7 @@ import com.rockwell.mes.commons.base.ifc.utility.StringUtilsEx;
 import com.rockwell.mes.commons.parameter.bool.MESParamBoolean0100;
 import com.rockwell.mes.commons.shared.phase.mvc.AbstractPhaseExecutor0200;
 import com.rockwell.mes.parameter.product.consumpttype.MESParamConsumptType0200;
+import com.rockwell.mes.parameter.product.exceptiondef.MESParamExceptionDef0200;
 import com.rockwell.mes.parameter.product.excptenabledef.MESParamExcptEnableDef0200;
 import com.rockwell.mes.parameter.product.instruction.MESParamInstruction0200;
 import com.rockwell.mes.parameter.product.loopconfig.LoopConfigurationType0100;
@@ -85,11 +85,9 @@ public class MatIdentModel0710 extends MaterialModel0710<IdentifiedMaterialDAO07
     private final Map<String, QuantityRangeCondition> quantityRangeConditions = new HashMap<>();
 
     /**
-     * @author Yonghao Xu
-     * <p>
-     * SCL
+     * LC
+     * @return
      */
-
     public MESParamExcptEnableDef0200 getLocationViolation() {
         return executor.getProcessParameterData(MESParamExcptEnableDef0200.class, RtPhaseExecutorMatAlterIdent0010.KEY_LOCATION_VIOLATION_EXCEPTION);
     }
@@ -101,6 +99,8 @@ public class MatIdentModel0710 extends MaterialModel0710<IdentifiedMaterialDAO07
     public MESParamExcptEnableDef0200 getSequenceViolationException() {
         return executor.getProcessParameterData(MESParamExcptEnableDef0200.class, RtPhaseExecutorMatAlterIdent0010.KEY_SEQUENCE_VIOLATION_EXCEPTION);
     }
+
+
 
     public boolean getAdditionalBarcodeSupport() {
         return executor.getProcessParameterData(MESParamBoolean0100.class, "Additional Barcode Support").getEnabled();
@@ -262,6 +262,7 @@ public class MatIdentModel0710 extends MaterialModel0710<IdentifiedMaterialDAO07
 
     /**
      * @return whether the sublots should be automatically consumed
+     * 是否启用自动消耗按钮
      */
     public Boolean getAutoConsume() {
         Boolean autoConsume = executor.getProcessParameterData(MESParamConsumptType0200.class, ParamClassConstants0400.PARAMETER_INVENTORY_CORRECTION)
@@ -678,9 +679,11 @@ public class MatIdentModel0710 extends MaterialModel0710<IdentifiedMaterialDAO07
      * @return true if there are material positions without identifications yet
      */
     public boolean hasMandatoryPositionsWithoutIdentifications() {
+        //获取当前扫描上去的OSI对象list  masterOSIsWithLocalIdentifications
         List<OrderStepInput> masterOSIsWithLocalIdentifications = getMasterOSIsLocallyIdentified();
         List<OrderStepInput> mandatoryMasterOSIsOfPhase = getMandatoryMasterOSIs(getMasterOSIsForPhase());
 
+        //遍历OSI物料对象
         for (OrderStepInput masterOsi : mandatoryMasterOSIsOfPhase) {
             // there are identification in this phase instance or in previous instances
             final boolean hasIdentifications = masterOSIsWithLocalIdentifications.contains(masterOsi)
@@ -711,6 +714,14 @@ public class MatIdentModel0710 extends MaterialModel0710<IdentifiedMaterialDAO07
         if (totalIdentifiedQty == null || totalIdentifiedQty.getValue().compareTo(BigDecimal.ZERO) == 0) {
             return false;
         }
+        List<IMESMaterialParameter> matParamList = materialParameters.stream().filter(p -> p.getMaterial() == masterOsi.getPart() && p.getATRow().getValue("LC_isMainPart") != null && (Boolean) p.getATRow().getValue("LC_isMainPart")).collect(Collectors.toList());
+        if(matParamList.size() > 0){
+            //当前物料是主料
+            RtPhaseExecutorMatAlterIdent0010.masterOsiException = null;
+            RtPhaseExecutorMatAlterIdent0010.totalConsumedQtyException = null;
+            RtPhaseExecutorMatAlterIdent0010.masterOsiException = masterOsi;
+            RtPhaseExecutorMatAlterIdent0010.totalConsumedQtyException = totalIdentifiedQty;
+        }
         return true;
     }
 
@@ -722,8 +733,8 @@ public class MatIdentModel0710 extends MaterialModel0710<IdentifiedMaterialDAO07
         //获取该物料是否设置为主料
         List<IMESMaterialParameter> matParamList = materialParameters.stream()
                 .filter(p -> p.getMaterial() == osi.getPart()
-                        && p.getATRow().getValue("SCL_isMainPart") != null
-                        && (Boolean) p.getATRow().getValue("SCL_isMainPart")).collect(Collectors.toList());
+                        && p.getATRow().getValue("LC_isMainPart") != null
+                        && (Boolean) p.getATRow().getValue("LC_isMainPart")).collect(Collectors.toList());
         if (matParamList == null || matParamList.size() == 0) {
             return totalIdentifiedQtyMV;
         }
@@ -1382,21 +1393,27 @@ public class MatIdentModel0710 extends MaterialModel0710<IdentifiedMaterialDAO07
      */
     public boolean checkCombineGroupIsEqualWithRate() {
         List<OrderStepInput> masterOSIToCheck = new ArrayList();
+        //获取工单输入的OSI对象
         List<OrderStepInput> allMasterOSIs = getMasterOSIsForPhase();
         masterOSIToCheck.addAll(allMasterOSIs.stream().filter(osi -> mustCheckQuantityForOsi(osi))
                 .collect(Collectors.toList()));
-        //dustin:获取物料参数配置集合
+        //dustin: 获取物料参数配置集合
         List<IMESMaterialParameter> materialParameters = executor.getPhase().getMaterialParameters();
         for (OrderStepInput osi : masterOSIToCheck) {
             try {
+                /**
+                 * 带入每一个OSI对象检查
+                 */
                 boolean result = getCombineGroupIsEqualWithRate(osi, allMasterOSIs, materialParameters);
                 if (!result) {
                     return false;
                 }
+                //若当前物料不为null，进入下一次循环
             } catch (MESIncompatibleUoMException e) {
                 e.printStackTrace();
             }
         }
+        //当所以的物料都检查完 如中途没有反馈的return，返回true；
         return true;
     }
 
@@ -1419,21 +1436,30 @@ public class MatIdentModel0710 extends MaterialModel0710<IdentifiedMaterialDAO07
         //获取该物料是否设置为主料
         List<IMESMaterialParameter> matParamList = materialParameters.stream()
                 .filter(p -> p.getMaterial() == osi.getPart()
-                        && p.getATRow().getValue("SCL_isMainPart") != null
-                        && (Boolean) p.getATRow().getValue("SCL_isMainPart")).collect(Collectors.toList());
+                        && p.getATRow().getValue("LC_isMainPart") != null
+                        && (Boolean) p.getATRow().getValue("LC_isMainPart")).collect(Collectors.toList());
         if (matParamList == null || matParamList.size() == 0) {
+            //不为主料 返回true
             return true;
         }
+
+        //是 主料 保存主料物料号到全局变量
+        RtPhaseExecutorMatAlterIdent0010.mainMaterial = osi.getPart().getPartNumber();
+
+        //获取当前物料参数对象
         MESNamedUDAMaterialParameter matParam = new MESNamedUDAMaterialParameter(matParamList.get(0));
-        //获取替代组号
+        //获取主料 替代组号
         String masterReplaceGroupName = matParam.getReplaceGroupName();
-        //判断是否存在替代组号
+        //判断主料 是否存在替代组号
         if (!StringUtils.isEmpty(masterReplaceGroupName)) {
-            //获取替代物料集合(不能包含本身)
+            //获取主料 物料对象
             Part material = matParam.getMatParam().getMaterial();
+            //替代组号不为null，获取组合组号 替代物料集合(不能包含主料本身、也不包含独立替代物料)
             List<IMESMaterialParameter> combinationGroupList = materialParameters.stream().filter(p -> {
                 MESNamedUDAMaterialParameter replaceMatParam = new MESNamedUDAMaterialParameter(p);
+                //获取替代组号
                 String replaceGroupName = replaceMatParam.getReplaceGroupName();
+                //获取组合组号
                 String combinationGroup = replaceMatParam.getCombinationGroup();
                 Part replaceMaterial = p.getMaterial();
                 return masterReplaceGroupName.equals(replaceGroupName)
@@ -1442,43 +1468,56 @@ public class MatIdentModel0710 extends MaterialModel0710<IdentifiedMaterialDAO07
             }).sorted((o1, o2) -> {
                 MESNamedUDAMaterialParameter p1 = new MESNamedUDAMaterialParameter(o1);
                 MESNamedUDAMaterialParameter p2 = new MESNamedUDAMaterialParameter(o2);
+                //组合组号相同
                 return p1.getCombinationGroup().compareTo(p2.getCombinationGroup());
             }).collect(Collectors.toList());
 
-            //替代消耗量
+            //获取主料 计划数量的单位
             IUnitOfMeasure unitOfMeasure = osi.getPlannedQuantity().getUnitOfMeasure();
             //遍历组合替代集合
             MeasuredValue firstIdentifiedMV = null;
+            //第一个替代比例（0）
             BigDecimal firstRatio = BigDecimal.ZERO;
             String firstGroup = null;
             for (IMESMaterialParameter item : combinationGroupList) {
+                //变量组合组号的物料集合
                 MESNamedUDAMaterialParameter itemMatParam = new MESNamedUDAMaterialParameter(item);
+                //获取替代比例
                 BigDecimal replaceRatio = itemMatParam.getReplaceRatio();
                 //获取组合组号
                 String combinationGroup = itemMatParam.getCombinationGroup();
+                //保存组合组号到全局变量
+                RtPhaseExecutorMatAlterIdent0010.combineGroupName = combinationGroup;
                 if (StringUtils.isEmpty(firstGroup)) {
+                    //代表第一次遍历物料进入，保存组合组号、替代比例
                     firstGroup = combinationGroup;
                     firstRatio = replaceRatio;
                 }
                 if (!StringUtils.equals(firstGroup, combinationGroup)) {
+                    //大于第一次进入，比较组合组号是否与先前保存的组合组号一致（这里不相等，会将当前物料的组合组号重新赋值）
                     firstIdentifiedMV = null;
                     firstRatio = replaceRatio;
                 }
 
                 //根据OSI获取替代消耗数量
                 List<OrderStepInput> identifiedList = allMasterOSIs.stream().filter(p -> p.getPart() == item.getMaterial()).collect(Collectors.toList());
+                //创建一个识别量（0+主料单位）
                 MeasuredValue identifiedQtyMV = MeasuredValueUtilities.createZero(unitOfMeasure);
                 for (OrderStepInput replaceOSI : identifiedList) {
                     identifiedQtyMV = MESNamedUDAOrderStepInput.getTotalIdentifiedQuantity(replaceOSI);
                     if (identifiedQtyMV == null || replaceRatio == null) {
+                        //识别量 || 替代比例 为null，创建 0 + 主料单位 数量，进入下一个OSI判断
+                        //这里的意义就是 识别量不能为null
                         identifiedQtyMV = MeasuredValueUtilities.createZero(unitOfMeasure);
                         continue;
                     }
                 }
+                //如果第一个识别数量为null，将当前的第一个扫描量赋值
                 if (firstIdentifiedMV == null) {
                     firstIdentifiedMV = identifiedQtyMV;
                 }
                 //1的消耗*2的比例
+                //获取第一个保存的识别量的值
                 BigDecimal firstConsumedQty = firstIdentifiedMV.getValue();
                 MeasuredValue firstCalcQtyMV = MeasuredValueUtilities.createMV(firstConsumedQty.multiply(replaceRatio),
                         firstIdentifiedMV.getUnitOfMeasure());

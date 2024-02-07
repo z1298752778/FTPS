@@ -16,13 +16,13 @@ import com.rockwell.mes.commons.base.ifc.objects.BulkSaveableMESATObject;
 
 /**
  * Generated class definition
-* <br/>Application table: CL_ParamSeqRule0100
+* <br/>Application table: LC_ParamSeqRule0100
  */
 public abstract class MESGeneratedParamSeqRule0100
  extends BulkSaveableMESATObject {
 
     /** Generated attribute definition */
-    protected static final String ATDEFINITION_NAME = "CL_ParamSeqRule0100";
+    protected static final String ATDEFINITION_NAME = "LC_ParamSeqRule0100";
 
 
     @Override
@@ -75,7 +75,7 @@ public abstract class MESGeneratedParamSeqRule0100
      * @return the requested value
      */
     public String getRule() {
-        return (String) this.dgtATRow.getValue("CL_rule");
+        return (String) this.dgtATRow.getValue("LC_rule");
     }
 
     /**
@@ -85,7 +85,7 @@ public abstract class MESGeneratedParamSeqRule0100
      */
     public void setRule(String value) {
         String oldValue = this.getRule();
-        this.dgtATRow.setValue("CL_rule", value);
+        this.dgtATRow.setValue("LC_rule", value);
         pcs.firePropertyChange("rule", oldValue, value);
     }
 
@@ -95,7 +95,7 @@ public abstract class MESGeneratedParamSeqRule0100
      * @return the requested value
      */
     public String getComment1() {
-        return (String) this.dgtATRow.getValue("CL_comment1");
+        return (String) this.dgtATRow.getValue("LC_comment1");
     }
 
     /**
@@ -105,7 +105,7 @@ public abstract class MESGeneratedParamSeqRule0100
      */
     public void setComment1(String value) {
         String oldValue = this.getComment1();
-        this.dgtATRow.setValue("CL_comment1", value);
+        this.dgtATRow.setValue("LC_comment1", value);
         pcs.firePropertyChange("comment1", oldValue, value);
     }
 
@@ -115,7 +115,7 @@ public abstract class MESGeneratedParamSeqRule0100
      * @return the requested value
      */
     public String getComment2() {
-        return (String) this.dgtATRow.getValue("CL_comment2");
+        return (String) this.dgtATRow.getValue("LC_comment2");
     }
 
     /**
@@ -125,7 +125,7 @@ public abstract class MESGeneratedParamSeqRule0100
      */
     public void setComment2(String value) {
         String oldValue = this.getComment2();
-        this.dgtATRow.setValue("CL_comment2", value);
+        this.dgtATRow.setValue("LC_comment2", value);
         pcs.firePropertyChange("comment2", oldValue, value);
     }
 
@@ -144,7 +144,7 @@ public abstract class MESGeneratedParamSeqRule0100
      * {@inheritDoc}
      */
     // CHECKSTYLE:MethodNameCheck:off
-    //SuppressFBWarnings(value = "NM_METHOD_NAMING_CONVENTION", justification = "super class")
+    //@SuppressFBWarnings(value = "NM_METHOD_NAMING_CONVENTION", justification = "super class")
     @Override
     public final void Save(Time time, String comment, AccessPrivilege accessPrivilege) //
             throws DatasweepException {

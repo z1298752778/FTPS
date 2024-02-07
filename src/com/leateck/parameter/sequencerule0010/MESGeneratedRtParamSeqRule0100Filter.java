@@ -18,7 +18,7 @@ public abstract class MESGeneratedRtParamSeqRule0100Filter extends MESGeneratedP
     private static final long serialVersionUID = 1L;
 
     /** Generated attribute definition */
-    private static final String ATDEFINITION_NAME = "CL_RtParSeqRule0100";
+    private static final String ATDEFINITION_NAME = "LC_RtParSeqRule0100";
 
     /**
      * Generated method definition

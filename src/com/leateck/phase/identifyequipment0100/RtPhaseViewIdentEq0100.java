@@ -8,7 +8,6 @@ import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
 import com.rockwell.mes.apps.ebr.ifc.phase.IPhaseExecutor;
-import com.rockwell.mes.apps.ebr.ifc.phase.ui.UIConstants;
 import com.rockwell.mes.apps.ebr.ifc.phase.ui.eqpropertylist.EquipmentPropertyListModel;
 import com.rockwell.mes.apps.ebr.ifc.phase.ui.eqpropertylist.EquipmentPropertyListView;
 import com.rockwell.mes.apps.ebr.ifc.swing.ConfirmButton;
@@ -21,9 +20,6 @@ import com.rockwell.mes.commons.parameter.equipmentobject.MESParamEqObject0200;
 import com.rockwell.mes.commons.shared.phase.mvc.AbstractPhaseMainView0200;
 import com.rockwell.mes.parameter.phaseidentificationmode.MESParamIdentMode0100;
 import com.rockwell.mes.parameter.phaseidentificationmode.PhaseIdentificationMode0100;
-import com.rockwell.mes.phase.eqidentification.RtPhaseModelEqIdent0210;
-import com.rockwell.mes.phase.eqidentification.RtPhaseTableRowModelEqIdent0210;
-import com.rockwell.mes.phase.eqidentification.RtPhaseViewEqIdent0210;
 import com.rockwell.mes.services.s88.ifc.recipe.IMESProcessParameterInstance;
 import com.rockwell.mes.services.s88equipment.ifc.IMESS88Equipment;
 import com.rockwell.mes.shared.childgrid.EqChildGridHelper0100;
@@ -43,7 +39,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class RtPhaseViewIdentEq0100 extends AbstractPhaseMainView0200<RtPhaseModelIdentEq0100> {
     private static final long serialVersionUID = 1L;
-    private static final Log LOGGER = LogFactory.getLog(RtPhaseViewEqIdent0210.class);
+    private static final Log LOGGER = LogFactory.getLog(RtPhaseViewIdentEq0100.class);
     private MESStandardGrid equipmentGrid;
     private EqChildGridPanel0100 childEntitiesPanel = null;
     private final EquipmentPropertyListView propertyListView;
@@ -142,7 +138,7 @@ public class RtPhaseViewIdentEq0100 extends AbstractPhaseMainView0200<RtPhaseMod
 
     public MESStandardGrid createEqIdentGrid() {
         Object var1 = null;
-        this.equipmentGrid = PhaseSwingHelper.createFilledPhaseStandardGrid(((RtPhaseModelIdentEq0100)this.getModel()).getStatus(), RtPhaseTableRowModelEqIdent0210.class, (List)var1);
+        this.equipmentGrid = PhaseSwingHelper.createFilledPhaseStandardGrid(((RtPhaseModelIdentEq0100)this.getModel()).getStatus(), RtPhaseTableRowModelIdentEq0100.class, (List)var1);
         this.equipmentGrid.setMultiLineCells("0,1,2,3");
         this.equipmentGrid.addAncestorListener(new RtPhaseViewIdentEq0100.EquipmentGridListener());
         this.equipmentGrid.setName("equipmentGrid");
@@ -150,7 +146,6 @@ public class RtPhaseViewIdentEq0100 extends AbstractPhaseMainView0200<RtPhaseMod
     }
 
     public void refreshActiveGrid() {
-        System.out.println("HCY_________________________11111111");
         Pair var1 = ((RtPhaseModelIdentEq0100)this.getModel()).createEquipmentTableListAndChildTableList();
         List var2 = (List)var1.getFirst();
         this.equipmentGrid.setObjects(var2);
