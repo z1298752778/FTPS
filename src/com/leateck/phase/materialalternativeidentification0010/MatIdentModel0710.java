@@ -780,7 +780,7 @@ public class MatIdentModel0710 extends MaterialModel0710<IdentifiedMaterialDAO07
                     }
 
                     BigDecimal identifiedQty = identifiedQuantityMV.getValue();
-                    BigDecimal calcIdentifiedQtyQty = identifiedQty.divide(replaceRatio).multiply(mainRatio);
+                    BigDecimal calcIdentifiedQtyQty = identifiedQty.divide(replaceRatio,4).multiply(mainRatio);
                     MeasuredValue calcIdentifiedQtyMV = MeasuredValueUtilities.createMV(calcIdentifiedQtyQty, identifiedQuantityMV.getUnitOfMeasure());
                     //组合组号是空，表示是完全替代料计算
                     if (Strings.isEmpty(combinationGroup)) {

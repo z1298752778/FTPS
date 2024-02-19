@@ -23,6 +23,7 @@ import com.rockwell.mes.commons.base.ifc.nameduda.MESNamedUDAOrderStepInput;
 import com.rockwell.mes.commons.base.ifc.nameduda.MESNamedUDASublot;
 import com.rockwell.mes.commons.base.ifc.services.PCContext;
 import com.rockwell.mes.commons.base.ifc.services.ServiceFactory;
+import com.rockwell.mes.commons.base.ifc.sql.DataBaseLockUtility;
 import com.rockwell.mes.commons.base.ifc.utility.*;
 import com.rockwell.mes.commons.deviation.ifc.IESignatureExecutor;
 import com.rockwell.mes.commons.deviation.ifc.exceptionrecording.IMESExceptionRecord;
@@ -45,10 +46,7 @@ import com.rockwell.mes.services.s88.ifc.recipe.IMESMaterialParameter;
 import com.rockwell.mes.services.s88.ifc.recipe.IMESPhase;
 import com.rockwell.mes.services.s88.ifc.recipe.PlannedQuantityMode;
 import com.rockwell.mes.services.warehouseintegration.ifc.WarehouseRuntimeException;
-import com.rockwell.mes.services.wip.ifc.IOrderStepExecutionService;
-import com.rockwell.mes.services.wip.ifc.IdentificationResult;
-import com.rockwell.mes.services.wip.ifc.IdentificationSublot;
-import com.rockwell.mes.services.wip.ifc.OrderStepInputSublot;
+import com.rockwell.mes.services.wip.ifc.*;
 import com.rockwell.mes.services.wip.ifc.exceptions.MESMultipleSublotsIdentificationException;
 import com.rockwell.mes.shared.product.material.*;
 import com.rockwell.mes.shared.product.material.choicelist.ChoiceLists0710;
@@ -170,6 +168,7 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
     public static final String PROPORTIONALANOMALY = "Proportional anomaly";
 
     public static final String INSUFFICIENTRECOGNITIONQUANTITY = "Insufficient recognition quantity";
+    public static final String MATERIALLIMITMODE = "Material Limit mode";
 
     /**
      * ctor for an ACTIVE phase or a COMPLETED phase in case of resume.
@@ -767,6 +766,7 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
                     model.getOrderStep(true);
                 }
                 Map<Sublot, IdentificationResult> identificationRes = identifySublotsForOSIs(sublotsToIdentify);
+
                 System.out.println("Error_Msg"+identCheckSuite.getCollectedErrorMessage());
                 postIdentificationProcessing(isAction, sublotOSIMap, identificationRes);
             } catch (OSILock.LockException e) {
@@ -780,6 +780,7 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
         Map<Sublot, IdentificationResult> identificationRes = null;
         try {
             final IOrderStepExecutionService osExecSrv = MaterialHelper0710.getOrderStepExecutionService();
+
             identificationRes = osExecSrv.identifySublotsForOSIsAndSplitIfNecessary(sublotsToIdentify);
         } catch (MESMultipleSublotsIdentificationException exc) {
             if (LOGGER.isDebugEnabled()) {
@@ -1908,14 +1909,27 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
     public MESParamExcptEnableDef0200 getMixCheckConfiguration(){
         return getProcessParameterData(MESParamExcptEnableDef0200.class,"Mix check configuration");
     }
+
+    /**
+     * 识别量 过参
+     * @return
+     */
     public MESParamExceptionDef0300 getRecognitionQuantityInsufficient(){
         return getProcessParameterData(MESParamExceptionDef0300.class,"RecognitionQuantityInsufficient");
     }
 
+    /**
+     * 组合比例不一致 过参
+     * @return
+     */
     public MESParamExceptionDef0300 getProportionalAnomaly(){
         return getProcessParameterData(MESParamExceptionDef0300.class,"Proportional Anomaly");
     }
 
+    /**
+     * 物料流入控制 过参
+     * @return
+     */
     public MESParamMatPositionCtr0100 getMaterialPosiControl(){
         return getProcessParameterData(MESParamMatPositionCtr0100.class,"Material position control");
     }
@@ -1936,7 +1950,7 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
         try {
             // get the identified item 获取扫描的子批次对象
             identifiedItem = getIdentifiedItemByBarcode(getView().getEnteredBarcode());
-            if(getMaterialPosiControl().getEnable()){
+            if(getMaterialPosiControl().getEnable() != null && getMaterialPosiControl().getEnable()){
                 //开启子批次 存储位置、存储区域校验
                 if(!CheckMaterialLocationRule()){
                     //校验不通过
@@ -1949,6 +1963,7 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
                 if(!CheckMaterialRule(1)){
                     return;
                 } else{
+
                     checksuite = performIdentification( null, false);
                     evaluateIdentificationRequestResult(checksuite);
                 }
@@ -2239,8 +2254,7 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
             return false;
         }
 
-
-        //获取处方中配置的 存储区域、存储位置
+        //获取phase中配置的 存储区域、存储位置
         String storageArea = getMaterialPosiControl().getStorageArea();
         String storageLocation = getMaterialPosiControl().getStorageLocation();
         String msg = I18nMessageUtility.getLocalizedMessage(MSG_PACK, "IdentifyMaterialLocation_Error");
@@ -2270,6 +2284,86 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
     }
 
 
+//    private static IMFCService getMFCService() {
+//        return (IMFCService)ServiceFactory.getService(IMFCService.class);
+//    }
+//
+//    private static IdentificationResult identifySublotForOSIAndSplitIfNecessary1(final Sublot sublot, final String sublotBarcode, final OrderStepInputPosition osiPosition, final List<IESignatureExecutor> signaturesException, final IESignatureExecutor signatureManualIdentification, final List<String> sublotCheckNames, final IIdentificationCheckSuite theCheckSuite, final TransactionHistoryContext thContext, final List<String> theSignedExceptions, final boolean saveSignatureExecutor) throws MESException, DatasweepException {
+//        long var10 = 0L;
+//        if (sublot == null && sublotBarcode == null) {
+//            throw new IllegalArgumentException("one of sublot and sublotBarcode must not be null");
+//        } else {
+//            //assertOrderStepInputNotNull(osiPosition);
+//            OrderStepInput var12 = osiPosition.getOriginOSI();
+//            DataBaseLockUtility.acquireDBLock(var12.getOrderStep());
+//            Sublot var13 = null;
+//            if (sublot != null) {
+//                var13 = sublot;
+//            } else {
+//                var13 = getMFCService().getSublotFromBarcode(sublotBarcode);
+//                if (var13 == null) {
+//                    throw new MESRuntimeException("No sublot found for barcode: <" + sublotBarcode + ">");
+//                }
+//            }
+//
+//            ((ISublotService)ServiceFactory.getService(ISublotService.class)).setSublotIdentificationMode(var13, var10);
+//            IIdentificationCheckSuite var14;
+//            if (theCheckSuite != null) {
+//                var14 = getMFCService().performIdentificationChecksForSublot(var13, var12, theCheckSuite);
+//            } else if (sublotCheckNames != null) {
+//                var14 = getMFCService().performIdentificationChecksForSublot(var13, var12, sublotCheckNames);
+//            } else {
+//                var14 = getMFCService().performIdentificationChecksForSublot(var13, var12);
+//            }
+//
+//            ((ISublotService)ServiceFactory.getService(ISublotService.class)).setSublotIdentificationMode(var13, (Long)null);
+//            if (!var14.hasErrors() && (!var14.hasExceptionsButNoErrors() || signaturesException != null)) {
+//                if (var10 == 0L) {
+//                    Long var15 = MESNamedUDASublot.getLoadCarrierKey(sublot);
+//                    if (var15 != null) {
+//                        throw new MESRuntimeException("Container identification not supported");
+//                    }
+//                }
+//
+//                return new IdentificationResult(var14);
+//            } else {
+//                return new IdentificationResult(var14);
+//            }
+//        }
+//    }
+//
+//
+//
+//    public static Map<Sublot, IdentificationResult> identifySublotsForOSIsAndSplitIfNecessary(final List<IdentificationSublot> sublotData) throws MESException, DatasweepException {
+//        HashMap var1 = new HashMap();
+//        boolean var2 = false;
+//        boolean var3 = false;
+//        boolean var4 = false;
+//        Iterator var5 = sublotData.iterator();
+//
+//        while(var5.hasNext()) {
+//            IdentificationSublot var6 = (IdentificationSublot)var5.next();
+//            if (!var5.hasNext()) {
+//                var4 = true;
+//            }
+//
+//            IdentificationResult var7 = identifySublotForOSIAndSplitIfNecessary1(var6.getSublot(), var6.getSublotBarcode(), var6.getOsiPosition(), var6.getSignaturesException(), var6.getSignatureManualIdentification(), (List)null,var6.getCheckSuite(), (TransactionHistoryContext)null,var6.getSignedExceptions(), var4);
+//            var1.put(var6.getSublot(), var7);
+//            if (!var2 && var7.getIdentificationCheckSuite().hasErrors()) {
+//                var2 = true;
+//            }
+//
+//            if (!var3 && !var7.getIdentificationCheckSuite().getExceptionList().isEmpty()) {
+//                var3 = true;
+//            }
+//        }
+//
+//        if (!var2 && !var3) {
+//            return var1;
+//        } else {
+//            throw new MESMultipleSublotsIdentificationException(var1);
+//        }
+//    }
 
     /**
     手动识别子批次
@@ -2290,6 +2384,13 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
             LC
             手动录入子批次也要校验是否符合规定
              */
+            if(getMaterialPosiControl().getEnable()){
+                if(!CheckMaterialLocationRule()){
+                    return;
+                }
+                displayException(KEY_MANUAL_EXC, checkSuite);
+                return;
+            }
             if(getMixCheckConfiguration().getEnabled()){
                 //开启，判断子批次与表格中的子批次是否为同一组物料或同一个物料
                 CheckMaterialRule(2);

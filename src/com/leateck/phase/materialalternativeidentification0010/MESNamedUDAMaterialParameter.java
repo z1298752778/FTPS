@@ -11,6 +11,7 @@ public class MESNamedUDAMaterialParameter {
     private static final String LC_REPLACE_RATIO = "LC_replaceRatio";
     private static final String LC_REPLACE_GROUP_NAME = "LC_replaceGroupName";
     private static final String LC_IS_MAIN_PART = "LC_isMainPart";
+    private static final String LC_RESTRICTIONMODE = "LC_restrictionMode";
 
     private IMESMaterialParameter matParam;
 
@@ -41,5 +42,9 @@ public class MESNamedUDAMaterialParameter {
 
     public String getCombinationGroup() {
         return (String) matParam.getATRow().getValue(LC_COMBINATION_GROUP);
+    }
+
+    public Long getRestrictionMode(){
+        return (Long) matParam.getATRow().getValue(LC_RESTRICTIONMODE);
     }
 }
