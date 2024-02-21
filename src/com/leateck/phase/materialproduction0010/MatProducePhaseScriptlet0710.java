@@ -28,7 +28,7 @@ public class MatProducePhaseScriptlet0710 extends JRDefaultScriptlet
         for (final IBatchProductionRecordDocumentWrapper.IProcessDataWrapper processDataWrapper : data) {
             if (Boolean.valueOf(processDataWrapper.getProcessValue("isHeader"))) {
                 final String processValue = processDataWrapper.getProcessValue("commentToExecutionStr");
-                if (StringUtils.isEmpty(processValue)) {
+                if (StringUtils.isEmpty((CharSequence)processValue)) {
                     continue;
                 }
                 b = true;
@@ -84,14 +84,13 @@ public class MatProducePhaseScriptlet0710 extends JRDefaultScriptlet
         final Object[] beanCollection = new Object[] { dataListOfProcMat };
         return ObjectFactory.getInstance().createObject(IMESB2MMLJRDataSource.class, //
                 new Class[] { Collection.class }, beanCollection);
-
     }
 
     public JRDataSource dataForSummaryGrid(Collection<IBatchProductionRecordDocumentWrapper.IProcessDataWrapper> data) {
         List<IBatchProductionRecordDocumentWrapper.IProcessDataWrapper> dataListOfProcMat = new ArrayList<>();
-        boolean isHeader = false;
-        boolean isSummaryData = false;
-        String phaseResult = null;
+        boolean isHeader;
+        boolean isSummaryData;
+        String phaseResult;
         // Get the header only from the done phase data
         for (IBatchProductionRecordDocumentWrapper.IProcessDataWrapper ipdw : data) {
             isHeader = Boolean.valueOf(ipdw.getProcessValue(IS_HEADER_COL_NAME));
@@ -107,24 +106,20 @@ public class MatProducePhaseScriptlet0710 extends JRDefaultScriptlet
             }
         }
         // create a comparator that will sort the data by sublot ID, leaving the header row on top
-        Comparator<IBatchProductionRecordDocumentWrapper.IProcessDataWrapper> comparator = new Comparator<IBatchProductionRecordDocumentWrapper.IProcessDataWrapper>() {
-
-            @Override
-            public int compare(IBatchProductionRecordDocumentWrapper.IProcessDataWrapper o1, IBatchProductionRecordDocumentWrapper.IProcessDataWrapper o2) {
-                boolean isO1Header = Boolean.parseBoolean(o1.getProcessValue(IS_HEADER_COL_NAME));
-                boolean isO2Header = Boolean.parseBoolean(o2.getProcessValue(IS_HEADER_COL_NAME));
-                if (isO1Header) {
-                    return -1;
-                }
-                if (isO2Header) {
-                    return 1;
-                }
-                int result = o1.getProcessValue(SUBLOT_ID_COL_NAME).compareTo(o2.getProcessValue(SUBLOT_ID_COL_NAME));
-                if (result != 0) {
-                    return result;
-                }
-                return 0;
+        Comparator<IBatchProductionRecordDocumentWrapper.IProcessDataWrapper> comparator = (o1, o2) -> {
+            boolean isO1Header = Boolean.parseBoolean(o1.getProcessValue(IS_HEADER_COL_NAME));
+            boolean isO2Header = Boolean.parseBoolean(o2.getProcessValue(IS_HEADER_COL_NAME));
+            if (isO1Header) {
+                return -1;
             }
+            if (isO2Header) {
+                return 1;
+            }
+            int result = o1.getProcessValue(SUBLOT_ID_COL_NAME).compareTo(o2.getProcessValue(SUBLOT_ID_COL_NAME));
+            if (result != 0) {
+                return result;
+            }
+            return 0;
         };
         Collections.sort(dataListOfProcMat, comparator);
 
@@ -168,16 +163,16 @@ public class MatProducePhaseScriptlet0710 extends JRDefaultScriptlet
             }
         }
         if (processValue != null) {
-            list = new ArrayList<>(Arrays.asList(processValue.split(",")));
+            list = new ArrayList<String>(Arrays.asList(processValue.split(",")));
         }
         if (processValue2 != null) {
-            list2 = new ArrayList<>(Arrays.asList(processValue2.split(",")));
+            list2 = new ArrayList<Object>(Arrays.asList(processValue2.split(",")));
             Collections.reverse(list2);
         }
         if (processValue2 != null && !processValue2.equals("")) {
             for (int i = 0; i < list2.size(); ++i) {
-                if (Integer.parseInt(list.get(i)) != 0) {
-                    sb.append(list.get(i) + " " + " " + " " + I18nMessageUtility.getLocalizedMessage("PhaseProductProduceMaterial0710", "PackagingLevel_" + list2.get(i) + "_SP"));
+                if (Integer.parseInt((String)list.get(i)) != 0) {
+                    sb.append((String)list.get(i) + " " + " " + " " + I18nMessageUtility.getLocalizedMessage("PhaseProductProduceMaterial0710", "PackagingLevel_" + list2.get(i) + "_SP"));
                     sb.append(StringConstants.LINE_BREAK);
                 }
             }
