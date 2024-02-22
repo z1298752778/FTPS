@@ -1,0 +1,74 @@
+<PhaseLibDescription>
+    <OutputDir>D:\output</OutputDir>
+    <Name>Produce Material (LC) [1.0]</Name>
+    <Description>Allows for producing sublots</Description>
+    <PackageName>com.leateck.phase.materialproduction0010</PackageName>
+    <PhaseLibBaseName>LCMatProduce0010</PhaseLibBaseName>
+    <VisibleInNavigator value="true" />
+    <InternalBuildingBlock value="false" />
+    <ReportDesignName>PS-BatchReport-PhaseMatProduceRS_0710</ReportDesignName>
+    <SupportExceptions value="true" />
+    <MaterialInputMin>0</MaterialInputMin>
+    <MaterialInputMax>0</MaterialInputMax>
+    <MaterialOutputMin>1</MaterialOutputMin>
+    <MaterialOutputMax>1</MaterialOutputMax>
+    <ATDefinitionPrefix>LC_</ATDefinitionPrefix>
+    <UsageContext>Recipe</UsageContext>
+    <ParameterClasses>
+        <ParameterClass>
+            <Name>Plain Instruction (RS) [1.0]</Name>
+            <UsageIdentifier>Instruction</UsageIdentifier>
+            <SortIndex>1</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Produce Batch Definition (RS) [5.0]</Name>
+            <UsageIdentifier>Batch definition</UsageIdentifier>
+            <SortIndex>2</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Overwrite target sublot status (RS) [1.0]</Name>
+            <UsageIdentifier>Overwrite target sublot status</UsageIdentifier>
+            <SortIndex>3</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Boolean Flag (RS) [1.0]</Name>
+            <UsageIdentifier>Allow loop exit with Stop</UsageIdentifier>
+            <SortIndex>4</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Enable Definition No (RS) [2.0]</Name>
+            <UsageIdentifier>Limit quantity to single sublot</UsageIdentifier>
+            <SortIndex>5</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Enable Definition No (RS) [2.0]</Name>
+            <UsageIdentifier>Limit quantity to single logistic unit</UsageIdentifier>
+            <SortIndex>6</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Check planned quantity</UsageIdentifier>
+            <SortIndex>7</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Reprint</UsageIdentifier>
+            <SortIndex>8</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Cancel sublot</UsageIdentifier>
+            <SortIndex>9</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Exception Definition (RS) [3.0]</Name>
+            <UsageIdentifier>Warehouse error</UsageIdentifier>
+            <SortIndex>10</SortIndex>
+        </ParameterClass>
+        <ParameterClass>
+            <Name>Material Position Control (LC) [1.0]</Name>
+            <UsageIdentifier>Material position control</UsageIdentifier>
+            <SortIndex>11</SortIndex>
+        </ParameterClass>
+    </ParameterClasses>
+</PhaseLibDescription>

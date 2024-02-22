@@ -1,0 +1,30 @@
+<PhaseOutputDescription>
+    <PhaseOutput>
+        <Name>sublotIdentifiers</Name>
+        <DisplayName>Sublot identifiers</DisplayName>
+        <Description>Generated sublot identifiers concatenated by configurable key separator</Description>
+        <DataType>
+            <String length="4000" />
+        </DataType>
+    </PhaseOutput>
+    <PhaseOutput>
+        <Name>Result</Name>
+        <DisplayName>Result</DisplayName>
+        <Description>The result depends on the option button selected when completing the phase. The values are: 
+    Continue option button: CONTINUE;
+    Stop option button: STOP;
+    Done option button: DONE
+        </Description>
+        <DataType>
+            <String length="20" />
+        </DataType>
+    </PhaseOutput>
+    <PhaseOutput>
+        <Name>LUQuantity</Name>
+        <DisplayName>LU Quantity</DisplayName>
+        <Description>The output variable provides the produced quantity for a maximum logistic unit load as MeasuredValue object</Description>
+        <DataType>
+            <MeasuredValue />
+        </DataType>
+    </PhaseOutput>
+</PhaseOutputDescription>
