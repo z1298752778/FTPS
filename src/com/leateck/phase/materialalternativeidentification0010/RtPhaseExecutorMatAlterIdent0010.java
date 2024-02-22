@@ -1958,12 +1958,11 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
                 }
             }
             //判断是否启用了扫描描混合检查的过参
-            if(getMixCheckConfiguration().getEnabled()){
+            if(getMixCheckConfiguration().getEnabled() != null && getMixCheckConfiguration().getEnabled()){
                 //开启，判断子批次与表格中的子批次是否为同一组物料或同一个物料
                 if(!CheckMaterialRule(1)){
                     return;
                 } else{
-
                     checksuite = performIdentification( null, false);
                     evaluateIdentificationRequestResult(checksuite);
                 }
@@ -2384,14 +2383,14 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
             LC
             手动录入子批次也要校验是否符合规定
              */
-            if(getMaterialPosiControl().getEnable()){
+            if(getMaterialPosiControl().getEnable() != null &&getMaterialPosiControl().getEnable()){
                 if(!CheckMaterialLocationRule()){
                     return;
                 }
                 displayException(KEY_MANUAL_EXC, checkSuite);
                 return;
             }
-            if(getMixCheckConfiguration().getEnabled()){
+            if(getMixCheckConfiguration().getEnabled() != null && getMixCheckConfiguration().getEnabled()){
                 //开启，判断子批次与表格中的子批次是否为同一组物料或同一个物料
                 CheckMaterialRule(2);
                 displayException(KEY_MANUAL_EXC, checkSuite);
