@@ -2383,7 +2383,6 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
             LC
             手动录入子批次也要校验是否符合规定
              */
-
             if(getMaterialPosiControl().getEnable() != null &&getMaterialPosiControl().getEnable()){
                 if(!CheckMaterialLocationRule()){
                     return;
