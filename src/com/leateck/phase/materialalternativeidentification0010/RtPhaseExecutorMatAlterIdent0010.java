@@ -2391,7 +2391,6 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
                 return;
             }
             if(getMixCheckConfiguration().getEnabled() != null && getMixCheckConfiguration().getEnabled()){
-
                 //开启，判断子批次与表格中的子批次是否为同一组物料或同一个物料
                 CheckMaterialRule(2);
                 displayException(KEY_MANUAL_EXC, checkSuite);
