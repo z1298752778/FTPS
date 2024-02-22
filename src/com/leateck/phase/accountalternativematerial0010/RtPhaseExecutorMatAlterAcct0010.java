@@ -1,16 +1,15 @@
 // CHECKSTYLE:FileLength:off
 package com.leateck.phase.accountalternativematerial0010;
 
-import com.datasweep.compatibility.client.ActivitySetStep;
-import com.datasweep.compatibility.client.DatasweepException;
-import com.datasweep.compatibility.client.OrderStepInput;
-import com.datasweep.compatibility.client.Sublot;
+import com.datasweep.compatibility.client.*;
 import com.datasweep.plantops.common.measuredvalue.IMeasuredValue;
+import com.leateck.model.lossQuantityAccountConsumption.IMESLCLossQtyAccountCon;
+import com.leateck.model.lossQuantityAccountConsumption.MESLCLossQtyAccountCon;
+import com.leateck.model.lossQuantityAccountConsumption.MESLCLossQtyAccountConFilter;
 import com.rockwell.mes.apps.ebr.ifc.phase.IPhaseCompleter;
 import com.rockwell.mes.apps.ebr.ifc.phase.PhaseExecutorHelper;
 import com.rockwell.mes.apps.ebr.ifc.phase.ui.PhaseDialog;
 import com.rockwell.mes.apps.ebr.ifc.phase.ui.PhaseDialog.DialogEvent;
-import com.rockwell.mes.apps.ebr.ifc.phase.ui.PhaseQuestionDialog;
 import com.rockwell.mes.commons.base.ifc.OSILock;
 import com.rockwell.mes.commons.base.ifc.OSILock.LockException;
 import com.rockwell.mes.commons.base.ifc.OSILockCollection;
@@ -19,15 +18,12 @@ import com.rockwell.mes.commons.base.ifc.exceptions.MESIncompatibleUoMException;
 import com.rockwell.mes.commons.base.ifc.exceptions.MESRuntimeException;
 import com.rockwell.mes.commons.base.ifc.functional.MeasuredValueUtilities;
 import com.rockwell.mes.commons.base.ifc.i18n.I18nMessageUtility;
-import com.rockwell.mes.commons.base.ifc.services.PCContext;
 import com.rockwell.mes.commons.base.ifc.services.ServiceFactory;
-import com.rockwell.mes.commons.base.ifc.ui.DialogHelper;
 import com.rockwell.mes.commons.base.ifc.utility.AutoWaitCursor;
 import com.rockwell.mes.commons.base.ifc.utility.StringConstants;
 import com.rockwell.mes.commons.base.ifc.utility.StringUtilsEx;
 import com.rockwell.mes.commons.deviation.ifc.IESignatureExecutor;
 import com.rockwell.mes.commons.deviation.ifc.exceptionrecording.IMESExceptionRecord;
-import com.rockwell.mes.commons.parameter.exceptiondef.MESParamExceptionDef0300;
 import com.rockwell.mes.commons.shared.phase.mvc.AbstractPhaseExceptionView0200;
 import com.rockwell.mes.services.inventory.ifc.TransactionSubtype;
 import com.rockwell.mes.services.inventory.ifc.exceptions.MESQuantityMustNotBeNegativeException;
@@ -240,8 +236,9 @@ public class RtPhaseExecutorMatAlterAcct0010 extends
     private void accountSublots(final List<AccountMaterialDAO0710> sublotsToAccount, final IMeasuredValue identifiedQty,
                                 final boolean totalConsumption) {
         final Map<AccountMaterialDAO0710.AccountType, IMeasuredValue> currentQuantities = generateCurrentQtysMap(sublotsToAccount, totalConsumption);
+
         final AccountQuantitiesDialog0710 dialog =
-                new AccountQuantitiesDialog0710(getAccessPrivilegePhaseAction(), PhaseExecutorHelper.getPrivilegeParameterPhaseAction(getPhase()));
+                new AccountQuantitiesDialog0710(getAccessPrivilegePhaseAction(), PhaseExecutorHelper.getPrivilegeParameterPhaseAction(getPhase()),this);
 
         if (dialog.showDialog(identifiedQty, !totalConsumption, model.getCalcConfig(), currentQuantities) == DialogEvent.CANCEL_OPTION.getValue()) {
             return;
@@ -268,7 +265,45 @@ public class RtPhaseExecutorMatAlterAcct0010 extends
                     // update action info and the accounted qtys in the model after the consumption was performed
                     // successfully
                     actionInfos.add(quantitiesResult.actionInfo);
+
+
+                    //损耗率=领入量-取样量-废弃量-消耗量
+
+                    IMeasuredValue returnedQty = dialog.getReturnedQuantity();
+                    IMeasuredValue destructionMV = null;
+                    try {
+                        destructionMV = accountMaterialDAO.getIdentifiedQtyMV().subtract(dialog.getSamlpedQuantity())
+                                .subtract(dialog.getWastedQuantity())
+                                .subtract(dialog.getConsumedQuantity())
+                                .subtract(returnedQty);
+                        //废弃量= 损耗率+废弃连
+                        quantitiesResult.quantities.put(TransactionSubtype.WASTE,quantitiesResult.quantities.get(TransactionSubtype.WASTE).add(destructionMV));
+
+                        saveLossQtyAccountCon(accountMaterialDAO.getSublot(),MeasuredValueUtilities.createMV(destructionMV.toString() ));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+
+                    service.setConsumptionQuantities(osi, quantitiesResult.quantities, StringUtilsEx.EMPTY, //
+                            new UpdateAccountStatusOptions().updateAccountStatus()
+                                    .accountQtyIncludesSampleAndWaste(getModel().getIncludeSampleAndWaste()));
+                    // update action info and the accounted qtys in the model after the consumption was performed
+                    // successfully
+                    actionInfos.add(quantitiesResult.actionInfo);
+/*                    try {
+                        IMeasuredValue returnedQty = dialog.getReturnedQuantity();
+                        IMeasuredValue destructionMV = accountMaterialDAO.getIdentifiedQtyMV().subtract(dialog.getSamlpedQuantity())
+                                .subtract(dialog.getWastedQuantity())
+                                .subtract(dialog.getConsumedQuantity())
+                                .subtract(returnedQty);
+                        quantitiesResult.quantities.put(TransactionSubtype.WASTE,quantitiesResult.quantities.get(TransactionSubtype.WASTE).subtract(destructionMV));
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }*/
                     model.addAccountedInThisPhaseInstance(osi, quantitiesResult.quantities);
+
 
                     // reset the signed status for this check key successful accounting:
                     // the state is changed, the user should sign again
@@ -358,7 +393,15 @@ public class RtPhaseExecutorMatAlterAcct0010 extends
                 quantities.put(TransactionSubtype.WASTE, dialog.getWastedQuantity());
                 quantities.put(TransactionSubtype.CONSUMPTION_INPUT_MATERIAL, dialog.getConsumedQuantity());
                 returnedQty = dialog.getReturnedQuantity();
-            } catch (MESException e) {
+                //增加废弃量：领入量-退库量-取样量-废弃量
+               /* IMeasuredValue destructionMV = accountMaterialDAO.getIdentifiedQtyMV().subtract(dialog.getSamlpedQuantity())
+                        .subtract(dialog.getWastedQuantity())
+                        .subtract(dialog.getConsumedQuantity())
+                        .subtract(returnedQty);
+                quantities.put(TransactionSubtype.DESTRUCTION, destructionMV);*/
+
+
+            } catch (Exception e) {
                 ProductPhaseSwingHelper.showErrorDlg(e.getLocalizedMessage());
                 success = Boolean.FALSE;
             }
@@ -369,6 +412,14 @@ public class RtPhaseExecutorMatAlterAcct0010 extends
         String ret = MeasuredValueUtilities.toDisplayString(returnedQty);
         String actionInfo = I18nMessageUtility.getLocalizedMessage(AccountMaterialDAO0710.MSG_PACK, "PhaseActionSignatureInfo",
                 new String[]{accountMaterialDAO.getBatch(), accountMaterialDAO.getSublot(), consume, sample, waste, ret});
+
+       /* try {
+            quantities.put(TransactionSubtype.WASTE, quantities.get(TransactionSubtype.WASTE).add(quantities.get(TransactionSubtype.DESTRUCTION)));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        quantities.remove(TransactionSubtype.DESTRUCTION);*/
         return new AccountingQuantities(success, quantities, actionInfo);
     }
 
@@ -602,6 +653,43 @@ public class RtPhaseExecutorMatAlterAcct0010 extends
         return true;
     }
 
+    /**
+     * 保存损耗量到数据表中
+     * @param subNo 子批次号
+     * @param lossQty 损耗量
+     */
+    private void saveLossQtyAccountCon(String subNo, MeasuredValue lossQty){
+        Long phaseKey = this.phase.getKey();
+        IMESLCLossQtyAccountCon meslcLossQtyAccountCon = filterLossQtyAccountCon(subNo, phaseKey);
+        if (meslcLossQtyAccountCon == null) {
+            meslcLossQtyAccountCon = new MESLCLossQtyAccountCon();
+        }
+        meslcLossQtyAccountCon.setSublotNumber(subNo);
+        meslcLossQtyAccountCon.setPhaseKey(phaseKey);
+        meslcLossQtyAccountCon.setLossQty(MeasuredValueUtilities.createMV(lossQty.toString()));
+        meslcLossQtyAccountCon.save(null,"",null);
+    }
+
+    /**
+     * 查询表中是否已经存在子批次数量了
+     * @param subNo
+     * @param phaseKey
+     * @return
+     */
+    private IMESLCLossQtyAccountCon filterLossQtyAccountCon(String subNo,Long phaseKey){
+        MESLCLossQtyAccountConFilter filter = new MESLCLossQtyAccountConFilter();
+        try {
+            filter.forPhaseKeyEqualTo(phaseKey);
+            filter.forSublotNumberEqualTo(subNo);
+        } catch (DatasweepException e) {
+            e.printStackTrace();
+        }
+        List<IMESLCLossQtyAccountCon> filteredObjects = filter.getFilteredObjects();
+        if(filteredObjects.size() == 1){
+            return filteredObjects.get(0);
+        }
+        return null;
+    }
 
     private boolean checkForChanges(boolean fromRefreshButton) {
         List<String> modifiedSublots = new ArrayList();
