@@ -234,7 +234,7 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
                 //isPositionOpen=true, orderStepInput表示当前物料消耗数量未完成，需考虑其他替代物料的情况
                 final boolean isPositionOpen = !getModel().isPositionCompleted(masterOsi);
                 if (isPositionOpen) {
-                    //检查
+                    //检查 replaceIsConsumed=false,表示当前物料没有消耗量
                     boolean replaceIsConsumed = checkReplaceIsConsumed(masterOsi, allMasterOSIs);
                     if (!replaceIsConsumed) {
                         return true;
@@ -245,10 +245,13 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
         return false;
     }
     private boolean checkReplaceIsConsumed(OrderStepInput masterOsi, List<OrderStepInput> allMasterOSIs) {
-        //dustin-20220302
         List<IMESMaterialParameter> materialParameters = getPhase().getMaterialParameters();
-        //materialParametersException = materialParameters;
         MeasuredValue totalConsumedQty = null;
+        List<IMESMaterialParameter> matParamList = materialParameters.stream().filter(p -> p.getMaterial() == masterOsi.getPart() && p.getATRow().getValue("LC_isMainPart") != null && (Boolean) p.getATRow().getValue("LC_isMainPart")).collect(Collectors.toList());
+        if(matParamList.size() < 1){
+            //当前物料不是主料，进入下一个物料判断，直到为主料为止
+            return true;
+        }
         try {
             //返回消耗量
             totalConsumedQty = getSelfAndReplaceConsumedQty(masterOsi, allMasterOSIs, materialParameters);
@@ -265,37 +268,11 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
          * tx
          * LC
          */
-        List<IMESMaterialParameter> matParamList = materialParameters.stream().filter(p -> p.getMaterial() == masterOsi.getPart() && p.getATRow().getValue("LC_isMainPart") != null && (Boolean) p.getATRow().getValue("LC_isMainPart")).collect(Collectors.toList());
         if(matParamList.size() > 0){
             //当前物料是主料
-            masterOsiException = null;
-            totalConsumedQtyException = null;
             masterOsiException = masterOsi;
             totalConsumedQtyException = totalConsumedQty;
         }
-//        MatIdentCompletionExceptions0710 exceptionsChecker = new MatIdentCompletionExceptions0710(this);
-//        List<IMESMaterialParameter> matParamList = materialParameters.stream().filter(p -> p.getMaterial() == masterOsi.getPart() && p.getATRow().getValue("LC_isMainPart") != null && (Boolean) p.getATRow().getValue("LC_isMainPart")).collect(Collectors.toList());
-//        if(matParamList.size()>0){
-//            BigDecimal plannedQuantity = masterOsi.getPlannedQuantity().getValue();
-//            if(plannedQuantity != null && plannedQuantity.compareTo(BigDecimal.ZERO) != 0){
-//                if((totalConsumedQty.getValue()).compareTo(plannedQuantity) < 0){
-//                    //主料实际识别量不足
-//                    PhaseQuestionDialog questionDialog = new PhaseQuestionDialog();
-//                    int torf = questionDialog.showDialog(MSG_PACK, "MainMatInsuffcientException", new Object[]{masterOsi.getPart().getPartNumber()});
-//                    if(torf == 0){
-//                        //点击的是 yes 跳转异常，可以完成phase。
-//                        String msg = I18nMessageUtility.getLocalizedMessage(MSG_PACK, "MainMatInsuffcientExceptionMsg", new Object[]{masterOsi.getPart().getPartNumber()});
-//                        if(showInputException(msg,KEY_MATERIAL_HYBRID_EXCEPTION)){
-//                            return true;
-//                        }else{
-//                            return false;
-//                        }
-//                    }else {
-//                        return false;
-//                    }
-//                }
-//            }
-//        }
         return true;
     }
 
@@ -334,9 +311,8 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
                 return masterReplaceGroupName.equals(replaceGroupName) && !material.equals(replaceMaterial);
             }).collect(Collectors.toList());
 
-            //替代 消耗量
             IMeasuredValueConverter converter = MeasuredValueUtilities.getMVConverter(osi.getPart());
-            //获取主料计划数量单位
+            //获取主料 计划量单位
             IUnitOfMeasure unitOfMeasure = osi.getPlannedQuantity().getUnitOfMeasure();
             MeasuredValue replaceConsumedQtyMV = MeasuredValueUtilities.createZero(unitOfMeasure);
             //组合组号HashMap:组合组号-可消耗最小值
@@ -367,10 +343,10 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
                     MeasuredValue calcConsumedQtyMV = MeasuredValueUtilities.createMV(calcConsumedQty, consumedQtyMV.getUnitOfMeasure());
 
                     if (Strings.isEmpty(combinationGroup)) {
-                        //组合组号为null，代表是独立物料替代
+                        //组合组号为null，代表物料是独立物料替代
                         replaceConsumedQtyMV = MeasuredValueUtilities.addArgsOptional(replaceConsumedQtyMV, calcConsumedQtyMV, converter);
                     } else {
-                        //组合组号不为null，代表是组合计算，以最小值计算
+                        //组合组号不为null，代表当前是组合计算，以最小值计算
                         //获取组合组号，获取组号
                         MeasuredValue minConsumedQtyMV = groupConsumedMap.get(combinationGroup);
                         if (minConsumedQtyMV == null) {
@@ -384,13 +360,13 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
                     }
                 }
             }
-            //增加组合组号数量
+            //组合组号消耗量+独立物料消耗量
             if (groupConsumedMap != null) {
                 for (MeasuredValue minConsumedQtyMV : groupConsumedMap.values()) {
                     replaceConsumedQtyMV = MeasuredValueUtilities.addArgsOptional(replaceConsumedQtyMV, minConsumedQtyMV, converter);
                 }
             }
-            //替代物料数量 + 主料本身数量
+            //替代物料量（组合+独立） + 主料本身数量
             if (totalConsumedQtyMV != null) {
                 replaceConsumedQtyMV = MeasuredValueUtilities.addArgsOptional(totalConsumedQtyMV, replaceConsumedQtyMV, converter);
             }
@@ -1646,18 +1622,6 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
             return false;
         }
 
-        //dustin:自消耗增加替代比例不一致校验
-        if (model.getAutoConsume()) {
-//            if (model.checkCombineGroupIsEqualWithRate() == false) {
-//                final String isContinueMsg = I18nMessageUtility.getLocalizedMessage(MaterialModel0710.PHASE_PRODUCT_MATERIAL_MSGPACK, "CombineGroupIsEqualWithRate_Error");
-//                PhaseQuestionDialog questionDialog = new PhaseQuestionDialog();
-//                int userChoice = questionDialog.showDialog(isContinueMsg);
-//                if (userChoice != 0) {
-//                    return false;
-//                }
-//            }
-        }
-
         if (!consumeSublots()) {
             getView().lockCompleteButton();
             return false;
@@ -1731,11 +1695,7 @@ public class RtPhaseExecutorMatAlterIdent0010 extends AbstractMaterialPhaseExecu
                 appendLineBreaksIfNeeded(errorTextBuilder);
                 errorTextBuilder.append(getI18nError(getMsgIdCompletionError(exceptionText, "NotAllMaterialIdentified_Error")));
             }
-        }
-        /**
-         * 没有启用自消耗
-         */
-        else {
+        } else {
             if (isMandatoryPositionOpen()) {
                 /**
                  * 除了主料，其他辅料物料都不能为0 kg消耗量 或 没有消耗量

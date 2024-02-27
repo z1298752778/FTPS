@@ -87,10 +87,10 @@ public class MatIdentCompletionExceptions0710 extends PhaseSystemTriggeredExcept
                  * 不是自消耗：通过当前物料消耗量 / 替代比例 * 主料替代比例 = 主料识别量总量
                  */
                 if(!executor.getModel().getAutoConsume()){
-                    if (executor.masterOsiException != null && executor.totalConsumedQtyException != null){
-                        BigDecimal plannedQuantity = executor.masterOsiException.getPlannedQuantity().getValue();
+                    if (RtPhaseExecutorMatAlterIdent0010.masterOsiException != null && RtPhaseExecutorMatAlterIdent0010.totalConsumedQtyException != null){
+                        BigDecimal plannedQuantity = RtPhaseExecutorMatAlterIdent0010.masterOsiException.getPlannedQuantity().getValue();
                         if(plannedQuantity != null && plannedQuantity.compareTo(BigDecimal.ZERO) != 0){
-                            if((executor.totalConsumedQtyException.getValue()).compareTo(plannedQuantity) < 0){
+                            if((RtPhaseExecutorMatAlterIdent0010.totalConsumedQtyException.getValue()).compareTo(plannedQuantity) < 0){
                                 //主料实际识别量不足
                                 PhaseQuestionDialog questionDialog = new PhaseQuestionDialog();
                                 int torf = questionDialog.showDialog(I18nMessageUtility.getLocalizedMessage(RtPhaseExecutorMatAlterIdent0010.MSG_PACK, "MainMatInsufficientException", new Object[]{RtPhaseExecutorMatAlterIdent0010.masterOsiException.getPart().getPartNumber()}));
