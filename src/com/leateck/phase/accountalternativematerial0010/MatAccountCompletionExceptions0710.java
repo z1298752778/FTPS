@@ -252,6 +252,24 @@ public class MatAccountCompletionExceptions0710 extends PhaseSystemTriggeredExce
                 List<ResultSet> limitPlanned = new ArrayList<>();//保存消耗量到计划量
                 List<ResultSet> limitPlannedRange = new ArrayList<>();//保存消耗量到计划量范围
                     //判断计划量是否在范围
+
+                //判断是否有主料，如果有主料，并且主料有替换，替换物料不判断是否有消耗
+                //获取该物料是否设置为主料
+                List<IMESMaterialParameter> materialParameters1 = executor.getPhase().getMaterialParameters();
+                if(quantitiesOutOfRange.isEmpty()) return false;
+                List<IMESMaterialParameter> matParamList1 = materialParameters1.stream()
+                        .filter(p -> p.getATRow().getValue("LC_isMainPart") != null
+                                && (Boolean) p.getATRow().getValue("LC_isMainPart")).collect(Collectors.toList());
+                //如果当前配置了主料
+                if (matParamList1.size() > 0 ){
+                    Iterator<ResultSet> iterator = quantitiesOutOfRange.iterator();
+                    while (iterator.hasNext()){
+                        ResultSet resultSet = iterator.next();
+                        if (null == resultSet.consumedQuantity){
+                            iterator.remove();
+                        }
+                    }
+                }
                 if(quantitiesOutOfRange.isEmpty()) return false;
                 for(ResultSet resultSet: quantitiesOutOfRange){
 
