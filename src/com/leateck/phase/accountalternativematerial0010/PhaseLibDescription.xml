@@ -66,5 +66,14 @@
             <UsageIdentifier>Unconsumed sublot</UsageIdentifier>
             <SortIndex>10</SortIndex>
         </ParameterClass>
+        <ParameterClass>
+            <Name>String Value (RS) [1.0]</Name>
+            <UsageIdentifier>Position And Material Balance</UsageIdentifier>
+            <SortIndex>11</SortIndex>
+        </ParameterClass><ParameterClass>
+        <Name>Exception Enable Definition (RS) [2.0]</Name>
+        <UsageIdentifier>Material Balance check configuration</UsageIdentifier>
+        <SortIndex>12</SortIndex>
+    </ParameterClass>
 	</ParameterClasses>
 </PhaseLibDescription>

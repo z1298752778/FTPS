@@ -18,6 +18,9 @@ public class LcAccountMaterialDAO0710 extends AccountMaterialDAO0710 {
     public static final String MSG_PACK = "Lc_PhaseProductAccountMaterial0710";
     public static final  String ABNORMAL_MATERIAL_COMBINATIONRATIO = "Abnormal material combination ratio";
     public static final  String UNCONSUMED_SUBLOT = "Unconsumed sublot";
+    public static final String Material_Balance_Check_Configuration = "Material Balance check configuration";
+    public static final String Position_And_Material_Balance = "Position And Material Balance";
+
     public LcAccountMaterialDAO0710() {
     }
 

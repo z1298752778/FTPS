@@ -31,6 +31,16 @@ import com.rockwell.external.AuthenticationEventListener;
 import com.rockwell.external.CustomAuthentication;
 
 public class DlgLogonEx extends JBaseDialog implements AuthenticationEventListener, IDlgLogon {
+    //配置项
+    String logoImage;
+    String indexImage;
+    String rollText;
+    String titleText;
+    String panelStartColor;
+    String panelEndColor;
+    String rollTextColor;
+    String textFont;
+
     boolean rc;
     ExternalAuthentication extAuthenticator;
     ImagePanel icon;
@@ -42,15 +52,7 @@ public class DlgLogonEx extends JBaseDialog implements AuthenticationEventListen
     JButton btnOK;
     JButton btnCancel;
     JLabel textArea = new JLabel();
-    Font ROLL_FONT = new Font("宋体", Font.PLAIN, 50);
 
-    //配置项
-    String logoImage;
-    String indexImage;
-    String rollText;
-    String titleText;
-    String panelStartColor;
-    String panelEndColor;
 
 
     static Color green = new Color(255, 255, 255);
@@ -193,6 +195,8 @@ public class DlgLogonEx extends JBaseDialog implements AuthenticationEventListen
             titleText = properties.getProperty("text.title");
             panelStartColor = properties.getProperty("color.start.panel");
             panelEndColor = properties.getProperty("color.end.panel");
+            rollTextColor = properties.getProperty("color.text.roll");
+            textFont = properties.getProperty("font.text");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -218,8 +222,8 @@ public class DlgLogonEx extends JBaseDialog implements AuthenticationEventListen
         this.label1.setText("用户名:");
         this.label2.setText("密码:");
 
-        label1.setFont(new Font("宋体", Font.BOLD, 20));
-        label2.setFont(new Font("宋体", Font.BOLD, 20));
+        label1.setFont(new Font(textFont, Font.BOLD, 20));
+        label2.setFont(new Font(textFont, Font.BOLD, 20));
 
         this.edUserName.setText("");
         this.edUserName.getDocument().addDocumentListener(new DocumentListenerAdapter());
@@ -229,6 +233,7 @@ public class DlgLogonEx extends JBaseDialog implements AuthenticationEventListen
         this.btnOK.setText("登录");
         this.btnOK.setPreferredSize(new Dimension(340, 45));
         this.btnOK.setMnemonic(UIConstants.okButtonMnemonic);
+        this.btnOK.setFont(new Font(textFont, Font.PLAIN,14));
         this.btnOK.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent actionEvent) {
@@ -444,7 +449,7 @@ public class DlgLogonEx extends JBaseDialog implements AuthenticationEventListen
                 Graphics2D graphics = (Graphics2D) g;
                 graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 graphics.setColor(getBackground());
-                graphics.fillRoundRect(0, 0, width, height, 20, 20); // ????????
+                graphics.fillRoundRect(0, 0, width, height, 20, 20);
                 super.paintComponent(g);
 
             }
@@ -457,7 +462,7 @@ public class DlgLogonEx extends JBaseDialog implements AuthenticationEventListen
         jPanel7.setBorder(new EmptyBorder(50, 0, 0, 0));
         JLabel jLabel = new JLabel();
         jLabel.setText(titleText);
-        jLabel.setFont(new Font("宋体", Font.PLAIN, 50));
+        jLabel.setFont(new Font(textFont, Font.PLAIN, 50));
         jLabel.setBounds(0, 100, 200, 200);
         jPanel7.add(jLabel);
         jPanel6.add(jPanel7);
@@ -493,6 +498,9 @@ public class DlgLogonEx extends JBaseDialog implements AuthenticationEventListen
         MovingMessagePanel messagePanel = new MovingMessagePanel(rollText);
         messagePanel.setOpaque(false);
         messagePanel.setPreferredSize(new Dimension(900, 52));
+
+        Font ROLL_FONT = new Font(textFont, Font.PLAIN, 50);
+
         messagePanel.setFont(ROLL_FONT);
         messagePanel.setBackground(new Color(243, 252, 251));
 
@@ -629,13 +637,14 @@ public class DlgLogonEx extends JBaseDialog implements AuthenticationEventListen
             graphics.setColor(getBackground());
             graphics.fillRoundRect(0, 0, width, height, 30, 30);
             super.paintComponent(g);
+            Font ROLL_FONT = new Font(textFont, Font.PLAIN, 50);
             FontMetrics metrics = g.getFontMetrics(ROLL_FONT);
             int textWidth = metrics.stringWidth(message);
             if (x <= -50 - textWidth) {
                 x = 600 + textWidth / 2;
             }
             x -= 3;
-            g.setColor(new Color(0, 0, 0));
+            g.setColor(getConfigColor(rollTextColor));
             g.drawString(message, x, y);
         }
     }

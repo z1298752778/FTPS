@@ -1,0 +1,111 @@
+<RtPhaseDataAttributes>
+    <RtPhaseDataAttribute>
+        <Name>materialID</Name>
+        <Description>Material output ID</Description>
+        <DataType>
+            <String length="64" />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>isHeader</Name>
+        <Description>Is this a header line containing summarized data about a material</Description>
+        <DataType>
+            <Bool />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>materialDescription</Name>
+        <Description>Material output Description</Description>
+        <DataType>
+            <String length="50" />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>commentToExecution</Name>
+        <Description>Comment to execution, e.g. in case of rework.</Description>
+        <DataType>
+            <Binary />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>batchID</Name>
+        <Description>Batch ID of the produced sublot</Description>
+        <DataType>
+            <String length="128" />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>sublotID</Name>
+        <Description>ID of the produced sublot</Description>
+        <DataType>
+            <String length="128" />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>plannedQty</Name>
+        <Description>Planned quantity for this material</Description>
+        <DataType>
+            <MeasuredValue />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>producedQty</Name>
+        <Description>Produced quantity for this material (sublot)</Description>
+        <DataType>
+            <MeasuredValue />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>sublotQty</Name>
+        <Description>Quantity for each generated sublots</Description>
+        <DataType>
+            <MeasuredValue />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>definedPackingLevels</Name>
+        <Description>User input values for each defined packing level</Description>
+        <DataType>
+            <String />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>packingLevelNames</Name>
+        <Description>User defined packing level names</Description>
+        <DataType>
+            <String length="512" />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>sublotLevelQty</Name>
+        <Description>Sublot level for creating sublots and label print for with packing levels; quantity per one sublot for no packing levels;</Description>
+        <DataType>
+            <MeasuredValue />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>logisticUnitLevelQty</Name>
+        <Description>Not allowing creation of more sublots at once than for one LU</Description>
+        <DataType>
+            <MeasuredValue />
+        </DataType>
+    </RtPhaseDataAttribute>
+    <RtPhaseDataAttribute>
+        <Name>Result</Name>
+        <Description>CONTINUE: The value is CONTINUE if phase was completed with the Continue option button.
+            DONE: The value is DONE if phase was
+            completed with the Done option button.
+        </Description>
+        <DataType>
+            <String length="20" />
+        </DataType>
+    </RtPhaseDataAttribute>
+	<RtPhaseDataAttribute>
+        <Name>isSummaryData</Name>
+        <Description>Is this data belongs to Summary grid or instace grid of material</Description>
+        <DataType>
+            <Bool />
+        </DataType>
+    </RtPhaseDataAttribute>
+</RtPhaseDataAttributes>
+

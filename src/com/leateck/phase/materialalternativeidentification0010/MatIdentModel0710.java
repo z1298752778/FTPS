@@ -695,7 +695,7 @@ public class MatIdentModel0710 extends MaterialModel0710<IdentifiedMaterialDAO07
                     return false;
                 }
                 // Position without identifications yet.
-                return true;
+                //return true;
             }
         }
         return false;
@@ -705,7 +705,14 @@ public class MatIdentModel0710 extends MaterialModel0710<IdentifiedMaterialDAO07
     private boolean hasIdentifiedQuantity(OrderStepInput masterOsi, List<OrderStepInput> allMasterOSIs) {
         //dustin-20220302
         List<IMESMaterialParameter> materialParameters = executor.getPhase().getMaterialParameters();
+        //识别量
         MeasuredValue totalIdentifiedQty = null;
+
+        List<IMESMaterialParameter> matParamList = materialParameters.stream().filter(p -> p.getMaterial() == masterOsi.getPart() && p.getATRow().getValue("LC_isMainPart") != null && (Boolean) p.getATRow().getValue("LC_isMainPart")).collect(Collectors.toList());
+        if(matParamList.size() < 1){
+            //如果当前物料不是主料 进入下一个物料判断 直到为主料为止
+            return false;
+        }
         try {
             totalIdentifiedQty = getSelfAndReplaceIdentifiedQty(masterOsi, allMasterOSIs, materialParameters);
         } catch (MESException e) {
@@ -714,13 +721,11 @@ public class MatIdentModel0710 extends MaterialModel0710<IdentifiedMaterialDAO07
         if (totalIdentifiedQty == null || totalIdentifiedQty.getValue().compareTo(BigDecimal.ZERO) == 0) {
             return false;
         }
-        List<IMESMaterialParameter> matParamList = materialParameters.stream().filter(p -> p.getMaterial() == masterOsi.getPart() && p.getATRow().getValue("LC_isMainPart") != null && (Boolean) p.getATRow().getValue("LC_isMainPart")).collect(Collectors.toList());
         if(matParamList.size() > 0){
             //当前物料是主料
-            RtPhaseExecutorMatAlterIdent0010.masterOsiException = null;
-            RtPhaseExecutorMatAlterIdent0010.totalConsumedQtyException = null;
             RtPhaseExecutorMatAlterIdent0010.masterOsiException = masterOsi;
             RtPhaseExecutorMatAlterIdent0010.totalConsumedQtyException = totalIdentifiedQty;
+            return true;
         }
         return true;
     }
@@ -780,7 +785,7 @@ public class MatIdentModel0710 extends MaterialModel0710<IdentifiedMaterialDAO07
                     }
 
                     BigDecimal identifiedQty = identifiedQuantityMV.getValue();
-                    BigDecimal calcIdentifiedQtyQty = identifiedQty.divide(replaceRatio).multiply(mainRatio);
+                    BigDecimal calcIdentifiedQtyQty = identifiedQty.divide(replaceRatio,4).multiply(mainRatio);
                     MeasuredValue calcIdentifiedQtyMV = MeasuredValueUtilities.createMV(calcIdentifiedQtyQty, identifiedQuantityMV.getUnitOfMeasure());
                     //组合组号是空，表示是完全替代料计算
                     if (Strings.isEmpty(combinationGroup)) {

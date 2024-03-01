@@ -3,8 +3,10 @@ package com.leateck.phase.materialalternativeidentification0010;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.leateck.phase.accountalternativematerial0010.LcAccountMaterialDAO0710;
 import com.rockwell.mes.apps.ebr.ifc.phase.ui.PhaseQuestionDialog;
 import com.rockwell.mes.commons.parameter.exceptiondef.MESParamExceptionDef0300;
 import com.rockwell.mes.parameter.product.excptenabledef.MESParamExcptEnableDef0200;
@@ -30,6 +32,8 @@ import com.rockwell.mes.services.wip.ifc.IOrderStepExecutionService.QuantityRang
 import com.rockwell.mes.services.wip.ifc.LimitsAndPlannedQuantity;
 import com.rockwell.mes.shared.product.material.AccountMaterialDAO0710;
 import com.rockwell.mes.shared0400.product.util.ParamClassConstants0400;
+
+import javax.xml.transform.Result;
 
 
 /**
@@ -80,14 +84,13 @@ public class MatIdentCompletionExceptions0710 extends PhaseSystemTriggeredExcept
             boolean conditionForSystemtriggeredException(RtPhaseExecutorMatAlterIdent0010 executor) {
                 /**
                  * 校验主料识别量是否满足计划量
-                 * 1.自消耗：所有物料（包括主料）抓取识别量 / 替代比例 * 主料替代比例 = 主料识别量总量
-                 * 2.不是自消耗：通过当前物料消耗量 / 替代比例 * 主料替代比例 = 主料识别量总量
+                 * 不是自消耗：通过当前物料消耗量 / 替代比例 * 主料替代比例 = 主料识别量总量
                  */
                 if(!executor.getModel().getAutoConsume()){
-                    if (executor.masterOsiException != null && executor.totalConsumedQtyException != null){
-                        BigDecimal plannedQuantity = executor.masterOsiException.getPlannedQuantity().getValue();
+                    if (RtPhaseExecutorMatAlterIdent0010.masterOsiException != null && RtPhaseExecutorMatAlterIdent0010.totalConsumedQtyException != null){
+                        BigDecimal plannedQuantity = RtPhaseExecutorMatAlterIdent0010.masterOsiException.getPlannedQuantity().getValue();
                         if(plannedQuantity != null && plannedQuantity.compareTo(BigDecimal.ZERO) != 0){
-                            if((executor.totalConsumedQtyException.getValue()).compareTo(plannedQuantity) < 0){
+                            if((RtPhaseExecutorMatAlterIdent0010.totalConsumedQtyException.getValue()).compareTo(plannedQuantity) < 0){
                                 //主料实际识别量不足
                                 PhaseQuestionDialog questionDialog = new PhaseQuestionDialog();
                                 int torf = questionDialog.showDialog(I18nMessageUtility.getLocalizedMessage(RtPhaseExecutorMatAlterIdent0010.MSG_PACK, "MainMatInsufficientException", new Object[]{RtPhaseExecutorMatAlterIdent0010.masterOsiException.getPart().getPartNumber()}));
@@ -140,12 +143,9 @@ public class MatIdentCompletionExceptions0710 extends PhaseSystemTriggeredExcept
 
             @Override
             boolean conditionForSystemtriggeredException(RtPhaseExecutorMatAlterIdent0010 executor) {
-                return isAutoConsume(executor) && !getQuantitiesOutOfRange(executor).isEmpty();
+                return isAutoConsume(executor) && getQuantitiesOutOfRange(executor);
             }
 
-            /**
-            当前phase是否勾选自消耗
-             */
             private Boolean isAutoConsume(RtPhaseExecutorMatAlterIdent0010 executor) {
                 return executor.getModel().getAutoConsume();
             }
@@ -156,20 +156,76 @@ public class MatIdentCompletionExceptions0710 extends PhaseSystemTriggeredExcept
 
             @Override
             void createException(final MatIdentCompletionExceptions0710 exceptions) {
-                final String additionalInfoHeader =
-                        I18nMessageUtility.getLocalizedMessage(RtPhaseExecutorMatAlterIdent0010.MSG_PACK, "QuantitiesOufOfRangeMsg");
-                StringBuilder msg = new StringBuilder(additionalInfoHeader);
-                List<ResultSet> result = getQuantitiesOutOfRange(exceptions.executor);
-                result.forEach(res -> {
-                    msg.append(StringConstants.LINE_BREAK);
-                    msg.append(I18nMessageUtility.getLocalizedMessage(RtPhaseExecutorMatAlterIdent0010.MSG_PACK, "PositionOutOfRangeDetailsMsg",
-                            new Object[] { res.materialID, res.limitsAndPlannedQuantity.getPlannedQuantity(),
-                                    getLowerLimitToShow(res.limitsAndPlannedQuantity), getUpperLimitToShow(res.limitsAndPlannedQuantity),
-                                    res.consumedQuantity }));
-                });
-                String exceptionText = exceptions.executor.getModel().getExceptionTextFromParameter(getParameterName());
+                List<ResultSet> limitPlanned = new ArrayList<>();//保存消耗量到计划量
+                List<ResultSet> limitPlannedRange = new ArrayList<>();//保存消耗量到计划量范围
+                IOrderStepExecutionService service = ServiceFactory.getService(IOrderStepExecutionService.class);
+                List<OrderStepInput> allCheckMasterOSIs = exceptions.executor.getModel().getMasterOSISForLimitChecks();
+                List<OrderStepInput> masterOSIToCheck = new ArrayList();
+                masterOSIToCheck.addAll(allCheckMasterOSIs.stream().filter(osi -> mustCheckQuantityForOsi(exceptions.executor, osi)).collect(Collectors.toList()));
+                //dustin:获取物料参数配置集合
+                List<IMESMaterialParameter> materialParameters = exceptions.executor.getPhase().getMaterialParameters();
+                List<OrderStepInput> allMasterOSIs = exceptions.executor.getModel().getMasterOSIsForPhase();
+                for (OrderStepInput osi : masterOSIToCheck) {
+                    try {
+                        final boolean asProduced = isAsProduced(osi);
+                        //获取当前物料的限制类型
+                        List<IMESMaterialParameter> matParamList = materialParameters.stream()
+                                .filter(p -> p.getMaterial() == osi.getPart()
+                                        && p.getATRow().getValue("LC_restrictionMode") != null).collect(Collectors.toList());
+                        if (matParamList.size() > 0){
+                            MESNamedUDAMaterialParameter matParam = new MESNamedUDAMaterialParameter(matParamList.get(0));
+                            Long restrictionMode = matParam.getRestrictionMode();
+                            if( null == restrictionMode){
+                                continue;
+                            }
+                            //获识别量取消耗量（消耗量）
+                            MeasuredValue totalIdentifiedQty = exceptions.executor.getModel().getSelfAndReplaceIdentifiedQty(osi, allMasterOSIs, materialParameters);
+                            // But for completion of position at auto consume we want to know the range condition to
+                            // complete position
+                            boolean isOutOfRange = (!isAutoConsume(exceptions.executor) && asProduced) ? false
+                                    : getIsOutOfRangeAndSaveRangeCondition(osi, totalIdentifiedQty,exceptions.executor);
+                            if(!asProduced && isOutOfRange && restrictionMode == 20){
+                                //计划量
+                                limitPlanned.add(
+                                        new ResultSet(osi.getPart().getPartNumber(), service.determineLimitsAndPlannedQuantity(osi), totalIdentifiedQty));
+                            }
+                            if(!asProduced && isOutOfRange && restrictionMode == 30){
+                                //计划量模式
+                                limitPlannedRange.add(
+                                        new ResultSet(osi.getPart().getPartNumber(), service.determineLimitsAndPlannedQuantity(osi), totalIdentifiedQty));
+                            }
+                        }
+
+                    } catch (MESException e) {
+                        throw new MESRuntimeException(e);
+                    }
+                }
+
+                StringBuffer msg = new StringBuffer();
+                if(limitPlanned.size() > 0){
+                    msg.append(I18nMessageUtility.getLocalizedMessage(RtPhaseExecutorMatAlterIdent0010.MSG_PACK, "QuantitiesOufOfRangeMsg"));
+                    limitPlanned.forEach(res -> {
+                        msg.append(StringConstants.LINE_BREAK);
+                        msg.append(I18nMessageUtility.getLocalizedMessage(RtPhaseExecutorMatAlterIdent0010.MSG_PACK, "PositionOutOfRangeDetailsMsg",
+                                new Object[] { res.materialID, res.limitsAndPlannedQuantity.getPlannedQuantity(),
+                                        getLowerLimitToShow(res.limitsAndPlannedQuantity), getUpperLimitToShow(res.limitsAndPlannedQuantity),
+                                        res.consumedQuantity }));
+                    });
+                }
+                msg.append("\n");
+                if(limitPlannedRange.size() > 0){
+                    msg.append(I18nMessageUtility.getLocalizedMessage(RtPhaseExecutorMatAlterIdent0010.MSG_PACK, "QuantitiesOutOfRangeModeMsg"));
+                    limitPlannedRange.forEach(res -> {
+                        msg.append(StringConstants.LINE_BREAK);
+                        msg.append(I18nMessageUtility.getLocalizedMessage(RtPhaseExecutorMatAlterIdent0010.MSG_PACK, "PositionOutOfRangeDetailsMsg",
+                                new Object[] { res.materialID, res.limitsAndPlannedQuantity.getPlannedQuantity(),
+                                        getLowerLimitToShow(res.limitsAndPlannedQuantity), getUpperLimitToShow(res.limitsAndPlannedQuantity),
+                                        res.consumedQuantity }));
+                    });
+                }
+
                 RiskClass riskClass = exceptions.executor.getModel().getExceptionRiskFromParameter(getParameterName());
-                exceptions.addSystemtriggeredException(exceptionText, riskClass, getCheckKey(), msg.toString());
+                exceptions.executor.displayException(getCheckKey(),riskClass,msg.toString());
             }
 
             private IMeasuredValue getLowerLimitToShow(LimitsAndPlannedQuantity limits) {
@@ -180,13 +236,14 @@ public class MatIdentCompletionExceptions0710 extends PhaseSystemTriggeredExcept
                 return (limits.getUpperLimit() == null) ? limits.getPlannedQuantity() : limits.getUpperLimit();
             }
 
-            private List<ResultSet> getQuantitiesOutOfRange(RtPhaseExecutorMatAlterIdent0010 executor) {
+            private boolean getQuantitiesOutOfRange(RtPhaseExecutorMatAlterIdent0010 executor) {
+                List<ResultSet> limitPlanned = new ArrayList<>();//保存消耗量到计划量
+                List<ResultSet> limitPlannedRange = new ArrayList<>();//保存消耗量到计划量范围
                 IOrderStepExecutionService service = ServiceFactory.getService(IOrderStepExecutionService.class);
                 // we only check the osi, for which sublots has been identified in this phase instance
                 List<OrderStepInput> allCheckMasterOSIs = executor.getModel().getMasterOSISForLimitChecks();
                 List<OrderStepInput> masterOSIToCheck = new ArrayList();
                 masterOSIToCheck.addAll(allCheckMasterOSIs.stream().filter(osi -> mustCheckQuantityForOsi(executor, osi)).collect(Collectors.toList()));
-                List<ResultSet> result = new ArrayList();
                 //dustin:获取物料参数配置集合
                 List<IMESMaterialParameter> materialParameters = executor.getPhase().getMaterialParameters();
                 List<OrderStepInput> allMasterOSIs = executor.getModel().getMasterOSIsForPhase();
@@ -197,27 +254,89 @@ public class MatIdentCompletionExceptions0710 extends PhaseSystemTriggeredExcept
                         // system triggered exception. Furthermore normally phase cannot completed without having
                         // all sublots identified.
                         //当前物料设置为 按照生产量模式 则返回true
-                        final boolean asProduced = isAsProduced(osi);
+                        boolean asProduced = isAsProduced(osi);
                         // the entire identified quantity must be in the range
 //                        MeasuredValue totalIdentifiedQty= getTotalIdentifiedQuantity(osi);
-                        MeasuredValue totalIdentifiedQty = executor.getModel().getSelfAndReplaceIdentifiedQty(osi, allMasterOSIs, materialParameters);
-                        // But for completion of position at auto consume we want to know the range condition to
-                        // complete position
-                        boolean isOutOfRange = (!isAutoConsume(executor) && asProduced) ? false
-                                : getIsOutOfRangeAndSaveRangeCondition(osi, totalIdentifiedQty, executor);
-
-                        if (!asProduced && isOutOfRange) {
-                            //是自消耗
-                            result.add(
-                                    new ResultSet(osi.getPart().getPartNumber(), service.determineLimitsAndPlannedQuantity(osi), totalIdentifiedQty));
+                        /**
+                         * LC
+                         * 谭鑫
+                         * 获取物料限制模式
+                         *  无限制(null)：不做任何校验
+                         *  计划量(10)：点击确认的时候 确认是否满足了计划量
+                         *  计划量范围(20)：点击确认的时候，确认是否满足了计划量的上下限的范围
+                         */
+                        //获取当前物料的限制类型
+                        List<IMESMaterialParameter> matParamList = materialParameters.stream()
+                                .filter(p -> p.getMaterial() == osi.getPart()
+                                        && p.getATRow().getValue("LC_restrictionMode") != null).collect(Collectors.toList());
+                        if (matParamList.size()>0){
+                            MESNamedUDAMaterialParameter matParam = new MESNamedUDAMaterialParameter(matParamList.get(0));
+                            Long restrictionMode = matParam.getRestrictionMode();
+                            if( null == restrictionMode){
+                                continue;
+                            }
+                            //获识别量取消耗量（消耗量）
+                            MeasuredValue totalIdentifiedQty = executor.getModel().getSelfAndReplaceIdentifiedQty(osi, allMasterOSIs, materialParameters);
+                            // But for completion of position at auto consume we want to know the range condition to
+                            // complete position
+                            boolean isOutOfRange = (!isAutoConsume(executor) && asProduced) ? false
+                                    : getIsOutOfRangeAndSaveRangeCondition(osi, totalIdentifiedQty, executor);
+                            if(!asProduced && isOutOfRange && restrictionMode == 20){
+                                //计划量
+                                limitPlanned.add(
+                                        new ResultSet(osi.getPart().getPartNumber(), service.determineLimitsAndPlannedQuantity(osi), totalIdentifiedQty));
+                            }
+                            if(!asProduced && isOutOfRange && restrictionMode == 30){
+                                //计划量模式
+                                limitPlannedRange.add(
+                                        new ResultSet(osi.getPart().getPartNumber(), service.determineLimitsAndPlannedQuantity(osi), totalIdentifiedQty));
+                            }
                         }
 
                     } catch (MESException e) {
                         throw new MESRuntimeException(e);
                     }
                 }
-                return result;
+
+                StringBuffer msg = new StringBuffer();
+                if(limitPlanned.size() > 0){
+                    msg.append(I18nMessageUtility.getLocalizedMessage(RtPhaseExecutorMatAlterIdent0010.MSG_PACK, "QuantitiesOufOfRangeMsg"));
+                    limitPlanned.forEach(res -> {
+                        msg.append(StringConstants.LINE_BREAK);
+                        msg.append(I18nMessageUtility.getLocalizedMessage(RtPhaseExecutorMatAlterIdent0010.MSG_PACK, "PositionOutOfRangeDetailsMsg",
+                                new Object[] { res.materialID, res.limitsAndPlannedQuantity.getPlannedQuantity(),
+                                        getLowerLimitToShow(res.limitsAndPlannedQuantity), getUpperLimitToShow(res.limitsAndPlannedQuantity),
+                                        res.consumedQuantity }));
+                    });
+                }
+                msg.append("\n");
+                if(limitPlannedRange.size() > 0){
+                    msg.append(I18nMessageUtility.getLocalizedMessage(RtPhaseExecutorMatAlterIdent0010.MSG_PACK, "QuantitiesOutOfRangeModeMsg"));
+                    limitPlannedRange.forEach(res -> {
+                        msg.append(StringConstants.LINE_BREAK);
+                        msg.append(I18nMessageUtility.getLocalizedMessage(RtPhaseExecutorMatAlterIdent0010.MSG_PACK, "PositionOutOfRangeDetailsMsg",
+                                new Object[] { res.materialID, res.limitsAndPlannedQuantity.getPlannedQuantity(),
+                                        getLowerLimitToShow(res.limitsAndPlannedQuantity), getUpperLimitToShow(res.limitsAndPlannedQuantity),
+                                        res.consumedQuantity }));
+                    });
+                }
+                msg.append("\n");
+                if(limitPlanned.size() > 0 || limitPlannedRange.size() > 0){
+                    msg.append(I18nMessageUtility.getLocalizedMessage(RtPhaseExecutorMatAlterIdent0010.MSG_PACK, "RecordAnomalieDialog" ));
+                    PhaseQuestionDialog questionDialog = new PhaseQuestionDialog();
+                    int userChoice = questionDialog.showDialog(msg.toString());
+                    flag = userChoice;
+                    if (userChoice != 0) {
+                        //点击否
+                        return false;
+                    }else {
+                        //点击是
+                        return true;
+                    }
+                }
+                return false;
             }
+
 
             private MeasuredValue getTotalIdentifiedQuantity(final OrderStepInput masterOsi) {
                 MeasuredValue totalIdentifiedQty = MESNamedUDAOrderStepInput.getTotalIdentifiedQuantity(masterOsi);
@@ -312,7 +431,9 @@ public class MatIdentCompletionExceptions0710 extends PhaseSystemTriggeredExcept
         for (final SystemtriggeredExceptionEnum e : SystemtriggeredExceptionEnum.values()) {
             if (isNotSigned(e.getCheckKey()) && e.conditionForSystemtriggeredException(executor)) {
                 e.createException(this);
-                if(SystemtriggeredExceptionEnum.proportionalAnomaly.equals(e) || SystemtriggeredExceptionEnum.Insufficien.equals(e)){
+                if(SystemtriggeredExceptionEnum.proportionalAnomaly.equals(e)
+                        || SystemtriggeredExceptionEnum.Insufficien.equals(e)
+                || SystemtriggeredExceptionEnum.QuantityOutOfTolerance.equals(e)){
                     return false;
                 }
                 return !showExceptionDialog();
@@ -320,6 +441,9 @@ public class MatIdentCompletionExceptions0710 extends PhaseSystemTriggeredExcept
                 SystemtriggeredExceptionEnum.proportionalAnomaly.flag = -1;
                 return false;
             }else if(SystemtriggeredExceptionEnum.Insufficien.equals(e) && SystemtriggeredExceptionEnum.Insufficien.flag == 2){
+                SystemtriggeredExceptionEnum.proportionalAnomaly.flag = -1;
+                return false;
+            } else if (SystemtriggeredExceptionEnum.QuantityOutOfTolerance.equals(e) && SystemtriggeredExceptionEnum.QuantityOutOfTolerance.flag == 2) {
                 SystemtriggeredExceptionEnum.proportionalAnomaly.flag = -1;
                 return false;
             }
