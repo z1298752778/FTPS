@@ -1,8 +1,6 @@
 
 package com.rockwell.mes.apps.masterdata.impl.data.eqm;
 
-import com.datasweep.compatibility.client.ATRow;
-import com.datasweep.compatibility.client.ATRowFilter;
 import com.datasweep.compatibility.client.AccessPrivilege;
 import com.datasweep.compatibility.client.DatasweepException;
 import com.datasweep.compatibility.client.DsList;
@@ -65,6 +63,9 @@ public abstract class AbstractEquipmentEntityDataHandler<HolderType extends IEqu
     private static int fsmMsgPackNameColumn;
     private static int barcodeColumn;
     private static int expiryChangeErrorBehaviorColumn;
+
+    private static int processPackNameColumn;
+
     protected static final String ACCESS_FILTER_LIST = "LC_AccessFilterList";
 
     public AbstractEquipmentEntityDataHandler(ISqlStatement var1) {
@@ -111,13 +112,17 @@ public abstract class AbstractEquipmentEntityDataHandler<HolderType extends IEqu
         serialNumberColumn = var1.addColumn("X_serialNumber_S");
         barcodeColumn = var1.addColumn("X_barcode_S");
         expiryChangeErrorBehaviorColumn = var1.addColumn("X_expiryChgErrBehavior_I");
+
+        processPackNameColumn = var1.addColumn("processPackName_S");
         statusMsgIdColumn = var1.addColumn("state_name_message_id", "state");
         fsmMsgPackNameColumn = var1.addColumn("message_pack_name", "mp");
         addEquipmentEntityObjectStateJoinsToSQLStatement(var1);
         addEquipmentAccessJoinsToSQL(var1);
+
         return var1;
     }
-    //sql新增where条件
+
+    // where 条件
     private static void addEquipmentAccessJoinsToSQL(ISqlStatement paramISqlStatement) {
     	List<AccessPrivilege> equipAccess = EquipAccessList();
     	String accessList = "";
@@ -165,6 +170,9 @@ public abstract class AbstractEquipmentEntityDataHandler<HolderType extends IEqu
         var2.initManufacturer(var3[manufacturerColumn]);
         var2.initModelName(var3[modelColumn]);
         var2.initSerialNumber(var3[serialNumberColumn]);
+        // 加初始
+        var2.initProcessPackName(var3[processPackNameColumn]);
+
         if (!StringUtils.isEmpty(var3[equipmentLevelColumn])) {
             long var7 = Long.parseLong(var3[equipmentLevelColumn]);
             var2.initEquipmentLevel(MESChoiceListHelper.getChoiceElement("EquipmentHierarchy", var7));
@@ -172,25 +180,31 @@ public abstract class AbstractEquipmentEntityDataHandler<HolderType extends IEqu
 
     }
 
+    /**
+     * 设备权限
+     * 
+     * @Description
+     * @return
+     *
+     * @author:HT
+     * @create:下午2:31:47
+     */
 	private static List<AccessPrivilege> EquipAccessList() {
 		User user = PCContext.getFunctions().getCurrentUser();
 		List<AccessPrivilege> accessEqm = new ArrayList<AccessPrivilege>();
 		try {
-	        // 获取物料权限
+
 	        DsList partAccessFilter = PCContext.getFunctions().getList(ACCESS_FILTER_LIST);
 	        NamedFilter filter = PCContext.getFunctions().getFilterByName(partAccessFilter.getItem(2).toString());
 	        Filter accessFilter = filter.getFilter();
 	        List<AccessPrivilege> accessRights = accessFilter.exec();
 		
-	        // 获取当前用户拥有的物料权限
-	        
 	        for (AccessPrivilege accessRight : accessRights) {
 	            if (user.hasPrivilege(accessRight)) {
 	         	   accessEqm.add(accessRight);
 	            }
 	        }
 		} catch (DatasweepException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return accessEqm;
@@ -287,6 +301,9 @@ public abstract class AbstractEquipmentEntityDataHandler<HolderType extends IEqu
         var1.initManufacturer(var2.getManufacturer());
         var1.initModelName(var2.getModel());
         var1.initSerialNumber(var2.getSerialNumber());
+        // 加初始
+        var1.initProcessPackName(var2.getProcessPackName());
+
         if (var2.getEquipmentLevel() != null) {
             var1.initEquipmentLevel(var2.getEquipmentLevel());
         }

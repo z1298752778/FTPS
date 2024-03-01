@@ -1,11 +1,5 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by Fernflower decompiler)
-//
-
 package com.rockwell.mes.services.s88equipment.ifc.generated;
 
-import com.datasweep.compatibility.client.AccessPrivilege;
 import com.datasweep.compatibility.client.ReportDesign;
 import com.datasweep.compatibility.client.StateProxy;
 import com.datasweep.compatibility.ui.Time;
@@ -14,230 +8,334 @@ import com.rockwell.mes.commons.base.ifc.objects.IMESATObject;
 import com.rockwell.mes.services.s88equipment.ifc.IMESS88Equipment;
 
 public interface IMESGeneratedS88Equipment extends IMESATObject {
-    String ATDEFINITION_NAME = "X_S88Equipment";
-    String SQL_TABLE_NAME = "AT_X_S88Equipment";
-    String PROP_NAME_LDTEMPLATENAME = "LDTemplateName";
-    String SQL_COL_NAME_LDTEMPLATENAME = "X_LDTemplateName_S";
-    String COL_NAME_LDTEMPLATENAME = "X_LDTemplateName";
-    String PROP_NAME_LCEQUIPACCPRIV = "equipAccPriv";//新增字段
-    String SQL_COL_NAME_ACCESS = "LC_equip_accPriv_98";
-    String COL_NAME_LCEQUIPACCPRIV = "LC_equip_accPriv";
-    String PROP_NAME_BARCODE = "barcode";
-    String SQL_COL_NAME_BARCODE = "X_barcode_S";
-    String COL_NAME_BARCODE = "X_barcode";
-    String COL_NAME_BARCODEPREFIX = "X_barcodePrefix";
-    String COL_NAME_BARCODEPREFIXPOLICY = "X_barcodePrefixPolicy";
-    String PROP_NAME_DESCRIPTION = "description";
-    String SQL_COL_NAME_DESCRIPTION = "X_description_S";
-    String COL_NAME_DESCRIPTION = "X_description";
-    String PROP_NAME_DISPOSABLE = "disposable";
-    String SQL_COL_NAME_DISPOSABLE = "X_disposable_Y";
-    String COL_NAME_DISPOSABLE = "X_disposable";
-    String PROP_NAME_EQUIPMENTLEVEL = "equipmentLevel";
-    String SQL_COL_NAME_EQUIPMENTLEVEL = "X_equipmentLevel_I";
-    String COL_NAME_EQUIPMENTLEVEL = "X_equipmentLevel";
-    String PROP_NAME_EXPIRYCHGERRBEHAVIOR = "expiryChgErrBehavior";
-    String SQL_COL_NAME_EXPIRYCHGERRBEHAVIOR = "X_expiryChgErrBehavior_I";
-    String COL_NAME_EXPIRYCHGERRBEHAVIOR = "X_expiryChgErrBehavior";
-    String COL_NAME_GENIDENTIFIERLENGTH = "X_genIdentifierLength";
-    String PROP_NAME_HISTORIANPROVIDER = "historianProvider";
-    String SQL_COL_NAME_HISTORIANPROVIDER = "X_HistorianProvider_S";
-    String COL_NAME_HISTORIANPROVIDER = "X_HistorianProvider";
-    String PROP_NAME_IDENTIFIER = "identifier";
-    String SQL_COL_NAME_IDENTIFIER = "X_identifier_S";
-    String COL_NAME_IDENTIFIER = "X_identifier";
-    String COL_NAME_IDENTIFIERPREFIX = "X_identifierPrefix";
-    String PROP_NAME_INVENTORYNUMBER = "inventoryNumber";
-    String SQL_COL_NAME_INVENTORYNUMBER = "X_inventoryNumber_S";
-    String COL_NAME_INVENTORYNUMBER = "X_inventoryNumber";
-    String PROP_NAME_ISMIGRATED = "isMigrated";
-    String SQL_COL_NAME_ISMIGRATED = "X_isMigrated_Y";
-    String COL_NAME_ISMIGRATED = "X_isMigrated";
-    String PROP_NAME_ISTEMPLATE = "isTemplate";
-    String SQL_COL_NAME_ISTEMPLATE = "X_isTemplate_Y";
-    String COL_NAME_ISTEMPLATE = "X_isTemplate";
-    String PROP_NAME_LABELREPORTDESIGN = "labelReportDesign";
-    String SQL_COL_NAME_LABELREPORTDESIGN = "X_labelReportDesign_117";
-    String COL_NAME_LABELREPORTDESIGN = "X_labelReportDesign";
-    String PROP_NAME_LOGBOOKENABLED = "logbookEnabled";
-    String SQL_COL_NAME_LOGBOOKENABLED = "X_logbookEnabled_Y";
-    String COL_NAME_LOGBOOKENABLED = "X_logbookEnabled";
-    String PROP_NAME_MANUFACTURER = "manufacturer";
-    String SQL_COL_NAME_MANUFACTURER = "X_manufacturer_S";
-    String COL_NAME_MANUFACTURER = "X_manufacturer";
-    String PROP_NAME_MANUFACTURINGDATE = "manufacturingDate";
-    String SQL_COL_NAME_MANUFACTURINGDATE_UTC = "X_manufacturingDate_u";
-    String COL_NAME_MANUFACTURINGDATE = "X_manufacturingDate";
-    String PROP_NAME_MODE = "mode";
-    String SQL_COL_NAME_MODE = "X_mode_I";
-    String COL_NAME_MODE = "X_mode";
-    String PROP_NAME_MODEL = "model";
-    String SQL_COL_NAME_MODEL = "X_model_S";
-    String COL_NAME_MODEL = "X_model";
-    String PROP_NAME_OVERRIDEAISERVERNAME = "overrideAIServerName";
-    String SQL_COL_NAME_OVERRIDEAISERVERNAME = "X_OverrideAIServerName_S";
-    String COL_NAME_OVERRIDEAISERVERNAME = "X_OverrideAIServerName";
-    String PROP_NAME_OVERRIDEHISTORIANAISRV = "overrideHistorianAISrv";
-    String SQL_COL_NAME_OVERRIDEHISTORIANAISRV = "X_OverrideHistorianAISrv_S";
-    String COL_NAME_OVERRIDEHISTORIANAISRV = "X_OverrideHistorianAISrv";
-    String PROP_NAME_OVERRIDEHISTORIANASRV = "overrideHistorianASrv";
-    String SQL_COL_NAME_OVERRIDEHISTORIANASRV = "X_OverrideHistorianASrv_S";
-    String COL_NAME_OVERRIDEHISTORIANASRV = "X_OverrideHistorianASrv";
-    String PROP_NAME_OVERRIDEHISTORIANSRV = "overrideHistorianSrv";
-    String SQL_COL_NAME_OVERRIDEHISTORIANSRV = "X_OverrideHistorianSrv_S";
-    String COL_NAME_OVERRIDEHISTORIANSRV = "X_OverrideHistorianSrv";
-    String PROP_NAME_OVERRIDELDAREAPATH = "overrideLDAreaPath";
-    String SQL_COL_NAME_OVERRIDELDAREAPATH = "X_OverrideLDAreaPath_S";
-    String COL_NAME_OVERRIDELDAREAPATH = "X_OverrideLDAreaPath";
-    String PROP_NAME_PARENTENTITY = "parentEntity";
-    String SQL_COL_NAME_PARENTENTITY = "X_parentEntity_64";
-    String COL_NAME_PARENTENTITY = "X_parentEntity";
-    String PROP_NAME_SERIALNUMBER = "serialNumber";
-    String SQL_COL_NAME_SERIALNUMBER = "X_serialNumber_S";
-    String COL_NAME_SERIALNUMBER = "X_serialNumber";
-    String PROP_NAME_SHORTDESCRIPTION = "shortDescription";
-    String SQL_COL_NAME_SHORTDESCRIPTION = "X_shortDescription_S";
-    String COL_NAME_SHORTDESCRIPTION = "X_shortDescription";
-    String PROP_NAME_STATEPROXY = "stateProxy";
-    String SQL_COL_NAME_STATEPROXY = "X_stateProxy_231";
-    String COL_NAME_STATEPROXY = "X_stateProxy";
-    String PROP_NAME_TEMPLATEENTITY = "templateEntity";
-    String SQL_COL_NAME_TEMPLATEENTITY = "X_templateEntity_64";
-    String COL_NAME_TEMPLATEENTITY = "X_templateEntity";
+    public static final String ATDEFINITION_NAME = "X_S88Equipment";
 
-    String getLDTemplateName();
+    public static final String SQL_TABLE_NAME = "AT_X_S88Equipment";
 
-    void setLDTemplateName(String value);
-    
+    public static final String PROP_NAME_LDTEMPLATENAME = "LDTemplateName";
+
+    public static final String SQL_COL_NAME_LDTEMPLATENAME = "X_LDTemplateName_S";
+
+    public static final String COL_NAME_LDTEMPLATENAME = "X_LDTemplateName";
+
+    //
+    public static final String PROP_NAME_LCEQUIPACCPRIV = "equipAccPriv";
+
+    public static final String SQL_COL_NAME_ACCESS = "LC_equip_accPriv_98";
+
+    public static final String COL_NAME_LCEQUIPACCPRIV = "LC_equip_accPriv";
+
+    public static final String PROP_NAME_PROCESSPACKNAME = "processPackName";
+
+    public static final String SQL_COL_NAME_PROCESSPACK = "processPackName_S";
+
+    public static final String COL_NAME_PROCESSPACKNAME = "processPackName";
+
+
+    public static final String PROP_NAME_BARCODE = "barcode";
+
+    public static final String SQL_COL_NAME_BARCODE = "X_barcode_S";
+
+    public static final String COL_NAME_BARCODE = "X_barcode";
+
+    public static final String COL_NAME_BARCODEPREFIX = "X_barcodePrefix";
+
+    public static final String COL_NAME_BARCODEPREFIXPOLICY = "X_barcodePrefixPolicy";
+
+    public static final String PROP_NAME_DESCRIPTION = "description";
+
+    public static final String SQL_COL_NAME_DESCRIPTION = "X_description_S";
+
+    public static final String COL_NAME_DESCRIPTION = "X_description";
+
+    public static final String PROP_NAME_DISPOSABLE = "disposable";
+
+    public static final String SQL_COL_NAME_DISPOSABLE = "X_disposable_Y";
+
+    public static final String COL_NAME_DISPOSABLE = "X_disposable";
+
+    public static final String PROP_NAME_EQUIPMENTLEVEL = "equipmentLevel";
+
+    public static final String SQL_COL_NAME_EQUIPMENTLEVEL = "X_equipmentLevel_I";
+
+    public static final String COL_NAME_EQUIPMENTLEVEL = "X_equipmentLevel";
+
+    public static final String PROP_NAME_EXPIRYCHGERRBEHAVIOR = "expiryChgErrBehavior";
+
+    public static final String SQL_COL_NAME_EXPIRYCHGERRBEHAVIOR = "X_expiryChgErrBehavior_I";
+
+    public static final String COL_NAME_EXPIRYCHGERRBEHAVIOR = "X_expiryChgErrBehavior";
+
+    public static final String COL_NAME_GENIDENTIFIERLENGTH = "X_genIdentifierLength";
+
+    public static final String PROP_NAME_HISTORIANPROVIDER = "historianProvider";
+
+    public static final String SQL_COL_NAME_HISTORIANPROVIDER = "X_HistorianProvider_S";
+
+    public static final String COL_NAME_HISTORIANPROVIDER = "X_HistorianProvider";
+
+    public static final String PROP_NAME_IDENTIFIER = "identifier";
+
+    public static final String SQL_COL_NAME_IDENTIFIER = "X_identifier_S";
+
+    public static final String COL_NAME_IDENTIFIER = "X_identifier";
+
+    public static final String COL_NAME_IDENTIFIERPREFIX = "X_identifierPrefix";
+
+    public static final String PROP_NAME_INVENTORYNUMBER = "inventoryNumber";
+
+    public static final String SQL_COL_NAME_INVENTORYNUMBER = "X_inventoryNumber_S";
+
+    public static final String COL_NAME_INVENTORYNUMBER = "X_inventoryNumber";
+
+    public static final String PROP_NAME_ISMIGRATED = "isMigrated";
+
+    public static final String SQL_COL_NAME_ISMIGRATED = "X_isMigrated_Y";
+
+    public static final String COL_NAME_ISMIGRATED = "X_isMigrated";
+
+    public static final String PROP_NAME_ISTEMPLATE = "isTemplate";
+
+    public static final String SQL_COL_NAME_ISTEMPLATE = "X_isTemplate_Y";
+
+    public static final String COL_NAME_ISTEMPLATE = "X_isTemplate";
+
+    public static final String PROP_NAME_LABELREPORTDESIGN = "labelReportDesign";
+
+    public static final String SQL_COL_NAME_LABELREPORTDESIGN = "X_labelReportDesign_117";
+
+    public static final String COL_NAME_LABELREPORTDESIGN = "X_labelReportDesign";
+
+    public static final String PROP_NAME_LOGBOOKENABLED = "logbookEnabled";
+
+    public static final String SQL_COL_NAME_LOGBOOKENABLED = "X_logbookEnabled_Y";
+
+    public static final String COL_NAME_LOGBOOKENABLED = "X_logbookEnabled";
+
+    public static final String PROP_NAME_MANUFACTURER = "manufacturer";
+
+    public static final String SQL_COL_NAME_MANUFACTURER = "X_manufacturer_S";
+
+    public static final String COL_NAME_MANUFACTURER = "X_manufacturer";
+
+    public static final String PROP_NAME_MANUFACTURINGDATE = "manufacturingDate";
+
+    public static final String SQL_COL_NAME_MANUFACTURINGDATE_UTC = "X_manufacturingDate_u";
+
+    public static final String COL_NAME_MANUFACTURINGDATE = "X_manufacturingDate";
+
+    public static final String PROP_NAME_MODE = "mode";
+
+    public static final String SQL_COL_NAME_MODE = "X_mode_I";
+
+    public static final String COL_NAME_MODE = "X_mode";
+
+    public static final String PROP_NAME_MODEL = "model";
+
+    public static final String SQL_COL_NAME_MODEL = "X_model_S";
+
+    public static final String COL_NAME_MODEL = "X_model";
+
+    public static final String PROP_NAME_OVERRIDEAISERVERNAME = "overrideAIServerName";
+
+    public static final String SQL_COL_NAME_OVERRIDEAISERVERNAME = "X_OverrideAIServerName_S";
+
+    public static final String COL_NAME_OVERRIDEAISERVERNAME = "X_OverrideAIServerName";
+
+    public static final String PROP_NAME_OVERRIDEHISTORIANAISRV = "overrideHistorianAISrv";
+
+    public static final String SQL_COL_NAME_OVERRIDEHISTORIANAISRV = "X_OverrideHistorianAISrv_S";
+
+    public static final String COL_NAME_OVERRIDEHISTORIANAISRV = "X_OverrideHistorianAISrv";
+
+    public static final String PROP_NAME_OVERRIDEHISTORIANASRV = "overrideHistorianASrv";
+
+    public static final String SQL_COL_NAME_OVERRIDEHISTORIANASRV = "X_OverrideHistorianASrv_S";
+
+    public static final String COL_NAME_OVERRIDEHISTORIANASRV = "X_OverrideHistorianASrv";
+
+    public static final String PROP_NAME_OVERRIDEHISTORIANSRV = "overrideHistorianSrv";
+
+    public static final String SQL_COL_NAME_OVERRIDEHISTORIANSRV = "X_OverrideHistorianSrv_S";
+
+    public static final String COL_NAME_OVERRIDEHISTORIANSRV = "X_OverrideHistorianSrv";
+
+    public static final String PROP_NAME_OVERRIDELDAREAPATH = "overrideLDAreaPath";
+
+    public static final String SQL_COL_NAME_OVERRIDELDAREAPATH = "X_OverrideLDAreaPath_S";
+
+    public static final String COL_NAME_OVERRIDELDAREAPATH = "X_OverrideLDAreaPath";
+
+    public static final String PROP_NAME_PARENTENTITY = "parentEntity";
+
+    public static final String SQL_COL_NAME_PARENTENTITY = "X_parentEntity_64";
+
+    public static final String COL_NAME_PARENTENTITY = "X_parentEntity";
+
+    public static final String PROP_NAME_SERIALNUMBER = "serialNumber";
+
+    public static final String SQL_COL_NAME_SERIALNUMBER = "X_serialNumber_S";
+
+    public static final String COL_NAME_SERIALNUMBER = "X_serialNumber";
+
+    public static final String PROP_NAME_SHORTDESCRIPTION = "shortDescription";
+
+    public static final String SQL_COL_NAME_SHORTDESCRIPTION = "X_shortDescription_S";
+
+    public static final String COL_NAME_SHORTDESCRIPTION = "X_shortDescription";
+
+    public static final String PROP_NAME_STATEPROXY = "stateProxy";
+
+    public static final String SQL_COL_NAME_STATEPROXY = "X_stateProxy_231";
+
+    public static final String COL_NAME_STATEPROXY = "X_stateProxy";
+
+    public static final String PROP_NAME_TEMPLATEENTITY = "templateEntity";
+
+    public static final String SQL_COL_NAME_TEMPLATEENTITY = "X_templateEntity_64";
+
+    public static final String COL_NAME_TEMPLATEENTITY = "X_templateEntity";
+
+    public String getLDTemplateName();
+
+    public void setLDTemplateName(String var1);
+
+    //
     String getLCEquipAccPriv();
-    
-    void setLCEquipAccPriv(String value);
 
-    String getBarcode();
+    void setLCEquipAccPriv(String p0);
 
-    void setBarcode(String value);
+    //
+    String getProcessPackName();
 
-    String getDescription();
+    void setProcessPackName(String p0);
 
-    void setDescription(String value);
 
-    Boolean getDisposable();
+    public String getBarcode();
 
-    void setDisposable(Boolean value);
+    public void setBarcode(String var1);
 
-    IMESChoiceElement getEquipmentLevel();
+    public String getDescription();
 
-    String getEquipmentLevelAsMeaning();
+    public void setDescription(String var1);
 
-    Long getEquipmentLevelAsValue();
+    public Boolean getDisposable();
 
-    void setEquipmentLevel(IMESChoiceElement value);
+    public void setDisposable(Boolean var1);
 
-    void setEquipmentLevelAsMeaning(String value);
+    public IMESChoiceElement getEquipmentLevel();
 
-    void setEquipmentLevelAsValue(Long value);
+    public String getEquipmentLevelAsMeaning();
 
-    IMESChoiceElement getExpiryChgErrBehavior();
+    public Long getEquipmentLevelAsValue();
 
-    String getExpiryChgErrBehaviorAsMeaning();
+    public void setEquipmentLevel(IMESChoiceElement var1);
 
-    Long getExpiryChgErrBehaviorAsValue();
+    public void setEquipmentLevelAsMeaning(String var1);
 
-    void setExpiryChgErrBehavior(IMESChoiceElement value);
+    public void setEquipmentLevelAsValue(Long var1);
 
-    void setExpiryChgErrBehaviorAsMeaning(String value);
+    public IMESChoiceElement getExpiryChgErrBehavior();
 
-    void setExpiryChgErrBehaviorAsValue(Long value);
+    public String getExpiryChgErrBehaviorAsMeaning();
 
-    String getHistorianProvider();
+    public Long getExpiryChgErrBehaviorAsValue();
 
-    void setHistorianProvider(String value);
+    public void setExpiryChgErrBehavior(IMESChoiceElement var1);
 
-    String getIdentifier();
+    public void setExpiryChgErrBehaviorAsMeaning(String var1);
 
-    void setIdentifier(String value);
+    public void setExpiryChgErrBehaviorAsValue(Long var1);
 
-    String getInventoryNumber();
+    public String getHistorianProvider();
 
-    void setInventoryNumber(String value);
+    public void setHistorianProvider(String var1);
 
-    Boolean getIsMigrated();
+    public String getIdentifier();
 
-    void setIsMigrated(Boolean value);
+    public void setIdentifier(String var1);
 
-    Boolean getIsTemplate();
+    public String getInventoryNumber();
 
-    void setIsTemplate(Boolean value);
+    public void setInventoryNumber(String var1);
 
-    ReportDesign getLabelReportDesign();
+    public Boolean getIsMigrated();
 
-    void setLabelReportDesign(ReportDesign value);
+    public void setIsMigrated(Boolean var1);
 
-    Boolean getLogbookEnabled();
+    public Boolean getIsTemplate();
 
-    void setLogbookEnabled(Boolean value);
+    public void setIsTemplate(Boolean var1);
 
-    String getManufacturer();
+    public ReportDesign getLabelReportDesign();
 
-    void setManufacturer(String value);
+    public void setLabelReportDesign(ReportDesign var1);
 
-    Time getManufacturingDate();
+    public Boolean getLogbookEnabled();
 
-    void setManufacturingDate(Time value);
+    public void setLogbookEnabled(Boolean var1);
 
-    IMESChoiceElement getMode();
+    public String getManufacturer();
 
-    String getModeAsMeaning();
+    public void setManufacturer(String var1);
 
-    Long getModeAsValue();
+    public Time getManufacturingDate();
 
-    void setMode(IMESChoiceElement value);
+    public void setManufacturingDate(Time var1);
 
-    void setModeAsMeaning(String value);
+    public IMESChoiceElement getMode();
 
-    void setModeAsValue(Long value);
+    public String getModeAsMeaning();
 
-    String getModel();
+    public Long getModeAsValue();
 
-    void setModel(String value);
+    public void setMode(IMESChoiceElement var1);
 
-    String getOverrideAIServerName();
+    public void setModeAsMeaning(String var1);
 
-    void setOverrideAIServerName(String value);
+    public void setModeAsValue(Long var1);
 
-    String getOverrideHistorianAISrv();
+    public String getModel();
 
-    void setOverrideHistorianAISrv(String value);
+    public void setModel(String var1);
 
-    String getOverrideHistorianASrv();
+    public String getOverrideAIServerName();
 
-    void setOverrideHistorianASrv(String value);
+    public void setOverrideAIServerName(String var1);
 
-    String getOverrideHistorianSrv();
+    public String getOverrideHistorianAISrv();
 
-    void setOverrideHistorianSrv(String value);
+    public void setOverrideHistorianAISrv(String var1);
 
-    String getOverrideLDAreaPath();
+    public String getOverrideHistorianASrv();
 
-    void setOverrideLDAreaPath(String value);
+    public void setOverrideHistorianASrv(String var1);
 
-    IMESS88Equipment getParentEntity();
+    public String getOverrideHistorianSrv();
 
-    void setParentEntity(IMESS88Equipment value);
+    public void setOverrideHistorianSrv(String var1);
 
-    String getSerialNumber();
+    public String getOverrideLDAreaPath();
 
-    void setSerialNumber(String value);
+    public void setOverrideLDAreaPath(String var1);
 
-    String getShortDescription();
+    public IMESS88Equipment getParentEntity();
 
-    void setShortDescription(String value);
+    public void setParentEntity(IMESS88Equipment var1);
 
-    StateProxy getStateProxy();
+    public String getSerialNumber();
 
-    void setStateProxy(StateProxy value);
+    public void setSerialNumber(String var1);
 
-    IMESS88Equipment getTemplateEntity();
+    public String getShortDescription();
 
-    void setTemplateEntity(IMESS88Equipment value);
+    public void setShortDescription(String var1);
+
+    public StateProxy getStateProxy();
+
+    public void setStateProxy(StateProxy var1);
+
+    public IMESS88Equipment getTemplateEntity();
+
+    public void setTemplateEntity(IMESS88Equipment var1);
 }
