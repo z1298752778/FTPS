@@ -66,17 +66,17 @@ public class UserMessageUtility {
                 minute = MeasuredValueUtilities.createMV(criticalTime).getValue().longValue();
             }
             //查询工单
-            String orderSql = "SELECT order_item_name ,convert (nvarchar ,X_plannedStartDate_T,120)planTime,\n" +
-                    "convert(nvarchar ,GETDATE(),120) nowDate , t5.master_recipe_name ,t1.part_number ,\n" +
-                    "t6.description ,t7.batch_name from PROCESSORDERITEM_UV t1 \n" +
-                    "join OBJECT_STATE t2 on t1.order_item_key = object_key and t2.object_type = 112\n" +
-                    "join STATE t3 on t2.state_key = t3.state_key \n" +
-                    "join CONTROL_RECIPE t4 on t1.order_item_key = t4.order_item_key \n" +
-                    "join MASTER_RECIPE t5 on t4.master_recipe_key = t5.master_recipe_key \n" +
-                    "join PART t6 on t1.part_number = t6.part_number \n" +
-                    "left join BATCH t7 on t1.X_batch_105 = batch_key \n" +
-                    "where t3.state_name = 'Released' \n" +
-                    "and  (t1.X_plannedStartDate_T > GETDATE()) \n" +
+            String orderSql = "SELECT order_item_name ,convert (nvarchar ,X_plannedStartDate_T,120)planTime," +
+                    "convert(nvarchar ,GETDATE(),120) nowDate , t5.master_recipe_name ,t1.part_number ," +
+                    "t6.description ,t7.batch_name from PROCESSORDERITEM_UV t1 " +
+                    "join OBJECT_STATE t2 on t1.order_item_key = object_key and t2.object_type = 112" +
+                    "join STATE t3 on t2.state_key = t3.state_key " +
+                    "join CONTROL_RECIPE t4 on t1.order_item_key = t4.order_item_key " +
+                    "join MASTER_RECIPE t5 on t4.master_recipe_key = t5.master_recipe_key " +
+                    "join PART t6 on t1.part_number = t6.part_number " +
+                    "left join BATCH t7 on t1.X_batch_105 = batch_key " +
+                    "where t3.state_name = 'Released' " +
+                    "and  (t1.X_plannedStartDate_T > GETDATE()) " +
                     "and (dateadd(MINUTE, " + -minute + ", t1.X_plannedStartDate_T) <= getdate())";
             //添加处方对象条件
             if (codeName != null) {
@@ -155,15 +155,15 @@ public class UserMessageUtility {
                 finishedTime = messages.get(0)[0];
             }
             //查询满足条件工单
-            String orderSql = "SELECT order_item_name ,convert (nvarchar ,X_actualFinishDate_T,120) finishTime,\n" +
-                    " t5.master_recipe_name ,t1.part_number ,\n" +
-                    " t6.description ,t7.batch_name from PROCESSORDERITEM_UV t1 \n" +
-                    " join OBJECT_STATE t2 on t1.order_item_key = object_key and t2.object_type = 112\n" +
-                    " join STATE t3 on t2.state_key = t3.state_key \n" +
-                    " join CONTROL_RECIPE t4 on t1.order_item_key = t4.order_item_key \n" +
-                    " join MASTER_RECIPE t5 on t4.master_recipe_key = t5.master_recipe_key \n" +
-                    " join PART t6 on t1.part_number = t6.part_number \n" +
-                    " left join BATCH t7 on t1.X_batch_105 = batch_key \n" +
+            String orderSql = "SELECT order_item_name ,convert (nvarchar ,X_actualFinishDate_T,120) finishTime," +
+                    " t5.master_recipe_name ,t1.part_number ," +
+                    " t6.description ,t7.batch_name from PROCESSORDERITEM_UV t1 " +
+                    " join OBJECT_STATE t2 on t1.order_item_key = object_key and t2.object_type = 112" +
+                    " join STATE t3 on t2.state_key = t3.state_key " +
+                    " join CONTROL_RECIPE t4 on t1.order_item_key = t4.order_item_key " +
+                    " join MASTER_RECIPE t5 on t4.master_recipe_key = t5.master_recipe_key " +
+                    " join PART t6 on t1.part_number = t6.part_number " +
+                    " left join BATCH t7 on t1.X_batch_105 = batch_key " +
                     " where t3.state_name = 'Finished' ";
             //添加处方对象条件
             if (!isEmptyStr(codeName)) {
@@ -240,7 +240,8 @@ public class UserMessageUtility {
             //查询满足条件的用户
             String userSql = "select user_name,first_name + last_name name," +
                     " convert (nvarchar ,password_expiration,120) password_expiration" +
-                    " from APP_USER where status != 'Disable' " +
+                    " from APP_USER where status = 'Normal' " +
+                    " and password_expiration > getdate()" +
                     " and dateadd(MINUTE, " + -minute + ", password_expiration) <= getdate()";
             List<String[]> userInfos = functions.getArrayDataFromActive(userSql);
             if (userInfos.size() == 0) {
@@ -252,7 +253,7 @@ public class UserMessageUtility {
                 String passwordExpiration = userInfo[2];
                 //查询满足条件工单
                 String messageSql = "select atr_key from AT_LC_UserMessage where messageType_I = 30 " +
-                        " and planTime_T <= getdate() and triggerObject_S = '" + userNumber +"'";
+                        " and planTime_T > getdate() and triggerObject_S = '" + userNumber +"'";
                 List<String[]> messageInfos = functions.getArrayDataFromActive(messageSql);
                 if (messageInfos.size() != 0) {
                     continue;
@@ -261,7 +262,7 @@ public class UserMessageUtility {
                 //拼接消息提醒
                 String message = getMessageStr("MessageInfo_passwordExpirationMessage");
                 message = message.replace("{1}", userNumber);
-                message = message.replace("{2}", userName);
+                message = message.replace("{2}", userName == null ? "null" : customMessage );
                 message = message.replace("{3}", passwordExpiration);
                 message = message.replace("{4}", customMessage == null ? "" :"," + customMessage);
 
@@ -307,12 +308,13 @@ public class UserMessageUtility {
             }
 
             //查询满足条件的批次
-            String materialSql = "select t2.part_number ,t2.description ,t1.batch_name,convert (nvarchar ,t1.expiration_time,120),\n" +
-                    " DATEDIFF(DAY,getdate(),t1.expiration_time) expirationDay from BATCH_UV  t1 \n" +
-                    " join PART t2 on t1.part_key  = t2.part_key \n" +
-                    " join OBJECT_STATE t3 on t1.batch_key = t3.object_key \n" +
-                    " join STATE t4 on t3.state_key = t4.state_key and t3.object_type = 105\n" +
-                    " where t4.state_name = 'Released' \n" +
+            String materialSql = "select t2.part_number ,t2.description ,t1.batch_name,convert (nvarchar ,t1.expiration_time,120)," +
+                    " DATEDIFF(DAY,getdate(),t1.expiration_time) expirationDay from BATCH_UV  t1 " +
+                    " join PART t2 on t1.part_key  = t2.part_key " +
+                    " join OBJECT_STATE t3 on t1.batch_key = t3.object_key " +
+                    " join STATE t4 on t3.state_key = t4.state_key and t3.object_type = 105" +
+                    " where t4.state_name = 'Released' " +
+                    " and expiration_time > getdate()" +
                     " and (dbo.raMVNumeric(t1.quantity) is not null and dbo.raMVNumeric(t1.quantity) != 0)" +
                     " and dateadd(MINUTE, " + -minute + ", t1.expiration_time) <= getdate()";
 
@@ -423,7 +425,7 @@ public class UserMessageUtility {
                 String exceptionRoute = getExceptionRoute(ctxName,ctxKey);
 
                 //拼接消息提醒
-                String message = getMessageStr("MessageInfo_ExceptionAlarmMessage");
+                String message = getMessageStr("MessageInfo_exceptionAlarmMessage");
                 message = message.replace("{1}", exceptionRoute);
                 message = message.replace("{2}", description);
                 message = message.replace("{3}", customMessage == null ? "" :"," +  customMessage);
@@ -471,11 +473,11 @@ public class UserMessageUtility {
                 minute = MeasuredValueUtilities.createMV(criticalTime).getValue().longValue();
             }
 
-            String equSql = "select t1.X_identifier_S from AT_X_S88Equipment t1\n" +
-                    " join OBJECT_STATE t2 on t1.X_stateProxy_231 = t2.object_key \n" +
-                    " join STATE t3 on t2.state_key = t3.state_key \n" +
-                    " join FSM t4 on t2.fsm_key = t4.fsm_key and t4.fsm_name = 'S88EquipmentEntityStatusGraph'\n" +
-                    " where t3.state_name = 'Approved'\n" ;
+            String equSql = "select t1.X_identifier_S from AT_X_S88Equipment t1" +
+                    " join OBJECT_STATE t2 on t1.X_stateProxy_231 = t2.object_key " +
+                    " join STATE t3 on t2.state_key = t3.state_key " +
+                    " join FSM t4 on t2.fsm_key = t4.fsm_key and t4.fsm_name = 'S88EquipmentEntityStatusGraph'" +
+                    " where t3.state_name = 'Approved'" ;
             //设备对应状态转换
             Map<String,List<String>> equipStatusModels = new HashMap<>();
             //若消息代码不为空则查询单个设备状态，否则查询所有设备
@@ -507,11 +509,11 @@ public class UserMessageUtility {
                 }
                 for (String[] equipment: equipments){
                     String equipmentId = equipment[0];
-                    String statuModelSql = "select t4.X_identifier_S \n" +
-                            " from AT_X_S88Equipment t1\n" +
-                            " join AT_X_S88StatusGraphAssignment t2 on t1.atr_key = t2.X_equipmentEntity_64 \n" +
-                            " join AT_X_S88StatusGraphState t3 on t2.X_currentState_64 = t3.atr_key\n" +
-                            " join AT_X_S88StatusGraph t4 on t4.atr_key = t3.X_statusGraph_64 \n" +
+                    String statuModelSql = "select t4.X_identifier_S " +
+                            " from AT_X_S88Equipment t1" +
+                            " join AT_X_S88StatusGraphAssignment t2 on t1.atr_key = t2.X_equipmentEntity_64 " +
+                            " join AT_X_S88StatusGraphState t3 on t2.X_currentState_64 = t3.atr_key" +
+                            " join AT_X_S88StatusGraph t4 on t4.atr_key = t3.X_statusGraph_64 " +
                             " where t1.X_identifier_S = N'" + equipmentId + "'";
                     List<String[]> statuModels = functions.getArrayDataFromActive(statuModelSql);
                     if (statuModels.size() == 0) {
@@ -565,7 +567,7 @@ public class UserMessageUtility {
                     //拼接消息提醒
                     String message = getMessageStr("MessageInfo_equipmentExpirationMessage");
                     message = message.replace("{1}", equipId);
-                    message = message.replace("{2}", shortDescription);
+                    message = message.replace("{2}", shortDescription == null ? "null" : shortDescription);
                     message = message.replace("{3}", statusModelName);
                     message = message.replace("{4}", expiryDateDay);
                     message = message.replace("{5}", customMessage == null ? "" :"," +  customMessage);
@@ -616,17 +618,17 @@ public class UserMessageUtility {
             //若消息代码不为空则查询单个设备类下的设备，否则所有设备类下的设备
             if(!isEmptyStr(codeName)){
                 //查询模板中配置的设备类下的批准的设备
-                String equClassSql = "select t3.X_identifier_S ,t1.X_identifier_S  from AT_X_S88EquipmentClass t1\n" +
-                        " join AT_X_S88EquClass2Equipment t2 on t1.atr_key = t2.X_equipmentClass_64 \n" +
-                        " join AT_X_S88Equipment t3 on t2.X_equipment_64 = t3.atr_key \n" +
-                        " join OBJECT_STATE t4 on t3.X_stateProxy_231 = t4.object_key \n" +
-                        " join STATE t5 on t4.state_key = t5.state_key \n" +
-                        " join FSM t6 on t4.fsm_key = t6.fsm_key and t6.fsm_name = 'S88EquipmentEntityStatusGraph'\n" +
-                        " join OBJECT_STATE t7 on t1.X_stateProxy_231 = t7.object_key \n" +
-                        " join STATE t8 on t7.state_key = t8.state_key \n" +
-                        " join FSM t9 on t8.fsm_key = t9.fsm_key and t9.fsm_name = 'S88EquipmentClassStatusGraph'\n" +
-                        " where t5.state_name = 'Approved'\n" +
-                        " and t8.state_name = 'Approved'\n"+
+                String equClassSql = "select t3.X_identifier_S ,t1.X_identifier_S  from AT_X_S88EquipmentClass t1" +
+                        " join AT_X_S88EquClass2Equipment t2 on t1.atr_key = t2.X_equipmentClass_64 " +
+                        " join AT_X_S88Equipment t3 on t2.X_equipment_64 = t3.atr_key " +
+                        " join OBJECT_STATE t4 on t3.X_stateProxy_231 = t4.object_key " +
+                        " join STATE t5 on t4.state_key = t5.state_key " +
+                        " join FSM t6 on t4.fsm_key = t6.fsm_key and t6.fsm_name = 'S88EquipmentEntityStatusGraph'" +
+                        " join OBJECT_STATE t7 on t1.X_stateProxy_231 = t7.object_key " +
+                        " join STATE t8 on t7.state_key = t8.state_key " +
+                        " join FSM t9 on t8.fsm_key = t9.fsm_key and t9.fsm_name = 'S88EquipmentClassStatusGraph'" +
+                        " where t5.state_name = 'Approved'" +
+                        " and t8.state_name = 'Approved'"+
                         " and t1.X_identifier_S = N'" + codeName + "'";
                 List<String[]> equipments = functions.getArrayDataFromActive(equClassSql);
                 if (equipments.size() == 0) {
@@ -680,7 +682,7 @@ public class UserMessageUtility {
                         //拼接消息提醒
                         String message = getMessageStr("MessageInfo_equipmentExpirationMessage");
                         message = message.replace("{1}", equipId);
-                        message = message.replace("{2}", shortDescription);
+                        message = message.replace("{2}", shortDescription == null ? "null" : shortDescription);
                         message = message.replace("{3}", statusModelName);
                         message = message.replace("{4}", expiryDateDay);
                         message = message.replace("{5}", customMessage == null ? "" :"," +  customMessage);
@@ -702,9 +704,9 @@ public class UserMessageUtility {
                 }
 
             }else {
-                String equClassStatusSql = "select t1.X_identifier_S ,t3.X_identifier_S \n" +
-                        " from AT_X_S88EquipmentClass t1\n" +
-                        " join AT_X_S88StatusGraphAssignment t2 on t1.atr_key = t2.X_equipmentClass_64 \n" +
+                String equClassStatusSql = "select t1.X_identifier_S ,t3.X_identifier_S " +
+                        " from AT_X_S88EquipmentClass t1" +
+                        " join AT_X_S88StatusGraphAssignment t2 on t1.atr_key = t2.X_equipmentClass_64 " +
                         " join AT_X_S88StatusGraph t3 on t3.atr_key = t2.X_statusGraph_64 " ;
                 //查询所有设备类下的设备
                 List<String[]> equipmentClassStatus = functions.getArrayDataFromActive(equClassStatusSql);
@@ -714,17 +716,17 @@ public class UserMessageUtility {
                 for (String[] classStatus: equipmentClassStatus) {
                     String equipmentClassId = classStatus[0];
                     String statusModel = classStatus[1];
-                    String equClassSql = "select t3.X_identifier_S from AT_X_S88EquipmentClass t1\n" +
-                                " join AT_X_S88EquClass2Equipment t2 on t1.atr_key = t2.X_equipmentClass_64 \n" +
-                                " join AT_X_S88Equipment t3 on t2.X_equipment_64 = t3.atr_key \n" +
-                                " join OBJECT_STATE t4 on t3.X_stateProxy_231 = t4.object_key \n" +
-                                " join STATE t5 on t4.state_key = t5.state_key \n" +
-                                " join FSM t6 on t4.fsm_key = t6.fsm_key and t6.fsm_name = 'S88EquipmentEntityStatusGraph'\n" +
-                                " join OBJECT_STATE t7 on t1.X_stateProxy_231 = t7.object_key \n" +
-                                " join STATE t8 on t7.state_key = t8.state_key \n" +
-                                " join FSM t9 on t8.fsm_key = t9.fsm_key and t9.fsm_name = 'S88EquipmentClassStatusGraph'\n" +
-                                " where t5.state_name = 'Approved'\n" +
-                                " and t8.state_name = 'Approved'\n"+
+                    String equClassSql = "select t3.X_identifier_S from AT_X_S88EquipmentClass t1" +
+                                " join AT_X_S88EquClass2Equipment t2 on t1.atr_key = t2.X_equipmentClass_64 " +
+                                " join AT_X_S88Equipment t3 on t2.X_equipment_64 = t3.atr_key " +
+                                " join OBJECT_STATE t4 on t3.X_stateProxy_231 = t4.object_key " +
+                                " join STATE t5 on t4.state_key = t5.state_key " +
+                                " join FSM t6 on t4.fsm_key = t6.fsm_key and t6.fsm_name = 'S88EquipmentEntityStatusGraph'" +
+                                " join OBJECT_STATE t7 on t1.X_stateProxy_231 = t7.object_key " +
+                                " join STATE t8 on t7.state_key = t8.state_key " +
+                                " join FSM t9 on t8.fsm_key = t9.fsm_key and t9.fsm_name = 'S88EquipmentClassStatusGraph'" +
+                                " where t5.state_name = 'Approved'" +
+                                " and t8.state_name = 'Approved'"+
                                 " and t1.X_identifier_S = N'" + equipmentClassId + "'";
                         List<String[]> equipments = functions.getArrayDataFromActive(equClassSql);
                         if (equipments.size() == 0) {
@@ -920,8 +922,8 @@ public class UserMessageUtility {
                     " join AT_X_RtProcedure t5 on t5.atr_key = t4.X_parent_64" +
                     " join CONTROL_RECIPE t6 on t5.X_controlRecipe_113 = t6.control_recipe_key" +
                     " join PROCESS_ORDER_ITEM t7 on t7.order_item_key = t6.order_item_key" +
-                    " join AT_X_Phase t8 on t2.X_phase_64 = t8.atr_key \n" +
-                    " join AT_X_Operation t9 on t3.X_operation_64 = t9.atr_key \n" +
+                    " join AT_X_Phase t8 on t2.X_phase_64 = t8.atr_key " +
+                    " join AT_X_Operation t9 on t3.X_operation_64 = t9.atr_key " +
                     " join AT_X_UnitProcedure t10 on t4.X_unitProcedure_64 = t10.atr_key " +
                     " where t1.X_ctxName_S = '"+ ctxName + "'" +
                     " and t1.X_ctxKey_I = " + ctxKey ;
@@ -940,7 +942,7 @@ public class UserMessageUtility {
                     " join AT_X_RtProcedure t5 on t5.atr_key = t4.X_parent_64" +
                     " join CONTROL_RECIPE t6 on t5.X_controlRecipe_113 = t6.control_recipe_key" +
                     " join PROCESS_ORDER_ITEM t7 on t7.order_item_key = t6.order_item_key" +
-                    " join AT_X_Operation t9 on t3.X_operation_64 = t9.atr_key \n" +
+                    " join AT_X_Operation t9 on t3.X_operation_64 = t9.atr_key " +
                     " join AT_X_UnitProcedure t10 on t4.X_unitProcedure_64 = t10.atr_key " +
                     " where t1.X_ctxName_S = '"+ ctxName + "'" +
                     " and t1.X_ctxKey_I = " + ctxKey ;
@@ -988,7 +990,7 @@ public class UserMessageUtility {
      * @return 模板对象集合
      */
     public static List<String[]> getMessageTemplates(int type) {
-        String sql = "SELECT messageId_S ,codeName_S ,customMessage_S ,userGroup_S ,user_S ,criticalTime_V \n" +
+        String sql = "SELECT messageId_S ,codeName_S ,customMessage_S ,userGroup_S ,user_S ,criticalTime_V " +
                 ",templateType_I FROM AT_LC_MessageTemplate where templateType_I = " + type + " and status_Y = 1";
         List<String[]> messageTemplates = functions.getArrayDataFromActive(sql);
         return messageTemplates;
