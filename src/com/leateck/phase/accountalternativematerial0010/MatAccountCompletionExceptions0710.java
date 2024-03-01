@@ -341,6 +341,24 @@ public class MatAccountCompletionExceptions0710 extends PhaseSystemTriggeredExce
 
                 List<ResultSet> limitPlanned = new ArrayList<>();//保存消耗量到计划量
                 List<ResultSet> limitPlannedRange = new ArrayList<>();//保存消耗量到计划量范围
+
+                //判断是否有主料，如果有主料，并且主料有替换，替换物料不判断是否有消耗
+                List<IMESMaterialParameter> materialParameters1 = exceptions.executor.getPhase().getMaterialParameters();
+                //获取该物料是否设置为主料
+                List<IMESMaterialParameter> matParamList1 = materialParameters1.stream()
+                        .filter(p -> p.getATRow().getValue("LC_isMainPart") != null
+                                && (Boolean) p.getATRow().getValue("LC_isMainPart")).collect(Collectors.toList());
+                //如果当前配置了主料
+                if (matParamList1.size() > 0 ){
+                    Iterator<ResultSet> iterator = result.iterator();
+                    while (iterator.hasNext()){
+                        ResultSet resultSet = iterator.next();
+                        if (null == resultSet.consumedQuantity){
+                            iterator.remove();
+                        }
+                    }
+                }
+
                 for (ResultSet resultSet :result){
                     List<IMESMaterialParameter> materialParameters = exceptions.executor.getPhase().getMaterialParameters();
                     OrderStepInput orderStepInput = resultSet.orderStepInput;
@@ -522,9 +540,12 @@ public class MatAccountCompletionExceptions0710 extends PhaseSystemTriggeredExce
                         AccountMaterialDAO0710 accountMaterialDAO0710 = materialList.get(index);
                         //获取设置上下值，判断物料平衡是否超限
                         double overLimit = isOverLimit(materialAndBalance[0] , executor,accountMaterialDAO0710);
-                        if (overLimit == -1.0) {
+                        if (overLimit == -1.0) {//配置的物料平衡参数不对
                             isOK = 2;
                             return false;
+                        }
+                        if (overLimit == -2.0) {//主料物料，校验通过
+                            continue;
                         }
                         //物料平衡不在范围
                         if (upperLimit.compareTo(BigDecimal.valueOf(overLimit)) < 0  || lowerLimit.compareTo(BigDecimal.valueOf(overLimit)) > 0){
@@ -590,6 +611,9 @@ public class MatAccountCompletionExceptions0710 extends PhaseSystemTriggeredExce
                     AccountMaterialDAO0710 accountMaterialDAO0710 = materialList.get(index);
                     //获取设置上下值，判断物料平衡是否超限
                     double overLimit = isOverLimit(materialAndBalance[0] , exceptions.executor,accountMaterialDAO0710);
+                    if(overLimit == -1.0 || overLimit == -2.0){
+                        continue;
+                    }
                     //物料平衡不在范围
                     if (upperLimit.compareTo(BigDecimal.valueOf(overLimit)) < 0  || lowerLimit.compareTo(BigDecimal.valueOf(overLimit)) > 0){
                         //存入集合
@@ -634,11 +658,25 @@ public class MatAccountCompletionExceptions0710 extends PhaseSystemTriggeredExce
 
                 //是否识别了物料
                 if (accountMaterialDAO0710.getIdentifiedQtyMV() == null  || "".equals(accountMaterialDAO0710.getIdentifiedQtyMV())) {
-                    //没有识别数量
-                    PhaseErrorDialog phaseErrorDialog = new PhaseErrorDialog();
-                    phaseErrorDialog.showDialog(LcAccountMaterialDAO0710.MSG_PACK,"MaterialBalanceNotIden_Error");
+                    //获取所有的物料
+                    List<IMESMaterialParameter> materialParameters1 = executor.getPhase().getMaterialParameters();
+                    //判断是否有主料
+                    List<IMESMaterialParameter> matParamList1 = materialParameters1.stream()
+                            .filter(p -> p.getATRow().getValue("LC_isMainPart") != null
+                                    && (Boolean) p.getATRow().getValue("LC_isMainPart")).collect(Collectors.toList());
+                    //配置了主料，校验通过
+                    if(matParamList1.size() > 0){
+/*                        List<IMESMaterialParameter> collect = matParamList1.stream().filter(p -> p.getMaterial().getPartNumber() == accountMaterialDAO0710.getMaterialID()).collect(Collectors.toList());
+                        if(collect.size() < 0)*/
+                        return -2.0;
+                    }else {
+                        //没有识别数量
+                        PhaseErrorDialog phaseErrorDialog = new PhaseErrorDialog();
+                        phaseErrorDialog.showDialog(LcAccountMaterialDAO0710.MSG_PACK,"MaterialBalanceNotIden_Error");
 
-                    return -1.0;
+                        return -1.0;
+                    }
+
                 }
                 try {
                     selfAndReplaceConsumedQty = getSelfAndReplaceConsumedQty(osi, allMasterOSIs, materialParameters);

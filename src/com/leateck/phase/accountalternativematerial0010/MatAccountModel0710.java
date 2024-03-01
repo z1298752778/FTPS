@@ -492,7 +492,7 @@ public class MatAccountModel0710 extends MaterialModel0710<AccountMaterialDAO071
             IMESLCLossQtyAccountCon imeslcLossQtyAccountCon = filterLossQtyAccountCon(sublot.getSublot(), executor.getPhase().getKey());
             IMeasuredValue wastedQuantity = osiSublot.getWastedQuantity();
             //如果有，废弃量-损耗量
-            if(imeslcLossQtyAccountCon != null){
+            if(imeslcLossQtyAccountCon != null && wastedQuantity!= null){
                 wastedQuantity = wastedQuantity.subtract(imeslcLossQtyAccountCon.getLossQty());
             }
             setQuantityInMaterialRow(defaultUoM, sublot, wastedQuantity, AccountType.WASTED);
@@ -501,6 +501,7 @@ public class MatAccountModel0710 extends MaterialModel0710<AccountMaterialDAO071
                 sublot.setQtyMV(AccountType.RETURNED, MeasuredValueUtilities.subtract(identifiedQty, osiSublot.getAccountedQuantity(), converter));
             }
         } catch (Exception exc) {
+
             ProductPhaseSwingHelper.showErrorDlg(exc.getLocalizedMessage());
         }
 
