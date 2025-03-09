@@ -18,8 +18,8 @@ public class BOMTreeTableActivity extends ActivityControl {
 
 
     final int LABEL_WIDTH = 100;
-    final int EDIT_WIDTH = 200;
-    final int TESTGUI_HEIGHT = 50;
+    final int EDIT_WIDTH = 100;
+    final int TESTGUI_HEIGHT = 20;
 
     public static final String COLUMN_NAMES = "ColumnNames";
     public static final String DATA_SOURCE = "DataSource";
@@ -45,7 +45,20 @@ public class BOMTreeTableActivity extends ActivityControl {
         return null;
     }
 
+    @Override
+    protected void configurationItemSet(String s, Object o) {
 
+    }
+
+    @Override
+    protected void configurationLoaded() {
+
+    }
+
+    @Override
+    protected String[] getActivityEvents() {
+        return new String[0];
+    }
 
 
     @Override
@@ -70,6 +83,11 @@ public class BOMTreeTableActivity extends ActivityControl {
 
 
     @Override
+    public ItemDescriptor[] configurationDescriptors() {
+        return new ItemDescriptor[0];
+    }
+
+    @Override
     public ItemDescriptor[] inputDescriptors() {
         return new ItemDescriptor[0];
     }
@@ -90,13 +108,7 @@ public class BOMTreeTableActivity extends ActivityControl {
         setGridLayoutRows(0);
         setControlSize(this, LABEL_WIDTH + EDIT_WIDTH, 4 * TESTGUI_HEIGHT);
 
-        treeTable = new JXTreeTable(new BomTreeTableModel(null));
-        JPanel jpanel = new JPanel();
-//        JTextField jTest = new JTextField();
-//        jTest.setText("测试");
-        jpanel.add(treeTable);
-        SwingWrapperPanel swingWrapperPanel = new SwingWrapperPanel(jpanel,true);
-        add(swingWrapperPanel);
+        add(getSwingWrapperPanel());
         // Add GUI components.
 //        add(getEditInput());
 //        add(new BOMTreeTableActivity);
@@ -105,57 +117,94 @@ public class BOMTreeTableActivity extends ActivityControl {
 
     }
 
-
-    // 配置项声明
-    @Override
-    public ItemDescriptor[] configurationDescriptors() {
-        return new ItemDescriptor[]{
-                new ItemDescriptor(COLUMN_NAMES, BOMTreeTableActivity.class, String[].class),
-                new ItemDescriptor(AUTO_EXPAND, BOMTreeTableActivity.class, Boolean.class)
-        };
-    }
-
-    // 配置项更新处理
-    @Override
-    protected void configurationItemSet(String key, Object value) {
-        switch (key) {
-            case COLUMN_NAMES:
-                updateColumnHeaders((String[]) value);
-                break;
-            case AUTO_EXPAND:
-                if (Boolean.TRUE.equals(value)) {
-//                    (JXTreeTable)value.expandAll();
-                }
-                break;
+    private Edit getEditInput()
+    {
+        String internalName = getBaseName() + "test";
+        Edit edit = (Edit) findActivityControl(internalName);
+        // Only create the edit field if it is not already on the activity.
+        if (edit == null)
+        {
+            edit = new Edit();
+            setControlSize(edit, EDIT_WIDTH, TESTGUI_HEIGHT);
+            edit.setName(edit.getBaseName() + "test");
+            edit.setActivityName(internalName);
+//            edit.addCComponentEventListener(this);
         }
+        return edit;
     }
 
-    private void updateColumnHeaders(String[] value) {
+    private SwingWrapperPanel getSwingWrapperPanel()
+    {
 
+        treeTable =   new BOMSwingXDemo().getBOMSwingXDemo();
+        JPanel jpanel = new JPanel();
+        JTextField jTest = new JTextField();
+        jTest.setText("11232312ss");
+        jpanel.add(jTest);
+        SwingWrapperPanel swingWrapperPanel = new SwingWrapperPanel(jpanel,false);
+        add(swingWrapperPanel);
+
+        String internalName = getBaseName() + "1";
+        // Only create the edit field if it is not already on the activity.
+            setControlSize(swingWrapperPanel, EDIT_WIDTH, TESTGUI_HEIGHT);
+        swingWrapperPanel.setName(swingWrapperPanel.getBaseName() + "1");
+        swingWrapperPanel.setActivityName(internalName);
+//            edit.addCComponentEventListener(this);
+        return swingWrapperPanel;
     }
 
-    // 配置加载完成
-    @Override
-    protected void configurationLoaded() {
-        if (configurationItems.containsKey(COLUMN_NAMES)) {
-            updateColumnHeaders((String[]) configurationItems.get(COLUMN_NAMES));
-        }
-//        if (configurationItems.containsKey(DATA_SOURCE)) {
-//            loadDataFromSource((DatabaseConfig) configurationItems.get(DATA_SOURCE));
+
+//
+//    // 配置项声明
+//    @Override
+//    public ItemDescriptor[] configurationDescriptors() {
+//        return new ItemDescriptor[]{
+//                new ItemDescriptor(COLUMN_NAMES, BOMTreeTableActivity.class, String[].class),
+//                new ItemDescriptor(AUTO_EXPAND, BOMTreeTableActivity.class, Boolean.class)
+//        };
+//    }
+//
+//    // 配置项更新处理
+//    @Override
+//    protected void configurationItemSet(String key, Object value) {
+//        switch (key) {
+//            case COLUMN_NAMES:
+//                updateColumnHeaders((String[]) value);
+//                break;
+//            case AUTO_EXPAND:
+//                if (Boolean.TRUE.equals(value)) {
+////                    (JXTreeTable)value.expandAll();
+//                }
+//                break;
 //        }
-    }
-
-
-
-    // 声明支持的事件类型
-    @Override
-    protected String[] getActivityEvents() {
-        return new String[]{
-                NODE_SELECTED_EVENT,
-                DATA_LOADED_EVENT,
-                TREE_EXPANDED_EVENT
-        };
-    }
+//    }
+//
+//    private void updateColumnHeaders(String[] value) {
+//
+//    }
+//
+//    // 配置加载完成
+//    @Override
+//    protected void configurationLoaded() {
+////        if (configurationItems.containsKey(COLUMN_NAMES)) {
+////            updateColumnHeaders((String[]) configurationItems.get(COLUMN_NAMES));
+////        }
+////        if (configurationItems.containsKey(DATA_SOURCE)) {
+////            loadDataFromSource((DatabaseConfig) configurationItems.get(DATA_SOURCE));
+////        }
+//    }
+//
+//
+//
+//    // 声明支持的事件类型
+//    @Override
+//    protected String[] getActivityEvents() {
+//        return new String[]{
+//                NODE_SELECTED_EVENT,
+//                DATA_LOADED_EVENT,
+//                TREE_EXPANDED_EVENT
+//        };
+//    }
 
 }
 

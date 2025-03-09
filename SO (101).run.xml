@@ -3,7 +3,7 @@
     <option name="ALTERNATIVE_JRE_PATH" value="C:\Program Files\Java\jdk1.8.0_144\jre" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <option name="MAIN_CLASS_NAME" value="com.datasweep.compatibility.runtime.Runtime" />
-    <module name="MPS" />
+    <module name="FTPS" />
     <option name="PROGRAM_PARAMETERS" value="remote+http://192.168.1.101:8080 http://192.168.1.101:8080 http://192.168.1.101:8080/PlantOpsDownloads" />
     <shortenClasspath name="MANIFEST" />
     <option name="VM_PARAMETERS" value="-Xmx1024M -Dcom.datasweep.plantops.j2eevendor=JBoss -Djboss-ejb-client.reconnectOnAuthenticationFailures=false -Dsun.locale.formatasdefault=true -Djava.net.preferIPv4Stack=true -Dorg.apache.activemq.SERIALIZABLE_PACKAGES=* -DuiDefaultButtonFollowFocus=false" />
