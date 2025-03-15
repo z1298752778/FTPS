@@ -112,6 +112,7 @@ public class SimpleTreeTable extends JFrame {
         for (Node node : nodes) {
             currentRow = traverseNodes(node, currentRow, targetRow, path);
             if (currentRow >= targetRow) break;
+
         }
         return path.get(path.size()-1);
     }
@@ -120,8 +121,8 @@ public class SimpleTreeTable extends JFrame {
     private int traverseNodes(Node node, int currentRow, int targetRow, List<Node> path) {
         path.add(node);
         currentRow++;
-        if (currentRow == targetRow) return currentRow;
-
+        if (currentRow == targetRow)
+            return currentRow;
         if (node.expanded) {
             for (Node child : node.children) {
                 currentRow = traverseNodes(child, currentRow, targetRow, path);
@@ -129,6 +130,7 @@ public class SimpleTreeTable extends JFrame {
                 path.remove(child);
             }
         }
+        System.out.println("currentRow: " + currentRow + ", targetRow: " + targetRow);
         return currentRow;
     }
 
